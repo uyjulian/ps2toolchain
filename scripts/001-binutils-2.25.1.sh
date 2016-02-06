@@ -1,35 +1,39 @@
-#!/bin/sh
-# binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
+#!/bin/bash
+# binutils-2.25.1.sh by SP193 (ysai187@yahoo.com)
+# Originally binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
+# There is no support for the "dvp" because I never worked with it
+# and don't actually understand why the old changes were necessary.
 
- BIN_VERSION=2.14
- EE_BIN_VERSION=2.25.1
+ BINUTILS_VERSION=2.25.1
  ## Download the source code.
- SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BIN_VERSION.tar.bz2
- wget --continue $SOURCE || { exit 1; }
- SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$EE_BIN_VERSION.tar.bz2
+ SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.bz2
  wget --continue $SOURCE || { exit 1; }
 
  ## Unpack the source code.
- echo Decompressing Binutils $BIN_VERSION. Please wait.
- rm -Rf binutils-$BIN_VERSION && tar xfj binutils-$BIN_VERSION.tar.bz2 || { exit 1; }
- echo Decompressing Binutils $EE_BIN_VERSION. Please wait.
- rm -Rf binutils-$EE_BIN_VERSION && tar xfj binutils-$EE_BIN_VERSION.tar.bz2 || { exit 1; }
+ echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
+ rm -Rf binutils-$BINUTILS_VERSION && tar xfj binutils-$BINUTILS_VERSION.tar.bz2 || { exit 1; }
 
  ## Enter the source directory and patch the source code.
- cd binutils-$BIN_VERSION || { exit 1; }
- if [ -e ../../patches/binutils-$BIN_VERSION-PS2.patch ]; then
- 	cat ../../patches/binutils-$BIN_VERSION-PS2.patch | patch -p1 || { exit 1; }
+ cd binutils-$BINUTILS_VERSION || { exit 1; }
+ if [ -e ../../patches/binutils-$BINUTILS_VERSION-PS2.patch ]; then
+ 	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
  fi
- cat ../../patches/binutils-2.14-disable-makeinfo-when-texinfo-is-too-new.patch | patch -p0 || { exit 1; }
+
+ target_names=("ee" "iop")
+ targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx")
+ extra_opts=("--with-float=hard" "")
 
  ## For each target...
- for TARGET in "iop" "dvp"; do
+ for ((i=0; i<${#target_names[@]}; i++)); do
+  TARG_NAME=${target_names[i]}
+  TARGET=${targets[i]}
+  TARG_XTRA_OPTS=${extra_opts[i]}
 
   ## Create and enter the build directory.
-  mkdir build-$TARGET && cd build-$TARGET || { exit 1; }
+  mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
   ## Configure the build.
-  CFLAGS="-O0" ../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
+  ../configure --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" --program-prefix="$TARG_NAME-" $TARG_XTRA_OPTS || { exit 1; }
 
   ## Compile and install.
   make clean && make -j 2 && make install && make clean || { exit 1; }
@@ -39,30 +43,3 @@
 
  ## End target.
  done
-
- cd ..
-
- ## Enter the source directory and patch the source code.
- cd binutils-$EE_BIN_VERSION || { exit 1; }
- if [ -e ../../patches/binutils-$EE_BIN_VERSION-PS2.patch ]; then
- 	cat ../../patches/binutils-$EE_BIN_VERSION-PS2.patch | patch -p1 || { exit 1; }
- fi
-
- ## For each target...
- for TARGET in "ee"; do
-
-  ## Create and enter the build directory.
-  mkdir build-$TARGET && cd build-$TARGET || { exit 1; }
-
-  ## Configure the build.
-  ../configure --prefix="$PS2DEV/$TARGET" --target="mips64r5900el-ps2-elf" --program-prefix="$TARGET-" --with-float=hard || { exit 1; }
-
-  ## Compile and install.
-  make clean && make -j 2 && make install && make clean || { exit 1; }
-
-  ## Exit the build directory.
-  cd .. || { exit 1; }
-
- ## End target.
- done
-

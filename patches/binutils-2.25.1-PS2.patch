@@ -1,0 +1,942 @@
+diff -rupNb binutils-2.25.1-orig/bfd/config.bfd binutils-2.25.1/bfd/config.bfd
+--- binutils-2.25.1-orig/bfd/config.bfd	2016-02-03 21:28:25.100218500 +0800
++++ binutils-2.25.1/bfd/config.bfd	2016-02-04 09:10:37.778266700 +0800
+@@ -1002,6 +1002,10 @@ case "${targ}" in
+     targ_selvecs="mips_elf32_le_vec mips_ecoff_be_vec mips_ecoff_le_vec"
+     ;;
+ #endif
++  mips*-*-irx*)
++    targ_defvec=mips_elf32_le_vec
++    targ_selvecs="mips_elf32_be_vec"
++    ;;
+   mips*-sgi-* | mips*-*-bsd*)
+     targ_defvec=mips_ecoff_be_vec
+     targ_selvecs=mips_ecoff_le_vec
+diff -rupNb binutils-2.25.1-orig/bfd/elf.c binutils-2.25.1/bfd/elf.c
+--- binutils-2.25.1-orig/bfd/elf.c	2016-02-03 21:28:26.218971000 +0800
++++ binutils-2.25.1/bfd/elf.c	2016-02-04 09:10:37.793890400 +0800
+@@ -2517,7 +2517,7 @@ _bfd_elf_make_section_from_phdr (bfd *ab
+       newsect->filepos = hdr->p_offset;
+       newsect->flags |= SEC_HAS_CONTENTS;
+       newsect->alignment_power = bfd_log2 (hdr->p_align);
+-      if (hdr->p_type == PT_LOAD)
++      if (hdr->p_type == PT_LOAD || hdr->p_type == PT_MIPS_IRXHDR)
+ 	{
+ 	  newsect->flags |= SEC_ALLOC;
+ 	  newsect->flags |= SEC_LOAD;
+@@ -2555,7 +2555,7 @@ _bfd_elf_make_section_from_phdr (bfd *ab
+       if (align == 0 || align > hdr->p_align)
+ 	align = hdr->p_align;
+       newsect->alignment_power = bfd_log2 (align);
+-      if (hdr->p_type == PT_LOAD)
++      if (hdr->p_type == PT_LOAD || hdr->p_type == PT_MIPS_IRXHDR)
+ 	{
+ 	  /* Hack for gdb.  Segments that have not been modified do
+ 	     not have their contents written to a core file, on the
+@@ -4639,7 +4639,7 @@ assign_file_positions_for_load_sections
+       else
+ 	p->p_paddr = m->sections[0]->lma - m->p_vaddr_offset;
+ 
+-      if (p->p_type == PT_LOAD
++      if ((p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
+ 	  && (abfd->flags & D_PAGED) != 0)
+ 	{
+ 	  /* p_align in demand paged PT_LOAD segments effectively stores
+@@ -4664,7 +4664,7 @@ assign_file_positions_for_load_sections
+ 
+       no_contents = FALSE;
+       off_adjust = 0;
+-      if (p->p_type == PT_LOAD
++      if ((p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
+ 	  && m->count > 0)
+ 	{
+ 	  bfd_size_type align;
+@@ -4790,7 +4790,7 @@ assign_file_positions_for_load_sections
+ 	    }
+ 	}
+ 
+-      if (p->p_type == PT_LOAD
++      if ((p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
+ 	  || (p->p_type == PT_NOTE && bfd_get_format (abfd) == bfd_core))
+ 	{
+ 	  if (!m->includes_filehdr && !m->includes_phdrs)
+@@ -4822,6 +4822,7 @@ assign_file_positions_for_load_sections
+ 	  align = (bfd_size_type) 1 << bfd_get_section_alignment (abfd, sec);
+ 
+ 	  if ((p->p_type == PT_LOAD
++		   || p->p_type == PT_MIPS_IRXHDR
+ 	       || p->p_type == PT_TLS)
+ 	      && (this_hdr->sh_type != SHT_NOBITS
+ 		  || ((this_hdr->sh_flags & SHF_ALLOC) != 0
+@@ -4884,7 +4885,7 @@ assign_file_positions_for_load_sections
+ 	    }
+ 	  else
+ 	    {
+-	      if (p->p_type == PT_LOAD)
++	      if (p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
+ 		{
+ 		  this_hdr->sh_offset = sec->filepos = off;
+ 		  if (this_hdr->sh_type != SHT_NOBITS)
+@@ -4928,7 +4929,7 @@ assign_file_positions_for_load_sections
+ 
+ 	      if (align > p->p_align
+ 		  && !m->p_align_valid
+-		  && (p->p_type != PT_LOAD
++		  && ((p->p_type != PT_LOAD && p->p_type != PT_MIPS_IRXHDR)
+ 		      || (abfd->flags & D_PAGED) == 0))
+ 		p->p_align = align;
+ 	    }
+@@ -4947,7 +4948,8 @@ assign_file_positions_for_load_sections
+ 
+       /* Check that all sections are in a PT_LOAD segment.
+ 	 Don't check funky gdb generated core files.  */
+-      if (p->p_type == PT_LOAD && bfd_get_format (abfd) != bfd_core)
++      if ((p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
++		  && bfd_get_format (abfd) != bfd_core)
+ 	{
+ 	  bfd_boolean check_vma = TRUE;
+ 
+@@ -5060,7 +5062,7 @@ assign_file_positions_for_non_load_secti
+   for (m = elf_seg_map (abfd), p = phdrs; m != NULL; m = m->next, p++)
+     {
+       ++count;
+-      if (p->p_type != PT_LOAD)
++      if (p->p_type != PT_LOAD && p->p_type != PT_MIPS_IRXHDR)
+ 	continue;
+ 
+       if (m->includes_filehdr)
+@@ -5142,7 +5144,7 @@ assign_file_positions_for_non_load_secti
+ 		   lm != NULL;
+ 		   lm = lm->next, lp++)
+ 		{
+-		  if (lp->p_type == PT_LOAD
++		  if ((lp->p_type == PT_LOAD || lp->p_type == PT_MIPS_IRXHDR)
+ 		      && lp->p_vaddr < link_info->relro_end
+ 		      && lm->count != 0
+ 		      && lm->sections[0]->vma >= link_info->relro_start)
+@@ -5157,7 +5159,7 @@ assign_file_positions_for_non_load_secti
+ 		 library, but we need to use the same linker logic.  */
+ 	      for (lp = phdrs; lp < phdrs + count; ++lp)
+ 		{
+-		  if (lp->p_type == PT_LOAD
++		  if ((lp->p_type == PT_LOAD || lp->p_type == PT_MIPS_IRXHDR)
+ 		      && lp->p_paddr == p->p_paddr)
+ 		    break;
+ 		}
+@@ -5198,7 +5200,7 @@ assign_file_positions_for_non_load_secti
+ 	}
+       else if (m->count != 0)
+ 	{
+-	  if (p->p_type != PT_LOAD
++	  if ((p->p_type != PT_LOAD && p->p_type != PT_MIPS_IRXHDR)
+ 	      && (p->p_type != PT_NOTE
+ 		  || bfd_get_format (abfd) != bfd_core))
+ 	    {
+diff -rupNb binutils-2.25.1-orig/bfd/elflink.c binutils-2.25.1/bfd/elflink.c
+--- binutils-2.25.1-orig/bfd/elflink.c	2016-02-03 21:28:30.048554300 +0800
++++ binutils-2.25.1/bfd/elflink.c	2016-02-04 09:10:37.825164800 +0800
+@@ -9997,9 +9997,17 @@ elf_link_input_bfd (struct elf_final_lin
+ 			 elf_link_output_extsym that this symbol is
+ 			 used by a reloc.  */
+ 		      BFD_ASSERT (rh->indx < 0);
++			  if (elf_elfheader(output_bfd)->e_type != ET_IRX
++				 || flinfo->info->strip != strip_all)
++				 {
+ 		      rh->indx = -2;
+-
+ 		      *rel_hash = rh;
++				 }
++			  else
++			     {
++				   irela->r_info = ELF32_R_INFO(0, ELF32_R_TYPE(irela->r_info));
++				   *rel_hash = NULL;
++			     }
+ 
+ 		      continue;
+ 		    }
+diff -rupNb binutils-2.25.1-orig/bfd/elfxx-mips.c binutils-2.25.1/bfd/elfxx-mips.c
+--- binutils-2.25.1-orig/bfd/elfxx-mips.c	2016-02-03 21:28:30.233271600 +0800
++++ binutils-2.25.1/bfd/elfxx-mips.c	2016-02-04 09:10:37.840766100 +0800
+@@ -7051,6 +7051,10 @@ _bfd_mips_elf_section_from_shdr (bfd *ab
+      probably get away with this.  */
+   switch (hdr->sh_type)
+     {
++    case SHT_IOPMOD:
++      if (strcmp(name, ".iopmod") != 0)
++	return FALSE;
++      break;
+     case SHT_MIPS_LIBLIST:
+       if (strcmp (name, ".liblist") != 0)
+ 	return FALSE;
+@@ -7232,7 +7236,27 @@ _bfd_mips_elf_fake_sections (bfd *abfd,
+ {
+   const char *name = bfd_get_section_name (abfd, sec);
+ 
+-  if (strcmp (name, ".liblist") == 0)
++  if (strcmp(name, ".iopmod") == 0)
++   {
++      /* Verify that this bfd is going to be an IRX, and not an object
++	     file or a rogue elf with an .iopmod section by looking for
++	     the PT_MIPS_IRXHDR program header.  */
++	  struct elf_segment_map *m;
++
++	  for (m = elf_seg_map(abfd); m != NULL; m = m->next)
++	  {
++		if (m->p_type == PT_MIPS_IRXHDR)
++	    {
++		  /* Mark the file as an IRX.  */
++		  elf_elfheader(abfd)->e_type = ET_IRX;
++		  /* Setup the section type and flags.  */
++		  hdr->sh_type = SHT_IOPMOD;
++		  hdr->sh_addr = 0;
++		  hdr->sh_flags &= ~(SHF_ALLOC | SHF_WRITE | SHF_EXECINSTR);
++	    }
++	  }
++    }
++  else if (strcmp (name, ".liblist") == 0)
+     {
+       hdr->sh_type = SHT_MIPS_LIBLIST;
+       hdr->sh_info = sec->size / sizeof (Elf32_Lib);
+diff -rupNb binutils-2.25.1-orig/config.sub binutils-2.25.1/config.sub
+--- binutils-2.25.1-orig/config.sub	2016-02-03 21:28:48.728738300 +0800
++++ binutils-2.25.1/config.sub	2016-02-04 09:10:37.887641800 +0800
+@@ -759,6 +759,10 @@ case $basic_machine in
+ 		basic_machine=i386-unknown
+ 		os=-vsta
+ 		;;
++	iop)
++		basic_machine=mipsel-scei
++		os=-irx
++		;;
+ 	iris | iris4d)
+ 		basic_machine=mips-sgi
+ 		case $os in
+@@ -1384,7 +1388,8 @@ case $os in
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+-	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos*)
++	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos* \
++		  | -irx*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	-qnx*)
+diff -rupNb binutils-2.25.1-orig/configure binutils-2.25.1/configure
+--- binutils-2.25.1-orig/configure	2016-02-03 21:28:48.829811500 +0800
++++ binutils-2.25.1/configure	2016-02-04 09:10:37.950142200 +0800
+@@ -2759,7 +2759,7 @@ host_libs="intl libiberty opcodes bfd re
+ # binutils, gas and ld appear in that order because it makes sense to run
+ # "make check" in that particular order.
+ # If --enable-gold is used, "gold" may replace "ld".
+-host_tools="texinfo flex bison binutils gas ld fixincludes gcc cgen sid sim gdb gprof etc expect dejagnu m4 utils guile fastjar gnattools"
++host_tools="flex bison binutils gas ld fixincludes gcc cgen sid sim gdb gprof etc expect dejagnu m4 utils guile fastjar gnattools"
+ 
+ # libgcj represents the runtime libraries only used by gcj.
+ libgcj="target-libffi \
+diff -rupNb binutils-2.25.1-orig/gas/configure.tgt binutils-2.25.1/gas/configure.tgt
+--- binutils-2.25.1-orig/gas/configure.tgt	2016-02-03 21:28:56.328039100 +0800
++++ binutils-2.25.1/gas/configure.tgt	2016-02-04 09:10:37.997019300 +0800
+@@ -335,6 +335,7 @@ case ${generic_target} in
+   mips-*-elf* | mips-*-rtems*)		fmt=elf ;;
+   mips-*-netbsd*)			fmt=elf em=tmips ;;
+   mips-*-openbsd*)			fmt=elf em=tmips ;;
++  mips-*-irx*)				fmt=elf endian=little ;;
+ 
+   mmix-*-*)				fmt=elf ;;
+ 
+diff -rupNb binutils-2.25.1-orig/include/elf/common.h binutils-2.25.1/include/elf/common.h
+--- binutils-2.25.1-orig/include/elf/common.h	2016-02-03 21:27:38.993995800 +0800
++++ binutils-2.25.1/include/elf/common.h	2016-02-04 09:10:38.012644400 +0800
+@@ -93,6 +93,7 @@
+ #define ET_LOOS		0xFE00	/* Operating system-specific */
+ #define ET_HIOS		0xFEFF	/* Operating system-specific */
+ #define ET_LOPROC	0xFF00	/* Processor-specific */
++#define ET_IRX		0xFF80  /* SONY IRX file */
+ #define ET_HIPROC	0xFFFF	/* Processor-specific */
+ 
+ /* Values for e_machine, which identifies the architecture.  These numbers
+@@ -428,6 +429,7 @@
+ #define PT_LOOS		0x60000000	/* OS-specific */
+ #define PT_HIOS		0x6fffffff	/* OS-specific */
+ #define PT_LOPROC	0x70000000	/* Processor-specific */
++#define PT_MIPS_IRXHDR	0x70000080	/* SONY IRX loadable program segment */
+ #define PT_HIPROC	0x7FFFFFFF	/* Processor-specific */
+ 
+ #define PT_GNU_EH_FRAME	(PT_LOOS + 0x474e550) /* Frame unwind information */
+@@ -485,6 +487,7 @@
+ #define SHT_GNU_versym	SHT_SUNW_versym
+ 
+ #define SHT_LOPROC	0x70000000	/* Processor-specific semantics, lo */
++#define SHT_IOPMOD	0x70000080	/* SONY IRX .iopmod section */
+ #define SHT_HIPROC	0x7FFFFFFF	/* Processor-specific semantics, hi */
+ #define SHT_LOUSER	0x80000000	/* Application-specific semantics */
+ /* #define SHT_HIUSER	0x8FFFFFFF    *//* Application-specific semantics */
+diff -rupNb binutils-2.25.1-orig/ld/configure.tgt binutils-2.25.1/ld/configure.tgt
+--- binutils-2.25.1-orig/ld/configure.tgt	2016-02-03 21:27:41.733335000 +0800
++++ binutils-2.25.1/ld/configure.tgt	2016-02-04 09:10:38.028269500 +0800
+@@ -470,6 +470,9 @@ mips*el-ps2-elf*)	targ_emul=elf32lr5900
+ 			targ_extra_libpath=$targ_extra_emuls ;;
+ mips*el-*-elf*)		targ_emul=elf32elmip ;;
+ mips*-*-elf*)		targ_emul=elf32ebmip ;;
++mips*el-*-irx*)		targ_emul=mipsirx
++			targ_extra_emuls="elf32elmip"
++			targ_extra_libpath=$targ_extra_emuls ;;
+ mips*-*-rtems*)		targ_emul=elf32ebmip ;;
+ mips*el-*-vxworks*)	targ_emul=elf32elmipvxworks
+ 			targ_extra_emuls="elf32ebmipvxworks" ;;
+diff -rupNb binutils-2.25.1-orig/ld/emulparams/mipsirx.sh binutils-2.25.1/ld/emulparams/mipsirx.sh
+--- binutils-2.25.1-orig/ld/emulparams/mipsirx.sh	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/emulparams/mipsirx.sh	2016-02-04 09:10:38.043894100 +0800
+@@ -0,0 +1,8 @@
++SCRIPT_NAME=irx
++OUTPUT_FORMAT="elf32-littlemips"
++ARCH=mips
++ENTRY=_start
++TEXT_START_ADDR=0x0
++DATA_ADDR=.
++TEMPLATE_NAME=elf32
++EXTRA_EM_FILE=irx
+diff -rupNb binutils-2.25.1-orig/ld/emultempl/irx.em binutils-2.25.1/ld/emultempl/irx.em
+--- binutils-2.25.1-orig/ld/emultempl/irx.em	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/emultempl/irx.em	2016-02-04 14:18:17.692953000 +0800
+@@ -0,0 +1,465 @@
++fragment <<EOF
++/* This file is is generated by a shell script.  DO NOT EDIT! */
++
++/* IRX emulation code for ${EMULATION_NAME}
++   Copyright (C) 1991, 1993 Free Software Foundation, Inc.
++   Written by Steve Chamberlain steve@cygnus.com
++   IRX support by Douglas C. Knight fsdck@uaf.edu
++
++This file is part of GLD, the Gnu Linker.
++
++This program is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 2 of the License, or
++(at your option) any later version.
++
++This program is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with this program; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
++
++EOF
++
++source_em ${srcdir}/emultempl/mipself.em
++
++cat >>e${EMULATION_NAME}.c <<EOF
++
++#include <errno.h>
++
++#define is_mips_elf(bfd)        \
++  (bfd_get_flavour (bfd) == bfd_target_elf_flavour  \
++  && elf_tdata (bfd) != NULL        \
++  && elf_object_id (bfd) == MIPS_ELF_DATA)
++
++static bfd_boolean building_irx;
++static lang_output_section_statement_type *text_section_statement;
++static lang_output_section_statement_type *iopmod_section_statement;
++
++static struct lang_output_section_phdr_list default_phdr = {
++  name: " DEFAULT",
++  next: NULL,
++  used: FALSE
++};
++static struct lang_output_section_phdr_list irxhdr_phdr = {
++  name: " IRXHDR",
++  next: NULL,
++  used: FALSE
++};
++static struct lang_output_section_phdr_list none_phdr = {
++  name: "NONE",
++  next: NULL,
++  used: FALSE
++};
++
++/* This is called just before parsing the linker script.  It does some
++   bfd configuration for irx filex, creates the irx program header,
++   and adds an .iopmod output section to the statement list.  */
++
++static void
++irx_before_parse (void)
++{
++  gld${EMULATION_NAME}_before_parse();
++
++  /* Only setup IRX headers for executable files.  */
++  if (!link_info.relocatable)
++  {
++    building_irx = TRUE;
++    /* IRX files are dynamic.  They need their relocations.  */
++    link_info.emitrelocations = TRUE;
++    /* This isn't really needed, but I've never seen an IRX that's
++      properly paged.  */
++    config.magic_demand_paged = FALSE;
++  
++    /* The IRXHDR program header must be the first in the list of
++      program headers.  By creating it here, before processing the
++      linker script, it is always at the beginning of the list.  */
++    lang_new_phdr (irxhdr_phdr.name, exp_intop (PT_MIPS_IRXHDR), FALSE,
++        FALSE, NULL, exp_intop (PF_R));
++
++    /* An .iopmod output section will be needed.  By creating the
++      .iopmod section before parsing the linker script, the iopmod
++      section statement will be placed at the top of the statement list
++      after the *ABS* section, but before any other sections from the
++      linker script.  The statements from the linker script can then be
++      accessed through iopmod_section_statement->next.  */
++      iopmod_section_statement = lang_output_section_statement_lookup (".iopmod", 0, TRUE);
++  }else{
++    building_irx = FALSE;
++  }
++}
++
++
++/* gldmipsirx_after_parse () is executed after the linker script has
++   been parsed.  It puts the .iopmod output section into the IRXHDR
++   segment.  If the linker script did not create any program headers
++   of its own, this function also creates a PT_LOAD segment and puts
++   all of the remaining sections in it.  */
++
++static void
++gld${EMULATION_NAME}_after_parse (void)
++{
++  bfd_boolean linkscript_uses_phdrs;
++  lang_output_section_statement_type *stat;
++
++  mips_after_parse();
++
++  /* Only setup IRX headers for executable files.  */
++  if (building_irx)
++  {
++    /* Determine whether the link script assigned any sections to phdrs.  */
++
++    /* FIXME: If none of the sections have been explicitly assigned to a
++       segment, this function assumes that the linker script did not
++       create any program headers.  This function should not put the
++       sections in a new PT_LOAD segment if the linker script, for some
++       odd reason, created program headers but did not assign any of the
++       sections to any segments.  There is currently no way to tell
++       whether the linker script created any program headers because the
++       program header list is a static variable.  If there ever is any
++       reason to create program headers, but have all of the sections
++       remain segmentless, explicitly assign the first section in the
++       linker script to the section "NONE". */
++
++    linkscript_uses_phdrs = FALSE;
++    for (stat = iopmod_section_statement->next; stat != NULL;
++      stat = stat->next)
++      if (stat->header.type == lang_output_section_statement_enum)
++        if (stat->phdrs != NULL)
++        {
++          linkscript_uses_phdrs = TRUE;
++          break;
++        }
++
++    if (! linkscript_uses_phdrs)
++    {
++      /* The linker script didn't use program headers, so build the
++        default segment and put all of the sections in it.  */
++      lang_new_phdr (default_phdr.name, exp_intop (PT_LOAD), FALSE,
++        FALSE, NULL, exp_intop (PF_R | PF_W | PF_X));
++      for (stat = iopmod_section_statement->next; stat != NULL;
++        stat = stat->next)
++      if (stat->header.type == lang_output_section_statement_enum)
++        stat->phdrs = &default_phdr;
++    }
++
++    /* Add iopmod to the IRXHDR segment.  */
++    irxhdr_phdr.next = iopmod_section_statement->phdrs;
++    iopmod_section_statement->phdrs = &irxhdr_phdr;
++
++    /* Keep IRXHDR from following through to following sections.  */
++    for (stat = iopmod_section_statement->next; stat != NULL;
++      stat = stat->next)
++      if (stat->header.type == lang_output_section_statement_enum)
++      {
++        if (! stat->phdrs)
++        {
++          stat->phdrs = (irxhdr_phdr.next) ? irxhdr_phdr.next : &none_phdr;
++        }
++        break;
++      }
++  }
++}
++
++/* This is a macro to add a data statement of data type T and the data
++   expression E to the end of the statement list LP.  */
++
++#define new_data_stat(t,e,lp) {                         \
++  lang_statement_union_type *d;                         \
++  d = stat_alloc (sizeof (lang_data_statement_type));   \
++  d->header.type = lang_data_statement_enum;            \
++  d->header.next = NULL;                                \
++  ((lang_data_statement_type *) d)->exp = e;            \
++  ((lang_data_statement_type *) d)->type = t;           \
++  lang_statement_append (lp, d, &d->header.next);       \
++}
++
++/* Called after input files have been opened, and their symbols
++   parsed.  If the .iopmod section is empty, construct a valid .iopmod
++   structure.  If _irx_id is defined, it is used as the id structure to
++   for this irx.  */
++
++static void
++irx_after_open (void)
++{
++  lang_statement_list_type *seg_stat_ptr;
++  union lang_statement_union *stat_list_remainder;
++  union lang_statement_union **stat_list_old_tail;
++  struct bfd_link_hash_entry *h;
++  bfd_vma irxname_pos;
++  asection *irxname_sec;
++  bfd_vma irxid_pos;
++  asection *irxid_sec;
++  int irx_version;
++  char buf[64];
++  bfd_boolean result;
++  unsigned uit;
++  asymbol **syms;
++  arelent **rels;
++  long size;
++  long count;
++
++  gld${EMULATION_NAME}_after_open();
++
++  /* Only setup IRX headers for executable files.  */
++  if (building_irx == FALSE)
++    return;
++  
++  /* If the linker script didn't already start the .iopmod section,
++     build the basics now.  */
++  seg_stat_ptr = &iopmod_section_statement->children;
++  if (seg_stat_ptr->head == NULL)
++  {
++    new_data_stat (LONG, exp_intop (0xffffffff), seg_stat_ptr);
++    new_data_stat (LONG, exp_unop (ABSOLUTE, exp_nameop (NAME, "_start")),
++      seg_stat_ptr);
++    new_data_stat (LONG, exp_nameop (NAME, "_gp"), seg_stat_ptr);
++    new_data_stat (LONG, exp_nameop (NAME, "_text_size"), seg_stat_ptr);
++    new_data_stat (LONG, exp_nameop (NAME, "_data_size"), seg_stat_ptr);
++    new_data_stat (LONG, exp_nameop (NAME, "_bss_size"), seg_stat_ptr);
++    stat_list_old_tail = NULL;
++  }
++  else
++  {
++    /* If the linker script built an .iopmod section, make sure the
++       first six data statments are LONGS, and that the first LONG
++       is set to the int 0xffffffff.  If not, assume the linker
++       script knows what it's doing, and leave everything alone.  */
++    union lang_statement_union *stat_iter;
++    stat_iter = seg_stat_ptr->head;
++    /* Make sure the first satement is a LONG data statement with
++       the value 0xffffffff.  */
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG
++      || stat_iter->data_statement.exp->type.node_class != etree_value
++      || stat_iter->data_statement.exp->type.node_code != INT
++      || stat_iter->data_statement.exp->value.value != 0xffffffff)
++        return;
++
++    /* Make sure the next five statements are LONG data statements.  */
++    stat_iter = stat_iter->header.next;
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG)
++        return;
++    stat_iter = stat_iter->header.next;
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG)
++      return;
++    stat_iter = stat_iter->header.next;
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG)
++      return;
++    stat_iter = stat_iter->header.next;
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG)
++      return;
++    stat_iter = stat_iter->header.next;
++    if (stat_iter->header.type != lang_data_statement_enum
++      || stat_iter->data_statement.type != LONG)
++      return;
++      
++    /* Cut the statement list off after the six LONGs, so that new
++       data can be inserted.  */
++    stat_list_old_tail = seg_stat_ptr->tail;
++    seg_stat_ptr->tail = &stat_iter->header.next;
++    stat_list_remainder = stat_iter->header.next;
++  }
++
++  /* Look for an _irx_id symbol.  */
++  h = bfd_link_hash_lookup (link_info.hash, "_irx_id", FALSE, FALSE, TRUE);
++  if (h != NULL)
++    if (h->type != bfd_link_hash_defined && h->type != bfd_link_hash_defweak)
++      h = NULL;
++
++  /* If _irx_id is undefined.  Set the IRX version to 0.0 and name to
++     an empty string.  */
++  if (h == NULL)
++  {
++    new_data_stat (SHORT, exp_intop (0x0), seg_stat_ptr);
++    new_data_stat (BYTE, exp_intop (0x0), seg_stat_ptr);
++    goto eout;
++  }
++
++  /* Retrieve the contents of _irx_id.  */
++  irxid_pos = h->u.def.value;
++  irxid_sec = h->u.def.section;
++  result = bfd_get_section_contents (irxid_sec->owner,
++             irxid_sec, buf,
++             irxid_pos, 8);
++  if (! result)
++  {
++    einfo ("%F%P: could not read the contents of _irx_id from %E\n",
++     irxid_sec->owner);
++    goto eout;
++  }
++
++  /* Extract the version number, and a pointer to the irx name.  */
++  irxname_pos = bfd_get_32 (irxid_sec->owner, &buf[0]);
++  irx_version = bfd_get_16 (irxid_sec->owner, &buf[4]);
++
++  /* Things get really ugly here.  The contents of the symbol table
++     and relocations are already in memory in the bfd's elf backend,
++     after calling the canonicalize functions there are two copies in
++     memory, one in the backends own format, and one in bfd's standard
++     format.  This could be a waste of memory, but we need to follow
++     the relocations, and digging through the backend's data would be
++     even uglier.  */
++
++  /* Canonicalize the symbol table for the bfd contaning _irx_id.  */
++  size = bfd_get_symtab_upper_bound (irxid_sec->owner);
++  if (size < 0)
++  {
++    einfo ("%F%P: could not read symbols from %E\n", irxid_sec->owner);
++    goto eout;
++  }
++  syms = xmalloc (size);
++  count = bfd_canonicalize_symtab (irxid_sec->owner, syms);
++  if (count < 0)
++  {
++    einfo ("%F%P: could not read symbols from %E\n",
++     irxid_sec->owner);
++    goto eout;
++  }
++  
++  /* Canonicalize the relocations for the section containing _irx_id.  */
++  size = bfd_get_reloc_upper_bound (irxid_sec->owner, irxid_sec);
++  if (size < 0)
++  {
++    einfo ("%F%P: could not read relocations from %E\n", irxid_sec->owner);
++    free (syms);
++    goto eout;
++  }
++  rels = xmalloc (size);
++  count = bfd_canonicalize_reloc (irxid_sec->owner, irxid_sec, rels, syms);
++  if (count < 0)
++  {
++    einfo ("%F%P: could not read relocations from %E\n", irxid_sec->owner);
++    free (syms);
++    goto eout;
++  }
++
++  /* Find the relocation for the irx name pointer in _irx_id, and
++     extract the section that the irx name is stored in from it.  */
++  irxname_sec = NULL;
++  for (uit = 0; uit < count; ++uit)
++  {
++    arelent *r;
++    r = rels[uit];
++    if (r->address == irxid_pos)
++    {
++      if ((*r->sym_ptr_ptr)->flags & (BSF_OBJECT | BSF_FUNCTION
++            | BSF_SECTION_SYM))
++        irxname_sec = (*r->sym_ptr_ptr)->section;
++      else
++      {
++        /* The irx name is not in the same bfd, but we know what
++         the symbol is called now, so we can look for it in
++         the other bfds.  */
++        h = bfd_link_hash_lookup (link_info.hash,
++          (*r->sym_ptr_ptr)->name, FALSE,
++          FALSE, TRUE);
++        if (h != NULL)
++        {
++          irxname_pos = h->u.def.value;
++          irxname_sec = h->u.def.section;
++        }
++      }
++    }
++  }
++
++  /* Release what little memory we can.  */
++  free (rels);
++  free (syms);
++  
++  if (irxname_sec == NULL)
++  {
++    einfo ("%F%P: failed to resolve the irx name\n");
++    goto eout;
++  }
++
++  /* Retrieve up to 63 bytes of the the contents of the irx name.  */
++  count = irxname_sec->size;
++  count -= irxname_pos;
++  if (count > 63)
++    count = 63;
++  buf[count] = 0;
++  result = bfd_get_section_contents (irxname_sec->owner,
++             irxname_sec, buf,
++             irxname_pos, count);
++  if (! result)
++  {
++    einfo ("%F%P: failed to resolve the irx name\n");
++    goto eout;
++  }
++
++  /* Set the first LONG in the .iopmod section to the address of the
++     _irx_id structure.  */
++  seg_stat_ptr->head->data_statement.exp =
++    exp_unop (ABSOLUTE, exp_nameop (NAME, "_irx_id"));
++  /* Add the version number to the header.  */
++  new_data_stat (SHORT, exp_intop (irx_version), seg_stat_ptr);
++  /* Add each byte of the IRX name to the header.  FIXME: If the name
++     is long and the linker script already has a lot of statements in
++     it, the linker could run out of space in the parse tree.  This
++     data could be added to the linker script as LONGs, and a SHORT,
++     and/or a BYTE to save tree nodes.  */
++  for (uit = 0; (uit < 64) && (buf[uit] != 0); ++uit)
++    new_data_stat (BYTE, exp_intop ((unsigned int) buf[uit]), seg_stat_ptr);
++  /* Tack a null on to the end of the string.  */
++  new_data_stat (BYTE, exp_intop (0x0), seg_stat_ptr);
++
++eout:
++  /* Put anything that was cut off the end of the .iopmod section back
++     on.  */
++  if (stat_list_old_tail != NULL)
++  {
++    *seg_stat_ptr->tail = stat_list_remainder;
++    seg_stat_ptr->tail = stat_list_old_tail;
++  }
++}
++
++/* Called before creating the output sections in the output bfd.
++   Since the .iopmod section's data is completely generated, it
++   doesn't have any alignment attributes associated with it.  Force
++   the iopmod section to be word aligned.  */
++
++static void
++irx_before_allocation (void)
++{
++  /* Only setup IRX headers for executable files.  */
++  if (building_irx)
++  {
++    if (iopmod_section_statement->bfd_section->alignment_power < 2)
++      iopmod_section_statement->bfd_section->alignment_power = 2;
++  }
++
++  mips_before_allocation();
++}
++
++/* Called after the output sections have been created.  Makes the
++   .iopmod section exist in the file image, but not in the memory
++   image by marking it as a loaded section, but not allocated.  */
++
++static void
++irx_after_allocation (void)
++{
++  /* Only setup IRX headers for executable files.  */
++  if (building_irx)
++  {
++    iopmod_section_statement->bfd_section->flags |= SEC_LOAD;
++    iopmod_section_statement->bfd_section->flags &= ~SEC_ALLOC;
++  }
++
++  gld${EMULATION_NAME}_after_allocation();
++}
++
++EOF
++
++LDEMUL_BEFORE_PARSE=irx_before_parse
++LDEMUL_AFTER_PARSE=gld${EMULATION_NAME}_after_parse
++LDEMUL_AFTER_OPEN=irx_after_open
++LDEMUL_AFTER_ALLOCATION=irx_after_allocation
++LDEMUL_BEFORE_ALLOCATION=irx_before_allocation
+diff -rupNb binutils-2.25.1-orig/ld/Makefile.am binutils-2.25.1/ld/Makefile.am
+--- binutils-2.25.1-orig/ld/Makefile.am	2016-02-03 21:27:44.980743000 +0800
++++ binutils-2.25.1/ld/Makefile.am	2016-02-04 09:10:38.122021900 +0800
+@@ -340,6 +340,7 @@ ALL_EMULATION_SOURCES = \
+ 	em68kpsos.c \
+ 	em88kbcs.c \
+ 	emcorepe.c \
++	emipsirx.c \
+ 	emn10200.c \
+ 	emn10300.c \
+ 	emsp430.c \
+@@ -1492,6 +1493,9 @@ em88kbcs.c: $(srcdir)/emulparams/m88kbcs
+ emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
+   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
+ 
++emipsirx.c:  $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
++  $(srcdir)/emultempl/irx.em $(srcdir)/scripttempl/irx.sc ${GEN_DEPENDS}
++
+ emn10200.c: $(srcdir)/emulparams/mn10200.sh \
+   $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 
+diff -rupNb binutils-2.25.1-orig/ld/Makefile.in binutils-2.25.1/ld/Makefile.in
+--- binutils-2.25.1-orig/ld/Makefile.in	2016-02-03 21:27:45.012516100 +0800
++++ binutils-2.25.1/ld/Makefile.in	2016-02-04 09:10:38.168894800 +0800
+@@ -648,6 +648,7 @@ ALL_EMULATION_SOURCES = \
+ 	em68kpsos.c \
+ 	em88kbcs.c \
+ 	emcorepe.c \
++	emipsirx.c \
+ 	emn10200.c \
+ 	emn10300.c \
+ 	emsp430.c \
+@@ -1300,6 +1301,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em68kpsos.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em88kbcs.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emcorepe.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emipsirx.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emmo.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10200.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10300.Po@am__quote@
+@@ -2933,6 +2935,9 @@ em88kbcs.c: $(srcdir)/emulparams/m88kbcs
+ emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
+   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
+ 
++emipsirx.c:  $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
++  $(srcdir)/emultempl/irx.em $(srcdir)/scripttempl/irx.sc ${GEN_DEPENDS}
++
+ emn10200.c: $(srcdir)/emulparams/mn10200.sh \
+   $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 
+diff -rupNb binutils-2.25.1-orig/ld/scripttempl/irx.sc binutils-2.25.1/ld/scripttempl/irx.sc
+--- binutils-2.25.1-orig/ld/scripttempl/irx.sc	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/scripttempl/irx.sc	2016-02-04 09:10:38.168894800 +0800
+@@ -0,0 +1,121 @@
++# Link scripts for PlayStation 2 IRXs.
++
++# NOTE: Limit parameter expansions to a single line.  Cygwin's /bin/sh has
++# been freaking out when it reaches the end of a line, even when the text is
++# being quoted.
++
++test -z "$ENTRY" && ENTRY=_start
++
++test -z "$TEXT_START_ADDR" && TEXT_START_ADDR="0x0000"
++
++if test "x$LD_FLAG" = "xn" -o "x$LD_FLAG" = "xN"; then
++  DATA_ADDR=.
++else
++  test -z "$DATA_ADDR" && DATA_ADDR=0x10000000
++fi
++
++# These variables are used to put braces in parameter expansions so that
++# they expand properly.
++LBRACE="{"
++RBRACE="}"
++
++cat <<EOF
++/* Link script for PlayStation 2 IRXs
++ * Written by Douglas C. Knight <fsdck@uaf.edu>
++ */
++
++OUTPUT_FORMAT("${OUTPUT_FORMAT}")
++
++${RELOCATING+${LIB_SEARCH_DIRS}}
++
++ENTRY(${ENTRY})
++SECTIONS
++{
++  ${RELOCATING+/* This is the .iopmod section for the IRX, it contains}
++  ${RELOCATING+   information that the IOP uses when loading the IRX.}
++  ${RELOCATING+   This section is placed in its own segment.  */}
++  ${RELOCATING+.iopmod : ${LBRACE}}
++  ${RELOCATING+  /* The linker will replace this first LONG with a pointer}
++  ${RELOCATING+     to _irx_id if the symbol has been defined.  */}
++  ${RELOCATING+  LONG (0xffffffff) ;}
++ 
++  ${RELOCATING+  LONG (_start) ;}
++  ${RELOCATING+  LONG (_gp) ;}
++  ${RELOCATING+  LONG (_text_size) ;}
++  ${RELOCATING+  LONG (_data_size) ;}
++  ${RELOCATING+  LONG (_bss_size) ;}
++  ${RELOCATING+  /* The linker will put a SHORT here with the version of}
++  ${RELOCATING+     the IRX (or zero if there is no version).  */}
++  ${RELOCATING+  /* The linker will put a null terminated string here}
++  ${RELOCATING+     containing the name of the IRX (or an empty string if}
++  ${RELOCATING+     the name is not known).  */}
++  ${RELOCATING+${RBRACE}}
++
++  ${RELOCATING+. = ${TEXT_START_ADDR} ;}
++  ${RELOCATING+_ftext = . ;}
++  .text : {
++    CREATE_OBJECT_SYMBOLS
++    * ( .text )
++    * ( .text.* )
++    * ( .init )
++    * ( .fini )
++  } = 0
++  ${RELOCATING+_etext  =  . ;}
++
++  ${RELOCATING+. = ${DATA_ADDR} ;}
++  ${RELOCATING+_fdata = . ;}
++  .rodata : {
++    * ( .rdata )
++    * ( .rodata )
++    * ( .rodata1 )
++    * ( .rodata.* )
++  } = 0
++
++  .data : {
++    * ( .data )
++    * ( .data1 )
++    * ( .data.* )
++    ${CONSTRUCTING+CONSTRUCTORS}
++  }
++
++  ${RELOCATING+. = ALIGN(16) ;}
++  ${RELOCATING+_gp = . + 0x8000 ;}
++
++  .sdata : {
++    * ( .lit8 )
++    * ( .lit4 )
++    * ( .sdata )
++    * ( .sdata.* )
++  }
++  ${RELOCATING+_edata = . ;}
++
++  ${RELOCATING+. = ALIGN(4) ;}
++  ${RELOCATING+_fbss = . ;}
++  .sbss : {
++    * ( .sbss )
++    * ( .scommon )
++  }
++
++  ${RELOCATING+_bss_start = . ;}
++  .bss : {
++    * ( .bss )
++    * ( COMMON )
++    ${RELOCATING+. = ALIGN(4) ;}
++  }
++  ${RELOCATING+_end = . ;}
++
++  ${RELOCATING+_text_size = _etext - _ftext ;}
++  ${RELOCATING+_data_size = _edata - _fdata ;}
++  ${RELOCATING+_bss_size = _end - _fbss ;}
++
++  /* This is the stuff that we don't want to be put in an IRX.  */
++  /DISCARD/ : {
++	* ( .reginfo )
++	* ( .mdebug.* )
++	/* Until I can figure out if there's a better way to rid ourselves of .rel.dyn
++	   this will have to do.  - MRB  */
++	* ( .rel.dyn )
++  }
++}
++
++EOF

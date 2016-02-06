@@ -1,6 +1,54 @@
+diff -rupNb gcc-5.3.0-orig/config.sub gcc-5.3.0/config.sub
+--- gcc-5.3.0-orig/config.sub	2016-01-14 22:56:50.984611757 +0800
++++ gcc-5.3.0/config.sub	2016-02-06 17:10:10.525123110 +0800
+@@ -765,6 +765,10 @@ case $basic_machine in
+ 		basic_machine=i386-unknown
+ 		os=-vsta
+ 		;;
++	iop)
++		basic_machine=mipsel-scei
++		os=-irx
++		;;
+ 	iris | iris4d)
+ 		basic_machine=mips-sgi
+ 		case $os in
+@@ -1393,7 +1397,8 @@ case $os in
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+-	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos*)
++	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos* \
++		  | -irx*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	-qnx*)
+diff -rupNb gcc-5.3.0-orig/configure gcc-5.3.0/configure
+--- gcc-5.3.0-orig/configure	2016-01-14 22:56:50.952611757 +0800
++++ gcc-5.3.0/configure	2016-02-06 17:10:10.625123115 +0800
+@@ -3402,6 +3402,8 @@ case "${target}" in
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   powerpc*-*-linux*)
+     ;;
+   powerpc-*-darwin*)
+diff -rupNb gcc-5.3.0-orig/configure.ac gcc-5.3.0/configure.ac
+--- gcc-5.3.0-orig/configure.ac	2016-01-14 22:56:51.068611757 +0800
++++ gcc-5.3.0/configure.ac	2016-02-06 17:10:10.953123117 +0800
+@@ -749,6 +749,8 @@ case "${target}" in
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   powerpc*-*-linux*)
+     ;;
+   powerpc-*-darwin*)
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/5900.md gcc-5.3.0/gcc/config/mips/5900.md
 --- gcc-5.3.0-orig/gcc/config/mips/5900.md	1970-01-01 07:30:00.000000000 +0730
-+++ gcc-5.3.0/gcc/config/mips/5900.md	2016-01-23 20:52:56.431212420 +0800
++++ gcc-5.3.0/gcc/config/mips/5900.md	2016-02-06 17:10:01.153123042 +0800
 @@ -0,0 +1,42 @@
 +;; Copyright (C) 2002-2015 Free Software Foundation, Inc.
 +;;
@@ -46,7 +94,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/5900.md gcc-5.3.0/gcc/config/mips/590
 +   (set_attr "mode" "SF")])
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/constraints.md gcc-5.3.0/gcc/config/mips/constraints.md
 --- gcc-5.3.0-orig/gcc/config/mips/constraints.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/constraints.md	2016-01-23 20:53:00.359212411 +0800
++++ gcc-5.3.0/gcc/config/mips/constraints.md	2016-02-06 17:10:01.153123042 +0800
 @@ -36,10 +36,18 @@
    "The @code{lo} register.  Use this register to store values that are
     no bigger than a word.")
@@ -66,9 +114,36 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/constraints.md gcc-5.3.0/gcc/config/m
  (define_register_constraint "b" "ALL_REGS"
    "@internal")
  
+diff -rupNb gcc-5.3.0-orig/gcc/config/mips/iop.h gcc-5.3.0/gcc/config/mips/iop.h
+--- gcc-5.3.0-orig/gcc/config/mips/iop.h	1970-01-01 07:30:00.000000000 +0730
++++ gcc-5.3.0/gcc/config/mips/iop.h	2016-02-06 17:10:11.449123121 +0800
+@@ -0,0 +1,23 @@
++/* Intrisics for the SONY PlayStation 2 I/O Processor (IOP).
++definitions for GNU compiler.
++Copyright (C) 1989-2015 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 3, or (at your option)
++any later version.
++
++GCC is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++#undef SUBTARGET_CC1_SPEC
++ #define SUBTARGET_CC1_SPEC "\
++	%{miop:-march=r3000 -mfp32 -mgp32 -fno-builtin}"
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.c gcc-5.3.0/gcc/config/mips/mips.c
 --- gcc-5.3.0-orig/gcc/config/mips/mips.c	2016-01-14 22:56:47.008611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.c	2016-01-23 20:52:43.887212453 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.c	2016-02-06 17:10:01.161122995 +0800
 @@ -734,7 +734,8 @@ const enum reg_class mips_regno_to_class
    COP3_REGS,	COP3_REGS,	COP3_REGS,	COP3_REGS,
    DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,
@@ -433,7 +508,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.c gcc-5.3.0/gcc/config/mips/mips
      }
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips.h
 --- gcc-5.3.0-orig/gcc/config/mips/mips.h	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.h	2016-01-24 00:25:53.386086934 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.h	2016-02-06 17:10:11.677123130 +0800
 @@ -267,6 +267,7 @@ struct mips_cpu_info {
  #define TUNE_MIPS5000               (mips_tune == PROCESSOR_R5000)
  #define TUNE_MIPS5400               (mips_tune == PROCESSOR_R5400)
@@ -464,6 +539,15 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
  
  /* Integer multiply-accumulate instructions should be generated.  */
  #define GENERATE_MADD_MSUB	(TARGET_IMADD && !TARGET_MIPS16)
+@@ -1302,7 +1305,7 @@ FP_ASM_SPEC "\
+ #ifndef LINK_SPEC
+ #define LINK_SPEC "\
+ %(endian_spec) \
+-%{G*} %{mips1} %{mips2} %{mips3} %{mips4} %{mips32*} %{mips64*} \
++%{G*} %{mips1} %{mips2} %{mips3} %{mips4} %{mips32*} %{mips64*} %{miop:-mmipsirx} \
+ %{shared}"
+ #endif  /* LINK_SPEC defined */
+ 
 @@ -1649,9 +1652,10 @@ FP_ASM_SPEC "\
  	- CPRESTORE_SLOT_REGNUM
     - 2 dummy entries that were used at various times in the past.
@@ -541,25 +625,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
  
  #define FP_REG_RTX_P(X) (REG_P (X) && FP_REG_P (REGNO (X)))
  
-@@ -1872,10 +1888,14 @@ FP_ASM_SPEC "\
-   mips_hard_regno_caller_save_mode (REGNO, NREGS, MODE)
- 
- /* Odd-numbered single-precision registers are not considered callee-saved
--   for o32 FPXX as they will be clobbered when run on an FR=1 FPU.  */
-+   for o32 FPXX as they will be clobbered when run on an FR=1 FPU.
-+
-+   The R5900 has 128-bit registers. The upper 64-bits of each GPR
-+   is used for MMI, but is not callee-saved.  */
- #define HARD_REGNO_CALL_PART_CLOBBERED(REGNO, MODE)			\
--  (TARGET_FLOATXX && hard_regno_nregs[REGNO][MODE] == 1			\
--   && FP_REG_P (REGNO) && ((REGNO) & 1))
-+  ((TARGET_FLOATXX && hard_regno_nregs[REGNO][MODE] == 1			\
-+    && FP_REG_P (REGNO) && ((REGNO) & 1))					\
-+   || (TARGET_MIPS5900 && GET_MODE_SIZE (MODE) >= UNITS_PER_WORD))
- 
- #define MODES_TIEABLE_P mips_modes_tieable_p
- 
-@@ -1996,6 +2016,9 @@ enum reg_class
+@@ -1996,6 +2012,9 @@ enum reg_class
    MD0_REG,			/* first multiply/divide register */
    MD1_REG,			/* second multiply/divide register */
    MD_REGS,			/* multiply/divide registers (hi/lo) */
@@ -569,7 +635,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
    COP0_REGS,			/* generic coprocessor classes */
    COP2_REGS,
    COP3_REGS,
-@@ -2006,6 +2029,9 @@ enum reg_class
+@@ -2006,6 +2025,9 @@ enum reg_class
    GR_AND_MD0_REGS,		/* union classes */
    GR_AND_MD1_REGS,
    GR_AND_MD_REGS,
@@ -579,7 +645,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
    GR_AND_ACC_REGS,
    ALL_REGS,			/* all registers */
    LIM_REG_CLASSES		/* max value + 1 */
-@@ -2036,6 +2062,9 @@ enum reg_class
+@@ -2036,6 +2058,9 @@ enum reg_class
    "MD0_REG",								\
    "MD1_REG",								\
    "MD_REGS",								\
@@ -589,7 +655,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
    /* coprocessor registers */						\
    "COP0_REGS",								\
    "COP2_REGS",								\
-@@ -2047,6 +2076,9 @@ enum reg_class
+@@ -2047,6 +2072,9 @@ enum reg_class
    "GR_AND_MD0_REGS",							\
    "GR_AND_MD1_REGS",							\
    "GR_AND_MD_REGS",							\
@@ -599,7 +665,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
    "GR_AND_ACC_REGS",							\
    "ALL_REGS"								\
  }
-@@ -2079,18 +2111,24 @@ enum reg_class
+@@ -2079,18 +2107,24 @@ enum reg_class
    { 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 },	/* MD0_REG */		\
    { 0x00000000, 0x00000000, 0x00000002, 0x00000000, 0x00000000, 0x00000000 },	/* MD1_REG */		\
    { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x00000000 },	/* MD_REGS */		\
@@ -627,7 +693,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
  }
  
  
-@@ -2126,7 +2164,7 @@ enum reg_class
+@@ -2126,7 +2160,7 @@ enum reg_class
       point of definition.  It's also needed if we're to take advantage	\
       of the extra accumulators available with -mdspr2.  In some cases,	\
       it can also help to reduce register pressure.  */			\
@@ -636,7 +702,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
    /* Call-clobbered GPRs.  */						\
    1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,		\
    24, 25, 31,								\
-@@ -2720,7 +2758,7 @@ typedef struct mips_args {
+@@ -2720,7 +2754,7 @@ typedef struct mips_args {
    "$c3r16","$c3r17","$c3r18","$c3r19","$c3r20","$c3r21","$c3r22","$c3r23", \
    "$c3r24","$c3r25","$c3r26","$c3r27","$c3r28","$c3r29","$c3r30","$c3r31", \
    "$ac1hi","$ac1lo","$ac2hi","$ac2lo","$ac3hi","$ac3lo","$dsp_po","$dsp_sc", \
@@ -647,7 +713,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
     names for $fp and $sp.  */
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mips.md
 --- gcc-5.3.0-orig/gcc/config/mips/mips.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.md	2016-01-23 20:52:32.575212483 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.md	2016-02-06 17:10:01.169123040 +0800
 @@ -222,7 +222,7 @@
  (define_attr "move_type"
    "unknown,load,fpload,store,fpstore,mtc,mfc,mtlo,mflo,imul,move,fmove,
@@ -802,7 +868,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
 -  "<d>mult\t%1,%2"
 -  [(set_attr "type" "imul")
 -   (set_attr "mode" "<MODE>")])
-+  "return TARGET_MIPS5900 ? <d>mult%H0\t%1,%2 : <d>mult\t%1,%2;"
++  { return TARGET_MIPS5900 ? "<d>mult%H0\t%1,%2" : "<d>mult\t%1,%2"; }
 +  [(set_attr "type" "imul,imul")
 +   (set_attr "mode" "<MODE>")
 +   (set (attr "enabled")
@@ -978,7 +1044,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
    if (ISA_HAS_EXT_INS)
      emit_insn (gen_insvdi (operands[0], GEN_INT (32), GEN_INT (32),
-@@ -2120,16 +2211,26 @@
+@@ -2120,16 +2211,24 @@
  })
  
  (define_insn "<u>mulsidi3_64bit_hilo"
@@ -995,9 +1061,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
 -  "mult<u>\t%1,%2"
 -  [(set_attr "type" "imul")
 -   (set_attr "mode" "SI")])
-+  {
-+    return TARGET_MIPS5900 ? "mult<u>%H0\t%1,%2" : "mult<u>\t%1,%2";
-+  }
++  { return TARGET_MIPS5900 ? "mult<u>%H0\t%1,%2" : "mult<u>\t%1,%2"; }
 +  [(set_attr "type" "imul,imul")
 +   (set_attr "mode" "SI")
 +   (set (attr "enabled")
@@ -1011,7 +1075,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; See comment before the ISA_HAS_DMUL3 case in mips_mulsidi3_gen_fn.
  (define_insn "mulsidi3_64bit_dmul"
-@@ -2177,7 +2278,7 @@
+@@ -2177,7 +2276,7 @@
  	   (mult:DI
  	      (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
  	      (any_extend:DI (match_operand:SI 2 "register_operand" "d")))))]
@@ -1020,7 +1084,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  {
    if (ISA_HAS_DSP_MULT)
      return "msub<u>\t%q0,%1,%2";
-@@ -2446,12 +2547,12 @@
+@@ -2446,12 +2545,12 @@
  ;; See the comment above <u>msubsidi4 for the relationship between
  ;; ISA_HAS_DSP and ISA_HAS_DSP_MULT.
  (define_insn "<u>maddsidi4"
@@ -1038,7 +1102,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
     && !TARGET_64BIT"
  {
    if (TARGET_MAD)
-@@ -2460,13 +2561,23 @@
+@@ -2460,13 +2559,23 @@
      return "madd<u>\t%q0,%1,%2";
    else if (GENERATE_MADD_MSUB || TARGET_MIPS5500)
      return "madd<u>\t%1,%2";
@@ -1064,7 +1128,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; Floating point multiply accumulate instructions.
  
-@@ -2734,10 +2845,10 @@
+@@ -2734,10 +2843,10 @@
  })
  
  (define_insn_and_split "*divmod<mode>4"
@@ -1079,15 +1143,12 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  	(mod:GPR (match_dup 1)
  		 (match_dup 2)))]
    "ISA_HAS_<D>DIV && !TARGET_FIX_VR4120 && !TARGET_MIPS16"
-@@ -2745,12 +2856,23 @@
+@@ -2745,12 +2854,20 @@
    "&& reload_completed"
    [(const_int 0)]
  {
 -  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2]));
-+  if (TARGET_64BIT)
-+    emit_insn (gen_divmod<mode>4_64bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_P ( REGNO (operands[0])) ? MD_REG_FIRST : MD1_REG_FIRST)));
-+  else
-+    emit_insn (gen_divmod<mode>4_32bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_P ( REGNO (operands[0])) ? MD_REG_FIRST : MD1_REG_FIRST)));
++  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2], operands[0]));
    DONE;
  }
 - [(set_attr "type" "idiv")
@@ -1106,19 +1167,16 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; Expand generates divmod instructions for individual division and modulus
  ;; operations.  We then rely on CSE to reuse earlier divmods where possible.
-@@ -2771,7 +2893,10 @@
+@@ -2771,7 +2888,7 @@
    "&& cse_not_expected"
    [(const_int 0)]
  {
 -  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2]));
-+  if (TARGET_64BIT)
-+    emit_insn (gen_divmod<mode>4_64bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_FIRST)));
-+  else
-+    emit_insn (gen_divmod<mode>4_32bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_FIRST)));
++  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2], operands[4]));
    emit_move_insn (operands[0], operands[4]);
    DONE;
  }
-@@ -2799,10 +2924,10 @@
+@@ -2799,10 +2916,10 @@
  })
  
  (define_insn_and_split "*udivmod<mode>4"
@@ -1133,15 +1191,12 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  	(umod:GPR (match_dup 1)
  		  (match_dup 2)))]
    "ISA_HAS_<D>DIV && !TARGET_MIPS16"
-@@ -2810,12 +2935,23 @@
+@@ -2810,12 +2927,20 @@
    "reload_completed"
    [(const_int 0)]
  {
 -  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2]));
-+  if (TARGET_64BIT)
-+    emit_insn (gen_udivmod<mode>4_64bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_P ( REGNO (operands[0])) ? MD_REG_FIRST : MD1_REG_FIRST)));
-+  else
-+    emit_insn (gen_udivmod<mode>4_32bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_P ( REGNO (operands[0])) ? MD_REG_FIRST : MD1_REG_FIRST)));
++  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2], operands[0]));
    DONE;
  }
 -  [(set_attr "type" "idiv")
@@ -1160,61 +1215,42 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; See the comment above "divmod<mode>4_mips16" for the split timing.
  (define_insn_and_split "udivmod<mode>4_mips16"
-@@ -2831,7 +2967,10 @@
+@@ -2831,7 +2956,7 @@
    "cse_not_expected"
    [(const_int 0)]
  {
 -  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2]));
-+  if (TARGET_64BIT)
-+    emit_insn (gen_udivmod<mode>4_64bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_FIRST)));
-+  else
-+    emit_insn (gen_udivmod<mode>4_32bit_split (operands[3], operands[1], operands[2], gen_rtx_REG(TImode, MD_REG_FIRST)));
++  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2], operands[4]));
    emit_move_insn (operands[0], operands[4]);
    DONE;
  }
-@@ -2839,41 +2978,51 @@
-    (set_attr "mode" "<MODE>")
-    (set_attr "insn_count" "3")])
- 
--(define_expand "<u>divmod<mode>4_split"
-+(define_expand "<u>divmod<mode>4_32bit_split"
+@@ -2842,21 +2967,22 @@
+ (define_expand "<u>divmod<mode>4_split"
    [(set (match_operand:GPR 0 "register_operand")
  	(any_mod:GPR (match_operand:GPR 1 "register_operand")
 -		     (match_operand:GPR 2 "register_operand")))]
 +		     (match_operand:GPR 2 "register_operand")))
-+	(clobber (match_operand:TI 3 "hilo_operand"))]
++   (clobber (match_operand:GPR 3 "lo_operand"))]
    ""
  {
--  rtx hilo;
--
--  if (TARGET_64BIT)
--    {
+   rtx hilo;
+ 
+   if (TARGET_64BIT)
+     {
 -      hilo = gen_rtx_REG (TImode, MD_REG_FIRST);
--      emit_insn (gen_<u>divmod<mode>4_hilo_ti (hilo, operands[1],
-+  emit_insn (gen_<u>divmod<mode>4_hilo_di (operands[3], operands[1],
++      hilo = gen_rtx_REG (TImode, MD_REG_P ( REGNO (operands[3])) ? MD_REG_FIRST : MD1_REG_FIRST);
+       emit_insn (gen_<u>divmod<mode>4_hilo_ti (hilo, operands[1],
  					       operands[2]));
--      emit_insn (gen_mfhi<mode>_ti (operands[0], hilo));
--    }
--  else
--    {
+       emit_insn (gen_mfhi<mode>_ti (operands[0], hilo));
+     }
+   else
+     {
 -      hilo = gen_rtx_REG (DImode, MD_REG_FIRST);
--      emit_insn (gen_<u>divmod<mode>4_hilo_di (hilo, operands[1],
-+  emit_insn (gen_mfhi<mode>_di (operands[0], operands[3]));
-+})
-+
-+(define_expand "<u>divmod<mode>4_64bit_split"
-+  [(set (match_operand:GPR 0 "register_operand")
-+	(any_mod:GPR (match_operand:GPR 1 "register_operand")
-+		     (match_operand:GPR 2 "register_operand")))
-+	(clobber (match_operand:TI 3 "hilo_operand"))]
-+  ""
-+{
-+  emit_insn (gen_<u>divmod<mode>4_hilo_ti (operands[3], operands[1],
++      hilo = gen_rtx_REG (DImode, MD_REG_P ( REGNO (operands[3])) ? MD_REG_FIRST : MD1_REG_FIRST);
+       emit_insn (gen_<u>divmod<mode>4_hilo_di (hilo, operands[1],
  					       operands[2]));
--      emit_insn (gen_mfhi<mode>_di (operands[0], hilo));
--    }
-+  emit_insn (gen_mfhi<mode>_ti (operands[0], operands[3]));
-   DONE;
+       emit_insn (gen_mfhi<mode>_di (operands[0], hilo));
+@@ -2865,15 +2991,23 @@
  })
  
  (define_insn "<u>divmod<GPR:mode>4_hilo_<HILO:mode>"
@@ -1230,9 +1266,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
 -  { return mips_output_division ("<GPR:d>div<u>\t%.,%1,%2", operands); }
 -  [(set_attr "type" "idiv")
 -   (set_attr "mode" "<GPR:MODE>")])
-+  {
-+      return mips_output_division (TARGET_MIPS5900 ? "<GPR:d>div<u>%H0\t%.,%1,%2" : "<GPR:d>div<u>\t%.,%1,%2", operands);
-+  }
++  { return mips_output_division (TARGET_MIPS5900 ? "<GPR:d>div<u>%H0\t%.,%1,%2" : "<GPR:d>div<u>\t%.,%1,%2", operands); }
 +  [(set_attr "type" "idiv,idiv")
 +   (set_attr "mode" "<GPR:MODE>")
 +   (set (attr "enabled")
@@ -1246,7 +1280,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; Integer division and modulus.
  
-@@ -2940,7 +3089,7 @@
+@@ -2940,7 +3074,7 @@
    [(set (match_operand:ANYF 0 "register_operand" "=f")
  	(div:ANYF (match_operand:ANYF 1 "const_1_operand" "")
  		  (sqrt:ANYF (match_operand:ANYF 2 "register_operand" "f"))))]
@@ -1255,7 +1289,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  {
    if (TARGET_FIX_SB1)
      return "rsqrt.<fmt>\t%0,%2\;mov.<fmt>\t%0,%0";
-@@ -2958,7 +3107,7 @@
+@@ -2958,7 +3092,7 @@
    [(set (match_operand:ANYF 0 "register_operand" "=f")
  	(sqrt:ANYF (div:ANYF (match_operand:ANYF 1 "const_1_operand" "")
  			     (match_operand:ANYF 2 "register_operand" "f"))))]
@@ -1264,7 +1298,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  {
    if (TARGET_FIX_SB1)
      return "rsqrt.<fmt>\t%0,%2\;mov.<fmt>\t%0,%0";
-@@ -5109,26 +5258,42 @@
+@@ -5109,26 +5243,42 @@
  ;; instead of MFHI.  This avoids both the normal MIPS III hi/lo hazards
  ;; and the errata related to -mfix-vr4130.
  (define_insn "mfhi<GPR:mode>_<HILO:mode>"
@@ -1318,9 +1352,22 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  
  ;; Emit a doubleword move in which exactly one of the operands is
  ;; a floating-point register.  We can't just emit two normal moves
+diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.opt gcc-5.3.0/gcc/config/mips/mips.opt
+--- gcc-5.3.0-orig/gcc/config/mips/mips.opt	2016-01-14 22:56:47.004611768 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.opt	2016-02-06 17:10:11.685123127 +0800
+@@ -50,6 +50,9 @@ Enum(mips_abi) String(64) Value(ABI_64)
+ EnumValue
+ Enum(mips_abi) String(eabi) Value(ABI_EABI)
+ 
++iop
++Target the SONY PlayStation 2 IOP
++
+ mabicalls
+ Target Report Mask(ABICALLS)
+ Generate code that can be used in SVR4-style dynamic objects
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/predicates.md gcc-5.3.0/gcc/config/mips/predicates.md
 --- gcc-5.3.0-orig/gcc/config/mips/predicates.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/predicates.md	2016-01-22 16:01:14.961146834 +0800
++++ gcc-5.3.0/gcc/config/mips/predicates.md	2016-02-06 17:10:01.289123039 +0800
 @@ -244,11 +244,13 @@
  
  (define_predicate "lo_operand"
@@ -1337,63 +1384,31 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/predicates.md gcc-5.3.0/gcc/config/mi
  
  (define_predicate "fcc_reload_operand"
    (and (match_code "reg,subreg")
-diff -rupNb gcc-5.3.0-orig/libgcc/config/t-hardfp-sf gcc-5.3.0/libgcc/config/t-hardfp-sf
---- gcc-5.3.0-orig/libgcc/config/t-hardfp-sf	1970-01-01 07:30:00.000000000 +0730
-+++ gcc-5.3.0/libgcc/config/t-hardfp-sf	2016-01-24 01:05:23.910106068 +0800
-@@ -0,0 +1,32 @@
-+# Copyright (C) 2014-2015 Free Software Foundation, Inc.
-+
-+# This file is part of GCC.
-+
-+# GCC is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 3, or (at your option)
-+# any later version.
-+
-+# GCC is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+
-+# You should have received a copy of the GNU General Public License
-+# along with GCC; see the file COPYING3.  If not see
-+# <http://www.gnu.org/licenses/>.
-+
-+hardfp_float_modes := sf
-+# di and ti are provided by libgcc2.c where needed.
-+hardfp_int_modes := si
-+hardfp_extensions :=
-+hardfp_truncations :=
-+
-+# Emulate 64 bit float:
-+FPBIT = true
-+DPBIT = true
-+# Don't build functions handled by 32 bit hardware:
-+LIB2FUNCS_EXCLUDE = _addsub_sf _mul_sf _div_sf \
-+    _fpcmp_parts_sf _compare_sf _eq_sf _ne_sf _gt_sf _ge_sf \
-+    _lt_sf _le_sf _unord_sf _si_to_sf _sf_to_si _negate_sf \
-+    _thenan_sf _sf_to_usi _usi_to_sf
+diff -rupNb gcc-5.3.0-orig/gcc/config.gcc gcc-5.3.0/gcc/config.gcc
+--- gcc-5.3.0-orig/gcc/config.gcc	2016-01-14 22:56:49.336611760 +0800
++++ gcc-5.3.0/gcc/config.gcc	2016-02-06 17:10:11.685123127 +0800
+@@ -2161,6 +2161,11 @@ mips64r5900-*-elf* | mips64r5900el-*-elf
+ 	tmake_file="mips/t-elf"
+ 	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
+ 	;;
++mipsel-*-irx)
++	tm_file="dbxelf.h elfos.h newlib-stdint.h ${tm_file} mips/iop.h mips/elf.h"
++	tmake_file="mips/t-elf mips/dbx.h"
++	target_cpu_default=MASK_SOFT_FLOAT_ABI
++	;;
+ mips64-*-elf* | mips64el-*-elf*)
+ 	tm_file="elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
+ 	tmake_file="mips/t-elf"
 diff -rupNb gcc-5.3.0-orig/libgcc/config.host gcc-5.3.0/libgcc/config.host
 --- gcc-5.3.0-orig/libgcc/config.host	2016-01-14 22:56:50.980611757 +0800
-+++ gcc-5.3.0/libgcc/config.host	2016-01-23 17:47:27.323241842 +0800
-@@ -144,7 +144,20 @@ mips*-*-*)
- 	cpu_type=mips
- 	tmake_file="mips/t-mips"
- 	if test "${libgcc_cv_mips_hard_float}" = yes; then
-+	    case ${host} in
-+	      mips64r5900* | mipsr5900*)
-+	        # r5900 doesn't support df.
-+		tmake_file="${tmake_file} t-hardfp-sf t-hardfp"
-+	        ;;
-+	      *)
-+	        if test x$with_arch = xr5900; then
-+	            # r5900 doesn't support df.
-+		    tmake_file="${tmake_file} t-hardfp-sf t-hardfp"
-+		else
- 		tmake_file="${tmake_file} t-hardfp-sfdf t-hardfp"
-+	        fi
-+	        ;;
-+	    esac
- 	else
- 		tmake_file="${tmake_file} t-softfp-sfdf"
- 	fi
++++ gcc-5.3.0/libgcc/config.host	2016-02-06 17:10:11.685123127 +0800
+@@ -877,6 +877,9 @@ mips-*-elf* | mipsel-*-elf*)
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
++mipsel-*-irx)
++	tmake_file="$tmake_file mips/t-elf"
++	;;
+ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
+ 	extra_parts="$extra_parts crti.o crtn.o"
