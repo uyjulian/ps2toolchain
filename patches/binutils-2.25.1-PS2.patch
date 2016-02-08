@@ -1,6 +1,6 @@
-diff -rupNb binutils-2.25.1-orig/bfd/config.bfd binutils-2.25.1/bfd/config.bfd
---- binutils-2.25.1-orig/bfd/config.bfd	2016-02-03 21:28:25.100218500 +0800
-+++ binutils-2.25.1/bfd/config.bfd	2016-02-04 09:10:37.778266700 +0800
+diff -rupNb binutils-2.25.1.orig/bfd/config.bfd binutils-2.25.1/bfd/config.bfd
+--- binutils-2.25.1.orig/bfd/config.bfd	2016-02-08 09:39:15.264394153 +0800
++++ binutils-2.25.1/bfd/config.bfd	2016-02-08 10:07:02.756426139 +0800
 @@ -1002,6 +1002,10 @@ case "${targ}" in
      targ_selvecs="mips_elf32_le_vec mips_ecoff_be_vec mips_ecoff_le_vec"
      ;;
@@ -12,9 +12,9 @@ diff -rupNb binutils-2.25.1-orig/bfd/config.bfd binutils-2.25.1/bfd/config.bfd
    mips*-sgi-* | mips*-*-bsd*)
      targ_defvec=mips_ecoff_be_vec
      targ_selvecs=mips_ecoff_le_vec
-diff -rupNb binutils-2.25.1-orig/bfd/elf.c binutils-2.25.1/bfd/elf.c
---- binutils-2.25.1-orig/bfd/elf.c	2016-02-03 21:28:26.218971000 +0800
-+++ binutils-2.25.1/bfd/elf.c	2016-02-04 09:10:37.793890400 +0800
+diff -rupNb binutils-2.25.1.orig/bfd/elf.c binutils-2.25.1/bfd/elf.c
+--- binutils-2.25.1.orig/bfd/elf.c	2016-02-08 09:39:15.284394153 +0800
++++ binutils-2.25.1/bfd/elf.c	2016-02-08 10:07:02.756426139 +0800
 @@ -2517,7 +2517,7 @@ _bfd_elf_make_section_from_phdr (bfd *ab
        newsect->filepos = hdr->p_offset;
        newsect->flags |= SEC_HAS_CONTENTS;
@@ -132,9 +132,9 @@ diff -rupNb binutils-2.25.1-orig/bfd/elf.c binutils-2.25.1/bfd/elf.c
  	      && (p->p_type != PT_NOTE
  		  || bfd_get_format (abfd) != bfd_core))
  	    {
-diff -rupNb binutils-2.25.1-orig/bfd/elflink.c binutils-2.25.1/bfd/elflink.c
---- binutils-2.25.1-orig/bfd/elflink.c	2016-02-03 21:28:30.048554300 +0800
-+++ binutils-2.25.1/bfd/elflink.c	2016-02-04 09:10:37.825164800 +0800
+diff -rupNb binutils-2.25.1.orig/bfd/elflink.c binutils-2.25.1/bfd/elflink.c
+--- binutils-2.25.1.orig/bfd/elflink.c	2016-02-08 09:39:15.272394153 +0800
++++ binutils-2.25.1/bfd/elflink.c	2016-02-08 10:07:02.760426140 +0800
 @@ -9997,9 +9997,17 @@ elf_link_input_bfd (struct elf_final_lin
  			 elf_link_output_extsym that this symbol is
  			 used by a reloc.  */
@@ -154,9 +154,9 @@ diff -rupNb binutils-2.25.1-orig/bfd/elflink.c binutils-2.25.1/bfd/elflink.c
  
  		      continue;
  		    }
-diff -rupNb binutils-2.25.1-orig/bfd/elfxx-mips.c binutils-2.25.1/bfd/elfxx-mips.c
---- binutils-2.25.1-orig/bfd/elfxx-mips.c	2016-02-03 21:28:30.233271600 +0800
-+++ binutils-2.25.1/bfd/elfxx-mips.c	2016-02-04 09:10:37.840766100 +0800
+diff -rupNb binutils-2.25.1.orig/bfd/elfxx-mips.c binutils-2.25.1/bfd/elfxx-mips.c
+--- binutils-2.25.1.orig/bfd/elfxx-mips.c	2016-02-08 09:39:15.264394153 +0800
++++ binutils-2.25.1/bfd/elfxx-mips.c	2016-02-08 10:07:02.764426140 +0800
 @@ -7051,6 +7051,10 @@ _bfd_mips_elf_section_from_shdr (bfd *ab
       probably get away with this.  */
    switch (hdr->sh_type)
@@ -197,9 +197,9 @@ diff -rupNb binutils-2.25.1-orig/bfd/elfxx-mips.c binutils-2.25.1/bfd/elfxx-mips
      {
        hdr->sh_type = SHT_MIPS_LIBLIST;
        hdr->sh_info = sec->size / sizeof (Elf32_Lib);
-diff -rupNb binutils-2.25.1-orig/config.sub binutils-2.25.1/config.sub
---- binutils-2.25.1-orig/config.sub	2016-02-03 21:28:48.728738300 +0800
-+++ binutils-2.25.1/config.sub	2016-02-04 09:10:37.887641800 +0800
+diff -rupNb binutils-2.25.1.orig/config.sub binutils-2.25.1/config.sub
+--- binutils-2.25.1.orig/config.sub	2016-02-08 09:39:15.312394154 +0800
++++ binutils-2.25.1/config.sub	2016-02-08 10:07:02.764426140 +0800
 @@ -759,6 +759,10 @@ case $basic_machine in
  		basic_machine=i386-unknown
  		os=-vsta
@@ -221,9 +221,9 @@ diff -rupNb binutils-2.25.1-orig/config.sub binutils-2.25.1/config.sub
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
  	-qnx*)
-diff -rupNb binutils-2.25.1-orig/configure binutils-2.25.1/configure
---- binutils-2.25.1-orig/configure	2016-02-03 21:28:48.829811500 +0800
-+++ binutils-2.25.1/configure	2016-02-04 09:10:37.950142200 +0800
+diff -rupNb binutils-2.25.1.orig/configure binutils-2.25.1/configure
+--- binutils-2.25.1.orig/configure	2016-02-08 09:39:15.288394153 +0800
++++ binutils-2.25.1/configure	2016-02-08 10:07:02.768426139 +0800
 @@ -2759,7 +2759,7 @@ host_libs="intl libiberty opcodes bfd re
  # binutils, gas and ld appear in that order because it makes sense to run
  # "make check" in that particular order.
@@ -233,9 +233,9 @@ diff -rupNb binutils-2.25.1-orig/configure binutils-2.25.1/configure
  
  # libgcj represents the runtime libraries only used by gcj.
  libgcj="target-libffi \
-diff -rupNb binutils-2.25.1-orig/gas/configure.tgt binutils-2.25.1/gas/configure.tgt
---- binutils-2.25.1-orig/gas/configure.tgt	2016-02-03 21:28:56.328039100 +0800
-+++ binutils-2.25.1/gas/configure.tgt	2016-02-04 09:10:37.997019300 +0800
+diff -rupNb binutils-2.25.1.orig/gas/configure.tgt binutils-2.25.1/gas/configure.tgt
+--- binutils-2.25.1.orig/gas/configure.tgt	2016-02-08 09:39:15.656394160 +0800
++++ binutils-2.25.1/gas/configure.tgt	2016-02-08 10:07:02.768426139 +0800
 @@ -335,6 +335,7 @@ case ${generic_target} in
    mips-*-elf* | mips-*-rtems*)		fmt=elf ;;
    mips-*-netbsd*)			fmt=elf em=tmips ;;
@@ -244,9 +244,9 @@ diff -rupNb binutils-2.25.1-orig/gas/configure.tgt binutils-2.25.1/gas/configure
  
    mmix-*-*)				fmt=elf ;;
  
-diff -rupNb binutils-2.25.1-orig/include/elf/common.h binutils-2.25.1/include/elf/common.h
---- binutils-2.25.1-orig/include/elf/common.h	2016-02-03 21:27:38.993995800 +0800
-+++ binutils-2.25.1/include/elf/common.h	2016-02-04 09:10:38.012644400 +0800
+diff -rupNb binutils-2.25.1.orig/include/elf/common.h binutils-2.25.1/include/elf/common.h
+--- binutils-2.25.1.orig/include/elf/common.h	2016-02-08 09:39:15.664394161 +0800
++++ binutils-2.25.1/include/elf/common.h	2016-02-08 10:07:02.768426139 +0800
 @@ -93,6 +93,7 @@
  #define ET_LOOS		0xFE00	/* Operating system-specific */
  #define ET_HIOS		0xFEFF	/* Operating system-specific */
@@ -271,9 +271,9 @@ diff -rupNb binutils-2.25.1-orig/include/elf/common.h binutils-2.25.1/include/el
  #define SHT_HIPROC	0x7FFFFFFF	/* Processor-specific semantics, hi */
  #define SHT_LOUSER	0x80000000	/* Application-specific semantics */
  /* #define SHT_HIUSER	0x8FFFFFFF    *//* Application-specific semantics */
-diff -rupNb binutils-2.25.1-orig/ld/configure.tgt binutils-2.25.1/ld/configure.tgt
---- binutils-2.25.1-orig/ld/configure.tgt	2016-02-03 21:27:41.733335000 +0800
-+++ binutils-2.25.1/ld/configure.tgt	2016-02-04 09:10:38.028269500 +0800
+diff -rupNb binutils-2.25.1.orig/ld/configure.tgt binutils-2.25.1/ld/configure.tgt
+--- binutils-2.25.1.orig/ld/configure.tgt	2016-02-08 09:39:15.476394157 +0800
++++ binutils-2.25.1/ld/configure.tgt	2016-02-08 10:07:02.768426139 +0800
 @@ -470,6 +470,9 @@ mips*el-ps2-elf*)	targ_emul=elf32lr5900
  			targ_extra_libpath=$targ_extra_emuls ;;
  mips*el-*-elf*)		targ_emul=elf32elmip ;;
@@ -284,9 +284,9 @@ diff -rupNb binutils-2.25.1-orig/ld/configure.tgt binutils-2.25.1/ld/configure.t
  mips*-*-rtems*)		targ_emul=elf32ebmip ;;
  mips*el-*-vxworks*)	targ_emul=elf32elmipvxworks
  			targ_extra_emuls="elf32ebmipvxworks" ;;
-diff -rupNb binutils-2.25.1-orig/ld/emulparams/mipsirx.sh binutils-2.25.1/ld/emulparams/mipsirx.sh
---- binutils-2.25.1-orig/ld/emulparams/mipsirx.sh	1970-01-01 07:30:00.000000000 +0730
-+++ binutils-2.25.1/ld/emulparams/mipsirx.sh	2016-02-04 09:10:38.043894100 +0800
+diff -rupNb binutils-2.25.1.orig/ld/emulparams/mipsirx.sh binutils-2.25.1/ld/emulparams/mipsirx.sh
+--- binutils-2.25.1.orig/ld/emulparams/mipsirx.sh	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/emulparams/mipsirx.sh	2016-02-08 10:07:02.768426139 +0800
 @@ -0,0 +1,8 @@
 +SCRIPT_NAME=irx
 +OUTPUT_FORMAT="elf32-littlemips"
@@ -296,9 +296,9 @@ diff -rupNb binutils-2.25.1-orig/ld/emulparams/mipsirx.sh binutils-2.25.1/ld/emu
 +DATA_ADDR=.
 +TEMPLATE_NAME=elf32
 +EXTRA_EM_FILE=irx
-diff -rupNb binutils-2.25.1-orig/ld/emultempl/irx.em binutils-2.25.1/ld/emultempl/irx.em
---- binutils-2.25.1-orig/ld/emultempl/irx.em	1970-01-01 07:30:00.000000000 +0730
-+++ binutils-2.25.1/ld/emultempl/irx.em	2016-02-04 14:18:17.692953000 +0800
+diff -rupNb binutils-2.25.1.orig/ld/emultempl/irx.em binutils-2.25.1/ld/emultempl/irx.em
+--- binutils-2.25.1.orig/ld/emultempl/irx.em	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/emultempl/irx.em	2016-02-08 10:07:02.768426139 +0800
 @@ -0,0 +1,465 @@
 +fragment <<EOF
 +/* This file is is generated by a shell script.  DO NOT EDIT! */
@@ -765,9 +765,9 @@ diff -rupNb binutils-2.25.1-orig/ld/emultempl/irx.em binutils-2.25.1/ld/emultemp
 +LDEMUL_AFTER_OPEN=irx_after_open
 +LDEMUL_AFTER_ALLOCATION=irx_after_allocation
 +LDEMUL_BEFORE_ALLOCATION=irx_before_allocation
-diff -rupNb binutils-2.25.1-orig/ld/Makefile.am binutils-2.25.1/ld/Makefile.am
---- binutils-2.25.1-orig/ld/Makefile.am	2016-02-03 21:27:44.980743000 +0800
-+++ binutils-2.25.1/ld/Makefile.am	2016-02-04 09:10:38.122021900 +0800
+diff -rupNb binutils-2.25.1.orig/ld/Makefile.am binutils-2.25.1/ld/Makefile.am
+--- binutils-2.25.1.orig/ld/Makefile.am	2016-02-08 09:39:15.476394157 +0800
++++ binutils-2.25.1/ld/Makefile.am	2016-02-08 10:07:02.768426139 +0800
 @@ -340,6 +340,7 @@ ALL_EMULATION_SOURCES = \
  	em68kpsos.c \
  	em88kbcs.c \
@@ -786,9 +786,9 @@ diff -rupNb binutils-2.25.1-orig/ld/Makefile.am binutils-2.25.1/ld/Makefile.am
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -rupNb binutils-2.25.1-orig/ld/Makefile.in binutils-2.25.1/ld/Makefile.in
---- binutils-2.25.1-orig/ld/Makefile.in	2016-02-03 21:27:45.012516100 +0800
-+++ binutils-2.25.1/ld/Makefile.in	2016-02-04 09:10:38.168894800 +0800
+diff -rupNb binutils-2.25.1.orig/ld/Makefile.in binutils-2.25.1/ld/Makefile.in
+--- binutils-2.25.1.orig/ld/Makefile.in	2016-02-08 09:39:15.476394157 +0800
++++ binutils-2.25.1/ld/Makefile.in	2016-02-08 10:07:02.768426139 +0800
 @@ -648,6 +648,7 @@ ALL_EMULATION_SOURCES = \
  	em68kpsos.c \
  	em88kbcs.c \
@@ -815,10 +815,10 @@ diff -rupNb binutils-2.25.1-orig/ld/Makefile.in binutils-2.25.1/ld/Makefile.in
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -rupNb binutils-2.25.1-orig/ld/scripttempl/irx.sc binutils-2.25.1/ld/scripttempl/irx.sc
---- binutils-2.25.1-orig/ld/scripttempl/irx.sc	1970-01-01 07:30:00.000000000 +0730
-+++ binutils-2.25.1/ld/scripttempl/irx.sc	2016-02-04 09:10:38.168894800 +0800
-@@ -0,0 +1,121 @@
+diff -rupNb binutils-2.25.1.orig/ld/scripttempl/irx.sc binutils-2.25.1/ld/scripttempl/irx.sc
+--- binutils-2.25.1.orig/ld/scripttempl/irx.sc	1970-01-01 07:30:00.000000000 +0730
++++ binutils-2.25.1/ld/scripttempl/irx.sc	2016-02-08 18:09:40.126546658 +0800
+@@ -0,0 +1,123 @@
 +# Link scripts for PlayStation 2 IRXs.
 +
 +# NOTE: Limit parameter expansions to a single line.  Cygwin's /bin/sh has
@@ -931,8 +931,10 @@ diff -rupNb binutils-2.25.1-orig/ld/scripttempl/irx.sc binutils-2.25.1/ld/script
 +
 +  /* This is the stuff that we don't want to be put in an IRX.  */
 +  /DISCARD/ : {
++	* ( .MIPS.abiflags )
 +	* ( .reginfo )
 +	* ( .mdebug.* )
++	* ( .pdr )
 +	/* Until I can figure out if there's a better way to rid ourselves of .rel.dyn
 +	   this will have to do.  - MRB  */
 +	* ( .rel.dyn )

@@ -1,6 +1,6 @@
 diff -rupNb gcc-5.3.0-orig/config.sub gcc-5.3.0/config.sub
 --- gcc-5.3.0-orig/config.sub	2016-01-14 22:56:50.984611757 +0800
-+++ gcc-5.3.0/config.sub	2016-02-06 17:10:10.525123110 +0800
++++ gcc-5.3.0/config.sub	2016-02-08 14:21:11.066283685 +0800
 @@ -765,6 +765,10 @@ case $basic_machine in
  		basic_machine=i386-unknown
  		os=-vsta
@@ -24,7 +24,7 @@ diff -rupNb gcc-5.3.0-orig/config.sub gcc-5.3.0/config.sub
  	-qnx*)
 diff -rupNb gcc-5.3.0-orig/configure gcc-5.3.0/configure
 --- gcc-5.3.0-orig/configure	2016-01-14 22:56:50.952611757 +0800
-+++ gcc-5.3.0/configure	2016-02-06 17:10:10.625123115 +0800
++++ gcc-5.3.0/configure	2016-02-08 14:21:11.066283685 +0800
 @@ -3402,6 +3402,8 @@ case "${target}" in
      ;;
    mips*-*-linux*)
@@ -36,7 +36,7 @@ diff -rupNb gcc-5.3.0-orig/configure gcc-5.3.0/configure
    powerpc-*-darwin*)
 diff -rupNb gcc-5.3.0-orig/configure.ac gcc-5.3.0/configure.ac
 --- gcc-5.3.0-orig/configure.ac	2016-01-14 22:56:51.068611757 +0800
-+++ gcc-5.3.0/configure.ac	2016-02-06 17:10:10.953123117 +0800
++++ gcc-5.3.0/configure.ac	2016-02-08 14:21:11.078283686 +0800
 @@ -749,6 +749,8 @@ case "${target}" in
      ;;
    mips*-*-linux*)
@@ -48,7 +48,7 @@ diff -rupNb gcc-5.3.0-orig/configure.ac gcc-5.3.0/configure.ac
    powerpc-*-darwin*)
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/5900.md gcc-5.3.0/gcc/config/mips/5900.md
 --- gcc-5.3.0-orig/gcc/config/mips/5900.md	1970-01-01 07:30:00.000000000 +0730
-+++ gcc-5.3.0/gcc/config/mips/5900.md	2016-02-06 17:10:01.153123042 +0800
++++ gcc-5.3.0/gcc/config/mips/5900.md	2016-02-08 14:21:24.842283947 +0800
 @@ -0,0 +1,42 @@
 +;; Copyright (C) 2002-2015 Free Software Foundation, Inc.
 +;;
@@ -94,7 +94,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/5900.md gcc-5.3.0/gcc/config/mips/590
 +   (set_attr "mode" "SF")])
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/constraints.md gcc-5.3.0/gcc/config/mips/constraints.md
 --- gcc-5.3.0-orig/gcc/config/mips/constraints.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/constraints.md	2016-02-06 17:10:01.153123042 +0800
++++ gcc-5.3.0/gcc/config/mips/constraints.md	2016-02-08 14:21:24.842283947 +0800
 @@ -36,10 +36,18 @@
    "The @code{lo} register.  Use this register to store values that are
     no bigger than a word.")
@@ -116,7 +116,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/constraints.md gcc-5.3.0/gcc/config/m
  
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/iop.h gcc-5.3.0/gcc/config/mips/iop.h
 --- gcc-5.3.0-orig/gcc/config/mips/iop.h	1970-01-01 07:30:00.000000000 +0730
-+++ gcc-5.3.0/gcc/config/mips/iop.h	2016-02-06 17:10:11.449123121 +0800
++++ gcc-5.3.0/gcc/config/mips/iop.h	2016-02-08 14:21:11.090283686 +0800
 @@ -0,0 +1,23 @@
 +/* Intrisics for the SONY PlayStation 2 I/O Processor (IOP).
 +definitions for GNU compiler.
@@ -143,7 +143,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/iop.h gcc-5.3.0/gcc/config/mips/iop.h
 +	%{miop:-march=r3000 -mfp32 -mgp32 -fno-builtin}"
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.c gcc-5.3.0/gcc/config/mips/mips.c
 --- gcc-5.3.0-orig/gcc/config/mips/mips.c	2016-01-14 22:56:47.008611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.c	2016-02-06 17:10:01.161122995 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.c	2016-02-08 14:21:24.846283948 +0800
 @@ -734,7 +734,8 @@ const enum reg_class mips_regno_to_class
    COP3_REGS,	COP3_REGS,	COP3_REGS,	COP3_REGS,
    DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,
@@ -508,7 +508,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.c gcc-5.3.0/gcc/config/mips/mips
      }
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips.h
 --- gcc-5.3.0-orig/gcc/config/mips/mips.h	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.h	2016-02-06 17:10:11.677123130 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.h	2016-02-08 14:43:07.538308938 +0800
 @@ -267,6 +267,7 @@ struct mips_cpu_info {
  #define TUNE_MIPS5000               (mips_tune == PROCESSOR_R5000)
  #define TUNE_MIPS5400               (mips_tune == PROCESSOR_R5400)
@@ -713,7 +713,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
     names for $fp and $sp.  */
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mips.md
 --- gcc-5.3.0-orig/gcc/config/mips/mips.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.md	2016-02-06 17:10:01.169123040 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.md	2016-02-08 14:21:24.850283950 +0800
 @@ -222,7 +222,7 @@
  (define_attr "move_type"
    "unknown,load,fpload,store,fpstore,mtc,mfc,mtlo,mflo,imul,move,fmove,
@@ -1354,12 +1354,12 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.md gcc-5.3.0/gcc/config/mips/mip
  ;; a floating-point register.  We can't just emit two normal moves
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.opt gcc-5.3.0/gcc/config/mips/mips.opt
 --- gcc-5.3.0-orig/gcc/config/mips/mips.opt	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/mips.opt	2016-02-06 17:10:11.685123127 +0800
++++ gcc-5.3.0/gcc/config/mips/mips.opt	2016-02-08 14:43:41.766309593 +0800
 @@ -50,6 +50,9 @@ Enum(mips_abi) String(64) Value(ABI_64)
  EnumValue
  Enum(mips_abi) String(eabi) Value(ABI_EABI)
  
-+iop
++miop
 +Target the SONY PlayStation 2 IOP
 +
  mabicalls
@@ -1367,7 +1367,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.opt gcc-5.3.0/gcc/config/mips/mi
  Generate code that can be used in SVR4-style dynamic objects
 diff -rupNb gcc-5.3.0-orig/gcc/config/mips/predicates.md gcc-5.3.0/gcc/config/mips/predicates.md
 --- gcc-5.3.0-orig/gcc/config/mips/predicates.md	2016-01-14 22:56:47.004611768 +0800
-+++ gcc-5.3.0/gcc/config/mips/predicates.md	2016-02-06 17:10:01.289123039 +0800
++++ gcc-5.3.0/gcc/config/mips/predicates.md	2016-02-08 14:21:24.850283950 +0800
 @@ -244,11 +244,13 @@
  
  (define_predicate "lo_operand"
@@ -1386,12 +1386,12 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/predicates.md gcc-5.3.0/gcc/config/mi
    (and (match_code "reg,subreg")
 diff -rupNb gcc-5.3.0-orig/gcc/config.gcc gcc-5.3.0/gcc/config.gcc
 --- gcc-5.3.0-orig/gcc/config.gcc	2016-01-14 22:56:49.336611760 +0800
-+++ gcc-5.3.0/gcc/config.gcc	2016-02-06 17:10:11.685123127 +0800
++++ gcc-5.3.0/gcc/config.gcc	2016-02-08 14:33:30.826297322 +0800
 @@ -2161,6 +2161,11 @@ mips64r5900-*-elf* | mips64r5900el-*-elf
  	tmake_file="mips/t-elf"
  	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
  	;;
-+mipsel-*-irx)
++mipsel-*-irx*)
 +	tm_file="dbxelf.h elfos.h newlib-stdint.h ${tm_file} mips/iop.h mips/elf.h"
 +	tmake_file="mips/t-elf mips/dbx.h"
 +	target_cpu_default=MASK_SOFT_FLOAT_ABI
@@ -1401,7 +1401,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config.gcc gcc-5.3.0/gcc/config.gcc
  	tmake_file="mips/t-elf"
 diff -rupNb gcc-5.3.0-orig/libgcc/config.host gcc-5.3.0/libgcc/config.host
 --- gcc-5.3.0-orig/libgcc/config.host	2016-01-14 22:56:50.980611757 +0800
-+++ gcc-5.3.0/libgcc/config.host	2016-02-06 17:10:11.685123127 +0800
++++ gcc-5.3.0/libgcc/config.host	2016-02-08 14:21:11.094283686 +0800
 @@ -877,6 +877,9 @@ mips-*-elf* | mipsel-*-elf*)
  	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
  	extra_parts="$extra_parts crti.o crtn.o"
