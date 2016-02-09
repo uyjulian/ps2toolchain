@@ -21,7 +21,7 @@
 
  target_names=("ee" "iop")
  targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx")
- extra_opts=("--with-float=hard" "--disable-libstdcxx")
+ extra_opts=("--with-float=hard --with-newlib" "--disable-libstdcxx")
 
  ## For each target...
  for ((i=0; i<${#target_names[@]}; i++)); do
