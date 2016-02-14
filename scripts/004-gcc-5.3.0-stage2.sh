@@ -23,7 +23,7 @@
  mkdir build-ee-stage2 && cd build-ee-stage2 || { exit 1; }
 
  ## Configure the build.
- ../configure --prefix="$PS2DEV/ee" --target="mips64r5900el-ps2-elf" --program-prefix="ee-" --enable-languages="c,c++" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib --with-float=hard --with-newlib --with-headers="$PS2DEV/ee/ee/include" || { exit 1; }
+ ../configure --prefix="$PS2DEV/ee" --target="mips64r5900el-ps2-elf" --enable-languages="c,c++" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib --with-float=hard --with-newlib --with-headers="$PS2DEV/ee/mips64r5900el-ps2-elf/include" || { exit 1; }
 
  ## Compile and install.
  make clean && make -j 2 && make install && make clean || { exit 1; }

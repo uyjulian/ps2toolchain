@@ -33,7 +33,7 @@
   mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
   ## Configure the build.
-  ../configure --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" --program-prefix="$TARG_NAME-" $TARG_XTRA_OPTS || { exit 1; }
+  ../configure --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" $TARG_XTRA_OPTS || { exit 1; }
 
   ## Compile and install.
   make clean && make -j 2 && make install && make clean || { exit 1; }

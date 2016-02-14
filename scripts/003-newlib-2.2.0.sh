@@ -21,7 +21,7 @@
  mkdir build-ee && cd build-ee || { exit 1; }
 
  ## Configure the build.
- ../configure --prefix="$PS2DEV/ee" --target="ee" || { exit 1; }
+ ../configure --prefix="$PS2DEV/ee" --target="mips64r5900el-ps2-elf" || { exit 1; }
 
  ## Compile and install.
  make clean && make -j 2 && make install && make clean || { exit 1; }
