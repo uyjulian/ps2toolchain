@@ -429,7 +429,7 @@ diff -rupNb gcc-5.3.0-orig/gcc/config/mips/mips.h gcc-5.3.0/gcc/config/mips/mips
  #define TUNE_MIPS5000               (mips_tune == PROCESSOR_R5000)
  #define TUNE_MIPS5400               (mips_tune == PROCESSOR_R5400)
  #define TUNE_MIPS5500               (mips_tune == PROCESSOR_R5500)
-+#define TUNE_MIPS5900				(mips_tune == PROCESSOR_R5900)
++#define TUNE_MIPS5900               (mips_tune == PROCESSOR_R5900)
  #define TUNE_MIPS6000               (mips_tune == PROCESSOR_R6000)
  #define TUNE_MIPS7000               (mips_tune == PROCESSOR_R7000)
  #define TUNE_MIPS9000               (mips_tune == PROCESSOR_R9000)
