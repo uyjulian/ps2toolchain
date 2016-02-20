@@ -1,7 +1,7 @@
 #!/bin/bash
 # binutils-2.25.1.sh by SP193 (ysai187@yahoo.com)
 # Originally binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
-# There is no support for the "dvp" because I never worked with it
+# There is poor support for the "dvp" because I never worked with it
 # and don't actually understand why the old changes were necessary.
 
  BINUTILS_VERSION=2.25.1
@@ -19,9 +19,9 @@
  	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
  fi
 
- target_names=("ee" "iop")
- targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx")
- extra_opts=("--with-float=hard" "")
+ target_names=("ee" "iop" "dvp")
+ targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx" "dvp")
+ extra_opts=("--with-float=hard" "" "--with-float=hard")
 
  ## For each target...
  for ((i=0; i<${#target_names[@]}; i++)); do
