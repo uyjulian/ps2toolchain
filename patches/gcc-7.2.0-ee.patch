@@ -1,0 +1,1218 @@
+diff -burN gcc-7.2.0.orig/gcc/config/mips/5900.md gcc-7.2.0/gcc/config/mips/5900.md
+--- gcc-7.2.0.orig/gcc/config/mips/5900.md	1969-12-31 18:00:00.000000000 -0600
++++ gcc-7.2.0/gcc/config/mips/5900.md	2017-09-23 23:19:42.000000000 -0500
+@@ -0,0 +1,52 @@
++;; Copyright (C) 2002-2015 Free Software Foundation, Inc.
++;;
++;; This file is part of GCC.
++;;
++;; GCC is free software; you can redistribute it and/or modify
++;; it under the terms of the GNU General Public License as published by
++;; the Free Software Foundation; either version 3, or (at your option)
++;; any later version.
++;;
++;; GCC is distributed in the hope that it will be useful,
++;; but WITHOUT ANY WARRANTY; without even the implied warranty of
++;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++;; GNU General Public License for more details.
++;;
++;; You should have received a copy of the GNU General Public License
++;; along with GCC; see the file COPYING3.  If not see
++;; <http://www.gnu.org/licenses/>.
++;;
++;; R5900 instruction patterns and pipeline tuning.
++
++(define_insn_reservation "r5900_hilo1" 1
++  (eq_attr "type" "mfhi1,mflo1,mthi1,mtlo1")
++  "imuldiv*3")
++
++;; RSQRT
++(define_insn "rsqrtsf"
++  [(set (match_operand:SF 0 "register_operand" "=f")
++	(div:SF (match_operand:SF 1 "register_operand" "f")
++		  (sqrt:SF (match_operand:SF 2 "register_operand" "f"))))]
++  "TARGET_MIPS5900"
++  "rsqrt.s\t%0,%1,%2"
++  [(set_attr "type" "frsqrt")
++   (set_attr "mode" "SF")])
++
++;; MIN and MAX
++(define_insn "sminsf3"
++  [(set (match_operand:SF 0 "register_operand" "=f")
++	(smin:SF (match_operand:SF 1 "register_operand" "f")
++		 (match_operand:SF 2 "register_operand" "f")))]
++  "TARGET_MIPS5900"
++  "min.s\t%0,%1,%2"
++  [(set_attr "type" "fadd")
++   (set_attr "mode" "SF")])
++
++(define_insn "smaxsf3"
++  [(set (match_operand:SF 0 "register_operand" "=f")
++	(smax:SF (match_operand:SF 1 "register_operand" "f")
++		 (match_operand:SF 2 "register_operand" "f")))]
++  "TARGET_MIPS5900"
++  "max.s\t%0,%1,%2"
++  [(set_attr "type" "fadd")
++   (set_attr "mode" "SF")])
+diff -burN gcc-7.2.0.orig/gcc/config/mips/constraints.md gcc-7.2.0/gcc/config/mips/constraints.md
+--- gcc-7.2.0.orig/gcc/config/mips/constraints.md	2017-01-01 06:07:43.000000000 -0600
++++ gcc-7.2.0/gcc/config/mips/constraints.md	2017-09-23 23:19:42.000000000 -0500
+@@ -36,10 +36,18 @@
+   "The @code{lo} register.  Use this register to store values that are
+    no bigger than a word.")
+ 
++(define_register_constraint "wl" "TARGET_BIG_ENDIAN ? MD1_1_REG : MD1_0_REG"
++  "The @code{lo1} register.  Use this register to store values that are
++   no bigger than a word.")
++
+ (define_register_constraint "x" "MD_REGS"
+   "The concatenated @code{hi} and @code{lo} registers.  Use this register
+    to store doubleword values.")
+ 
++(define_register_constraint "wr" "MD1_REGS"
++  "The concatenated @code{hi1} and @code{lo1} registers.  Use this register
++   to store doubleword values.")
++
+ (define_register_constraint "b" "ALL_REGS"
+   "@internal")
+ 
+diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
+--- gcc-7.2.0.orig/gcc/config/mips/mips.c	2017-04-20 08:39:50.000000000 -0500
++++ gcc-7.2.0/gcc/config/mips/mips.c	2017-09-23 23:19:42.000000000 -0500
+@@ -585,7 +585,8 @@
+   COP3_REGS,	COP3_REGS,	COP3_REGS,	COP3_REGS,
+   DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,
+   DSP_ACC_REGS,	DSP_ACC_REGS,	ALL_REGS,	ALL_REGS,
+-  ALL_REGS,	ALL_REGS,	ALL_REGS,	ALL_REGS
++  ALL_REGS,	ALL_REGS,	ALL_REGS,	ALL_REGS,
++  MD1_0_REG,	MD1_1_REG
+ };
+ 
+ static tree mips_handle_interrupt_attr (tree *, tree, tree, int, bool *);
+@@ -4776,7 +4777,7 @@
+       else
+ 	gcc_unreachable ();
+     }
+-  else if (REG_P (dest) && REGNO (dest) == MD_REG_FIRST)
++  else if (REG_P (dest) && (REGNO (dest) == MD_REG_FIRST || REGNO (dest) == MD1_REG_FIRST))
+     {
+       low_dest = mips_subword (dest, false);
+       mips_emit_move (low_dest, mips_subword (src, false));
+@@ -4785,7 +4786,7 @@
+       else
+ 	emit_insn (gen_mthisi_di (dest, mips_subword (src, true), low_dest));
+     }
+-  else if (REG_P (src) && REGNO (src) == MD_REG_FIRST)
++  else if (REG_P (src) && (REGNO (src) == MD_REG_FIRST || REGNO (src) == MD1_REG_FIRST))
+     {
+       mips_emit_move (mips_subword (dest, false), mips_subword (src, false));
+       if (TARGET_64BIT)
+@@ -5085,6 +5086,9 @@
+ 	  if (REGNO (dest) == LO_REGNUM)
+ 	    return "mtlo\t%z1";
+ 
++	  if (REGNO (dest) == LO1_REGNUM)
++	    return "mtlo1\t%z1";
++
+ 	  if (DSP_ACC_REG_P (REGNO (dest)))
+ 	    {
+ 	      static char retval[] = "mt__\t%z1,%q0";
+@@ -5138,7 +5142,10 @@
+ 		return dbl_p ? "dmacc\t%0,%.,%." : "macc\t%0,%.,%.";
+ 	      return "mflo\t%0";
+ 	    }
+-
++	  if (REGNO (src) == LO1_REGNUM)
++	    {
++	      return "mflo1\t%0";
++	    }
+ 	  if (DSP_ACC_REG_P (REGNO (src)))
+ 	    {
+ 	      static char retval[] = "mf__\t%0,%q1";
+@@ -8938,6 +8945,7 @@
+    'Y'	Print mips_fp_conditions[INTVAL (OP)]
+    'Z'	Print OP and a comma for ISA_HAS_8CC, otherwise print nothing.
+    'q'	Print a DSP accumulator register.
++   'H'	Print the integer pipeline number of the R5900.
+    'D'	Print the second part of a double-word register or memory operand.
+    'L'	Print the low-order register in a double-word register operand.
+    'M'	Print high-order register in a double-word register operand.
+@@ -9134,6 +9142,11 @@
+ 	}
+       break;
+ 
++    case 'H':
++      if (code == REG && MD1_REG_P (REGNO (op)))
++	fprintf (file, "1");
++      break;
++
+     default:
+       switch (code)
+ 	{
+@@ -10708,7 +10721,7 @@
+ mips_interrupt_extra_call_saved_reg_p (unsigned int regno)
+ {
+   if ((ISA_HAS_HILO || TARGET_DSP)
+-      && MD_REG_P (regno))
++      && (MD_REG_P (regno) || MD1_REG_P (regno)))
+     return true;
+ 
+   if (TARGET_DSP && DSP_ACC_REG_P (regno))
+@@ -11061,12 +11074,19 @@
+ 	  frame->acc_mask |= (1 << 0);
+ 	}
+ 
++      /* Check HI1/LO1.  */
++      if (mips_save_reg_p (LO1_REGNUM) || mips_save_reg_p (HI1_REGNUM))
++	{
++	  frame->num_acc++;
++	  frame->acc_mask |= (1 << 1);
++	}
++
+       /* Check accumulators 1, 2, 3.  */
+       for (i = DSP_ACC_REG_FIRST; i <= DSP_ACC_REG_LAST; i += 2)
+ 	if (mips_save_reg_p (i) || mips_save_reg_p (i + 1))
+ 	  {
+ 	    frame->num_acc++;
+-	    frame->acc_mask |= 1 << (((i - DSP_ACC_REG_FIRST) / 2) + 1);
++	    frame->acc_mask |= 1 << (((i - DSP_ACC_REG_FIRST) / 2) + 2);
+ 	  }
+ 
+       /* All interrupt context functions need space to preserve STATUS.  */
+@@ -11434,9 +11454,17 @@
+       offset -= UNITS_PER_WORD;
+     }
+ 
++  if (BITSET_P (cfun->machine->frame.acc_mask, 1))
++    {
++      mips_save_restore_reg (word_mode, LO1_REGNUM, offset, fn);
++      offset -= UNITS_PER_WORD;
++      mips_save_restore_reg (word_mode, HI1_REGNUM, offset, fn);
++      offset -= UNITS_PER_WORD;
++    }
++
+   for (regno = DSP_ACC_REG_FIRST; regno <= DSP_ACC_REG_LAST; regno++)
+     if (BITSET_P (cfun->machine->frame.acc_mask,
+-		  ((regno - DSP_ACC_REG_FIRST) / 2) + 1))
++		  ((regno - DSP_ACC_REG_FIRST) / 2) + 2))
+       {
+ 	mips_save_restore_reg (word_mode, regno, offset, fn);
+ 	offset -= UNITS_PER_WORD;
+@@ -11693,6 +11721,29 @@
+ 	  mips_emit_move (dest, temp);
+ 	}
+     }
++  else if (regno == HI1_REGNUM)
++    {
++      if (REG_P (dest))
++	{
++	  mips_emit_move (temp, src);
++	  if (TARGET_64BIT)
++	    emit_insn (gen_mthisi_di (gen_rtx_REG (TImode, MD1_REG_FIRST),
++				      temp, gen_rtx_REG (DImode, LO1_REGNUM)));
++	  else
++	    emit_insn (gen_mthisi_di (gen_rtx_REG (DImode, MD1_REG_FIRST),
++				      temp, gen_rtx_REG (SImode, LO1_REGNUM)));
++	}
++      else
++	{
++	  if (TARGET_64BIT)
++	    emit_insn (gen_mfhidi_ti (temp,
++				      gen_rtx_REG (TImode, MD1_REG_FIRST)));
++	  else
++	    emit_insn (gen_mfhisi_di (temp,
++				      gen_rtx_REG (DImode, MD1_REG_FIRST)));
++	  mips_emit_move (dest, temp);
++	}
++    }
+   else if (mips_direct_save_slot_move_p (regno, mem, mem == src))
+     mips_emit_move (dest, src);
+   else
+@@ -12807,6 +12858,12 @@
+ 	  if (size <= UNITS_PER_WORD * 2)
+ 	    return regno == (size <= UNITS_PER_WORD ? LO_REGNUM : MD_REG_FIRST);
+ 	}
++	  else if (MD1_REG_P (regno))
++	{
++	  /* Same as above.  */
++	  if (size <= UNITS_PER_WORD * 2)
++	    return regno == (size <= UNITS_PER_WORD ? LO1_REGNUM : MD1_REG_FIRST);
++	}
+       else
+ 	{
+ 	  /* DSP accumulators do not have the same restrictions as
+@@ -13564,6 +13621,7 @@
+ 	length += NOP_INSN_LENGTH;
+ 	break;
+ 
++      case HAZARD_HILO1:
+       case HAZARD_HILO:
+ 	length += NOP_INSN_LENGTH * 2;
+ 	break;
+@@ -18619,8 +18677,8 @@
+    LO_REG is an rtx for the LO register, used in dependence checking.  */
+ 
+ static void
+-mips_avoid_hazard (rtx_insn *after, rtx_insn *insn, int *hilo_delay,
+-		   rtx *delayed_reg, rtx lo_reg, bool *fs_delay)
++mips_avoid_hazard (rtx_insn *after, rtx_insn *insn, int *hilo_delay, int *hilo1_delay,
++		   rtx *delayed_reg, rtx lo_reg, rtx lo1_reg, bool *fs_delay)
+ {
+   rtx pattern, set;
+   int nops, ninsns;
+@@ -18644,6 +18702,8 @@
+      clobber hi and lo.  */
+   if (*hilo_delay < 2 && reg_set_p (lo_reg, pattern))
+     nops = 2 - *hilo_delay;
++  else if (*hilo1_delay < 2 && reg_set_p (lo1_reg, pattern))
++    nops = 2 - *hilo1_delay;
+   else if (*delayed_reg != 0 && reg_referenced_p (*delayed_reg, pattern))
+     nops = 1;
+   /* If processing a forbidden slot hazard then a NOP is required if the
+@@ -18661,11 +18721,13 @@
+   /* Insert the nops between this instruction and the previous one.
+      Each new nop takes us further from the last hilo hazard.  */
+   *hilo_delay += nops;
++  *hilo1_delay += nops;
+   while (nops-- > 0)
+     emit_insn_after (gen_hazard_nop (), after);
+ 
+   /* Set up the state for the next instruction.  */
+   *hilo_delay += ninsns;
++  *hilo1_delay += ninsns;
+   *delayed_reg = 0;
+   *fs_delay = false;
+   if (INSN_CODE (insn) >= 0)
+@@ -18679,6 +18741,10 @@
+ 	  *fs_delay = true;
+ 	break;
+ 
++      case HAZARD_HILO1:
++	*hilo1_delay = 0;
++	break;
++
+       case HAZARD_HILO:
+ 	*hilo_delay = 0;
+ 	break;
+@@ -18728,8 +18794,8 @@
+ mips_reorg_process_insns (void)
+ {
+   rtx_insn *insn, *last_insn, *subinsn, *next_insn;
+-  rtx lo_reg, delayed_reg;
+-  int hilo_delay;
++  rtx lo_reg, lo1_reg, delayed_reg;
++  int hilo_delay, hilo1_delay;
+   bool fs_delay;
+ 
+   /* Force all instructions to be split into their final form.  */
+@@ -18797,8 +18863,10 @@
+ 
+   last_insn = 0;
+   hilo_delay = 2;
++  hilo1_delay = 2;
+   delayed_reg = 0;
+   lo_reg = gen_rtx_REG (SImode, LO_REGNUM);
++  lo1_reg = gen_rtx_REG (SImode, LO1_REGNUM);
+   fs_delay = false;
+ 
+   /* Make a second pass over the instructions.  Delete orphaned
+@@ -18884,8 +18952,8 @@
+ 			PATTERN (subinsn) = gen_nop ();
+ 			INSN_CODE (subinsn) = CODE_FOR_nop;
+ 		      }
+-		    mips_avoid_hazard (last_insn, subinsn, &hilo_delay,
+-				       &delayed_reg, lo_reg, &fs_delay);
++		    mips_avoid_hazard (last_insn, subinsn, &hilo_delay, &hilo1_delay,
++				       &delayed_reg, lo_reg, lo1_reg, &fs_delay);
+ 		  }
+ 	      last_insn = insn;
+ 	    }
+@@ -18905,8 +18973,8 @@
+ 		delete_insn (insn);
+ 	      else
+ 		{
+-		  mips_avoid_hazard (last_insn, insn, &hilo_delay,
+-				     &delayed_reg, lo_reg, &fs_delay);
++		  mips_avoid_hazard (last_insn, insn, &hilo_delay, &hilo1_delay,
++				     &delayed_reg, lo_reg, lo1_reg, &fs_delay);
+ 		  /* When a compact branch introduces a forbidden slot hazard
+ 		     and the next useful instruction is a SEQUENCE of a jump
+ 		     and a non-nop instruction in the delay slot, remove the
+@@ -20081,6 +20149,8 @@
+   mips_dbx_regno[LO_REGNUM] = MD_DBX_FIRST + 1;
+   mips_dwarf_regno[HI_REGNUM] = MD_REG_FIRST + 0;
+   mips_dwarf_regno[LO_REGNUM] = MD_REG_FIRST + 1;
++  mips_dwarf_regno[HI1_REGNUM] = MD1_REG_FIRST + 0;
++  mips_dwarf_regno[LO1_REGNUM] = MD1_REG_FIRST + 1;
+   for (i = DSP_ACC_REG_FIRST; i <= DSP_ACC_REG_LAST; i += 2)
+     {
+       mips_dwarf_regno[i + TARGET_LITTLE_ENDIAN] = i;
+@@ -20211,8 +20281,16 @@
+ 			    reg_class_contents[(int) DSP_ACC_REGS]);
+ 
+   if (!ISA_HAS_HILO)
++    {
+     AND_COMPL_HARD_REG_SET (accessible_reg_set,
+ 			    reg_class_contents[(int) MD_REGS]);
++    AND_COMPL_HARD_REG_SET (accessible_reg_set,
++			    reg_class_contents[(int) MD1_REGS]);
++    }
++
++  if (!TARGET_MIPS5900)
++      AND_COMPL_HARD_REG_SET (accessible_reg_set,
++		    reg_class_contents[(int) MD1_REGS]);
+ 
+   if (!TARGET_HARD_FLOAT)
+     {
+@@ -20271,6 +20349,8 @@
+ 	 for them) and one-way registers cannot easily be reloaded.  */
+       AND_COMPL_HARD_REG_SET (operand_reg_set,
+ 			      reg_class_contents[(int) MD_REGS]);
++      AND_COMPL_HARD_REG_SET (operand_reg_set,
++			      reg_class_contents[(int) MD1_REGS]);
+     }
+   /* $f20-$f23 are call-clobbered for n64.  */
+   if (mips_abi == ABI_64)
+@@ -20296,6 +20376,7 @@
+       unsigned int regno;
+ 
+       mips_swap_registers (MD_REG_FIRST);
++      mips_swap_registers (MD1_REG_FIRST);
+       for (regno = DSP_ACC_REG_FIRST; regno <= DSP_ACC_REG_LAST; regno += 2)
+ 	mips_swap_registers (regno);
+     }
+diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
+--- gcc-7.2.0.orig/gcc/config/mips/mips.h	2017-01-19 19:05:25.000000000 -0600
++++ gcc-7.2.0/gcc/config/mips/mips.h	2017-09-23 23:19:42.000000000 -0500
+@@ -307,6 +307,7 @@
+ #define TUNE_MIPS5000               (mips_tune == PROCESSOR_R5000)
+ #define TUNE_MIPS5400               (mips_tune == PROCESSOR_R5400)
+ #define TUNE_MIPS5500               (mips_tune == PROCESSOR_R5500)
++#define TUNE_MIPS5900               (mips_tune == PROCESSOR_R5900)
+ #define TUNE_MIPS6000               (mips_tune == PROCESSOR_R6000)
+ #define TUNE_MIPS7000               (mips_tune == PROCESSOR_R7000)
+ #define TUNE_MIPS9000               (mips_tune == PROCESSOR_R9000)
+@@ -360,7 +361,8 @@
+ 				     || TUNE_MIPS4120		\
+ 				     || TUNE_MIPS4130		\
+ 				     || TUNE_24K		\
+-				     || TUNE_P5600)
++				     || TUNE_P5600		\
++				     || TUNE_MIPS5900)
+ 
+ #define TARGET_OLDABI		    (mips_abi == ABI_32 || mips_abi == ABI_O64)
+ #define TARGET_NEWABI		    (mips_abi == ABI_N32 || mips_abi == ABI_64)
+@@ -1061,8 +1063,9 @@
+ 				 && !TARGET_MIPS16)
+ 
+ /* ISA has integer multiply-accumulate instructions, madd and msub.  */
+-#define ISA_HAS_MADD_MSUB	(mips_isa_rev >= 1			\
+-				 && mips_isa_rev <= 5)
++#define ISA_HAS_MADD_MSUB	((mips_isa_rev >= 1			\
++				 && mips_isa_rev <= 5)	\
++				 || TARGET_MIPS5900)
+ 
+ /* Integer multiply-accumulate instructions should be generated.  */
+ #define GENERATE_MADD_MSUB	(TARGET_IMADD && !TARGET_MIPS16)
+@@ -1533,6 +1536,9 @@
+ /* Width of a MSA vector register in bits.  */
+ #define BITS_PER_MSA_REG (UNITS_PER_MSA_REG * BITS_PER_UNIT)
+ 
++/* The R5900 has 128-bit registers.  */
++#define MAX_BITS_PER_WORD_R5900 128
++
+ /* For MIPS, width of a floating point register.  */
+ #define UNITS_PER_FPREG (TARGET_FLOAT64 ? 8 : 4)
+ 
+@@ -1734,9 +1740,10 @@
+ 	- CPRESTORE_SLOT_REGNUM
+    - 2 dummy entries that were used at various times in the past.
+    - 6 DSP accumulator registers (3 hi-lo pairs) for MIPS DSP ASE
+-   - 6 DSP control registers  */
++   - 6 DSP control registers
++   - 2 accumulator registers for the R5900's second pipeline (hi1 and lo1)   */
+ 
+-#define FIRST_PSEUDO_REGISTER 188
++#define FIRST_PSEUDO_REGISTER 190
+ 
+ /* By default, fix the kernel registers ($26 and $27), the global
+    pointer ($28) and the stack pointer ($29).  This can change
+@@ -1764,8 +1771,9 @@
+   /* COP3 registers */							\
+   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
+   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
+-  /* 6 DSP accumulator registers & 6 control registers */		\
+-  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1					\
++  /* 6 DSP accumulator registers & 6 control registers,			\
++     and hi1/lo1 for the R5900  */					\
++  0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0				\
+ }
+ 
+ 
+@@ -1796,8 +1804,9 @@
+   /* COP3 registers */							\
+   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
+   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
+-  /* 6 DSP accumulator registers & 6 control registers */		\
+-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1					\
++  /* 6 DSP accumulator registers & 6 control registers,			\
++     and hi1/lo1 for the R5900  */					\
++  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1				\
+ }
+ 
+ 
+@@ -1821,8 +1830,9 @@
+   /* COP3 registers */							\
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
+-  /* 6 DSP accumulator registers & 6 control registers */		\
+-  1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0					\
++  /* 6 DSP accumulator registers & 6 control registers,			\
++     and hi1/lo1 for the R5900  */					\
++  1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1				\
+ }
+ 
+ /* Internal macros to classify a register number as to whether it's a
+@@ -1888,9 +1898,15 @@
+ #define DSP_ACC_REG_LAST 181
+ #define DSP_ACC_REG_NUM (DSP_ACC_REG_LAST - DSP_ACC_REG_FIRST + 1)
+ 
++#define MD1_REG_FIRST 188
++#define MD1_REG_LAST  189
++#define MD1_REG_NUM   (MD1_REG_LAST - MD1_REG_FIRST + 1)
++
+ #define AT_REGNUM	(GP_REG_FIRST + 1)
+ #define HI_REGNUM	(TARGET_BIG_ENDIAN ? MD_REG_FIRST : MD_REG_FIRST + 1)
+ #define LO_REGNUM	(TARGET_BIG_ENDIAN ? MD_REG_FIRST + 1 : MD_REG_FIRST)
++#define HI1_REGNUM	(TARGET_BIG_ENDIAN ? MD1_REG_FIRST : MD1_REG_FIRST + 1)
++#define LO1_REGNUM	(TARGET_BIG_ENDIAN ? MD1_REG_FIRST + 1 : MD1_REG_FIRST)
+ 
+ /* A few bitfield locations for the coprocessor registers.  */
+ /* Request Interrupt Priority Level is from bit 10 to bit 15 of
+@@ -1938,7 +1954,10 @@
+   ((unsigned int) ((int) (REGNO) - DSP_ACC_REG_FIRST) < DSP_ACC_REG_NUM)
+ /* Test if REGNO is hi, lo, or one of the 6 new DSP accumulators.  */
+ #define ACC_REG_P(REGNO) \
+-  (MD_REG_P (REGNO) || DSP_ACC_REG_P (REGNO))
++  (MD_REG_P (REGNO) || MD1_REG_P (REGNO) || DSP_ACC_REG_P (REGNO))
++/* Test if REGNO is HI1 or LO1 registers of the 2nd pipeline to the R5900.  */
++#define MD1_REG_P(REGNO) \
++  ((unsigned int) ((int) (REGNO) - MD1_REG_FIRST) < MD1_REG_NUM)
+ #define MSA_REG_P(REGNO) \
+   ((unsigned int) ((int) (REGNO) - MSA_REG_FIRST) < MSA_REG_NUM)
+ 
+@@ -2098,6 +2117,9 @@
+   MD0_REG,			/* first multiply/divide register */
+   MD1_REG,			/* second multiply/divide register */
+   MD_REGS,			/* multiply/divide registers (hi/lo) */
++  MD1_0_REG,			/* 2nd pipeline, first multiply/divide register */
++  MD1_1_REG,			/* 2nd pipeline, second multiply/divide register */
++  MD1_REGS,			/* 2nd pipeline, multiply/divide registers (hi/lo) */
+   COP0_REGS,			/* generic coprocessor classes */
+   COP2_REGS,
+   COP3_REGS,
+@@ -2108,6 +2130,9 @@
+   GR_AND_MD0_REGS,		/* union classes */
+   GR_AND_MD1_REGS,
+   GR_AND_MD_REGS,
++  GR_AND_MD0_1_REGS,
++  GR_AND_MD1_1_REGS,
++  GR_AND_MD_1_REGS,
+   GR_AND_ACC_REGS,
+   ALL_REGS,			/* all registers */
+   LIM_REG_CLASSES		/* max value + 1 */
+@@ -2138,6 +2163,9 @@
+   "MD0_REG",								\
+   "MD1_REG",								\
+   "MD_REGS",								\
++  "MD1_0_REG",								\
++  "MD1_1_REG",								\
++  "MD1_REGS",								\
+   /* coprocessor registers */						\
+   "COP0_REGS",								\
+   "COP2_REGS",								\
+@@ -2149,6 +2177,9 @@
+   "GR_AND_MD0_REGS",							\
+   "GR_AND_MD1_REGS",							\
+   "GR_AND_MD_REGS",							\
++  "GR_AND_MD0_1_REGS",							\
++  "GR_AND_MD1_1_REGS",							\
++  "GR_AND_MD_1_REGS",							\
+   "GR_AND_ACC_REGS",							\
+   "ALL_REGS"								\
+ }
+@@ -2181,18 +2212,24 @@
+   { 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 },	/* MD0_REG */		\
+   { 0x00000000, 0x00000000, 0x00000002, 0x00000000, 0x00000000, 0x00000000 },	/* MD1_REG */		\
+   { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x00000000 },	/* MD_REGS */		\
++  { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x10000000 },	/* MD1_0_REG */		\
++  { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x20000000 },	/* MD1_1_REG */		\
++  { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x30000000 },	/* MD1_REGS */		\
+   { 0x00000000, 0x00000000, 0xffff0000, 0x0000ffff, 0x00000000, 0x00000000 },   /* COP0_REGS */		\
+   { 0x00000000, 0x00000000, 0x00000000, 0xffff0000, 0x0000ffff, 0x00000000 },   /* COP2_REGS */		\
+   { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xffff0000, 0x0000ffff },   /* COP3_REGS */		\
+   { 0x00000000, 0x00000000, 0x000007f8, 0x00000000, 0x00000000, 0x00000000 },	/* ST_REGS */		\
+   { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x003f0000 },	/* DSP_ACC_REGS */	\
+-  { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x003f0000 },	/* ACC_REGS */		\
++  { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x303f0000 },	/* ACC_REGS */		\
+   { 0x00000000, 0x00000000, 0x00006000, 0x00000000, 0x00000000, 0x00000000 },	/* FRAME_REGS */	\
+   { 0xffffffff, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 },	/* GR_AND_MD0_REGS */	\
+   { 0xffffffff, 0x00000000, 0x00000002, 0x00000000, 0x00000000, 0x00000000 },	/* GR_AND_MD1_REGS */	\
+   { 0xffffffff, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x00000000 },	/* GR_AND_MD_REGS */	\
+-  { 0xffffffff, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x003f0000 },	/* GR_AND_ACC_REGS */	\
+-  { 0xffffffff, 0xffffffff, 0xffff67ff, 0xffffffff, 0xffffffff, 0x0fffffff }	/* ALL_REGS */		\
++  { 0xffffffff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x10000000 },	/* GR_AND_MD0_1_REGS */	\
++  { 0xffffffff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x20000000 },	/* GR_AND_MD1_1_REGS */	\
++  { 0xffffffff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x30000000 },	/* GR_AND_MD_1_REGS */	\
++  { 0xffffffff, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x303f0000 },	/* GR_AND_ACC_REGS */	\
++  { 0xffffffff, 0xffffffff, 0xffff67ff, 0xffffffff, 0xffffffff, 0x3fffffff }	/* ALL_REGS */		\
+ }
+ 
+ 
+@@ -2228,7 +2265,7 @@
+      point of definition.  It's also needed if we're to take advantage	\
+      of the extra accumulators available with -mdspr2.  In some cases,	\
+      it can also help to reduce register pressure.  */			\
+-  64, 65,176,177,178,179,180,181,					\
++  64, 65,176,177,178,179,180,181, 188, 189,				\
+   /* Call-clobbered GPRs.  */						\
+   1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,		\
+   24, 25, 31,								\
+@@ -2794,7 +2831,7 @@
+   "$c3r16","$c3r17","$c3r18","$c3r19","$c3r20","$c3r21","$c3r22","$c3r23", \
+   "$c3r24","$c3r25","$c3r26","$c3r27","$c3r28","$c3r29","$c3r30","$c3r31", \
+   "$ac1hi","$ac1lo","$ac2hi","$ac2lo","$ac3hi","$ac3lo","$dsp_po","$dsp_sc", \
+-  "$dsp_ca","$dsp_ou","$dsp_cc","$dsp_ef" }
++  "$dsp_ca","$dsp_ou","$dsp_cc","$dsp_ef", "hi1", "lo1" }
+ 
+ /* List the "software" names for each register.  Also list the numerical
+    names for $fp and $sp.  */
+diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.md
+--- gcc-7.2.0.orig/gcc/config/mips/mips.md	2017-04-18 23:52:54.000000000 -0500
++++ gcc-7.2.0/gcc/config/mips/mips.md	2017-09-23 23:19:42.000000000 -0500
+@@ -227,7 +227,7 @@
+ (define_attr "move_type"
+   "unknown,load,fpload,store,fpstore,mtc,mfc,mtlo,mflo,imul,move,fmove,
+    const,constN,signext,ext_ins,logical,arith,sll0,andi,loadpool,
+-   shift_shift"
++   shift_shift,mtlo1,mflo1"
+   (const_string "unknown"))
+ 
+ (define_attr "alu_type" "unknown,add,sub,not,nor,and,or,xor,simd_add"
+@@ -328,6 +328,10 @@
+ ;; mtlo		transfer to a lo register
+ ;; mfhi		transfer from a hi register
+ ;; mflo		transfer from a lo register
++;; mthi1	transfer to a hi1 register
++;; mtlo1	transfer to a lo1 register
++;; mfhi1	transfer from a hi1 register
++;; mflo1	transfer from a lo1 register
+ ;; const	load constant
+ ;; arith	integer arithmetic instructions
+ ;; logical      integer logical instructions
+@@ -378,7 +382,7 @@
+    shift,slt,signext,clz,pop,trap,imul,imul3,imul3nc,imadd,idiv,idiv3,move,
+    fmove,fadd,fmul,fmadd,fdiv,frdiv,frdiv1,frdiv2,fabs,fneg,fcmp,fcvt,fsqrt,
+    frsqrt,frsqrt1,frsqrt2,dspmac,dspmacsat,accext,accmod,dspalu,dspalusat,
+-   multi,atomic,syncloop,nop,ghost,multimem,
++   multi,atomic,syncloop,nop,ghost,multimem,mthi1,mtlo1,mfhi1,mflo1,
+    simd_div,simd_fclass,simd_flog2,simd_fadd,simd_fcvt,simd_fmul,simd_fmadd,
+    simd_fdiv,simd_bitins,simd_bitmov,simd_insert,simd_sld,simd_mul,simd_fcmp,
+    simd_fexp2,simd_int_arith,simd_bit,simd_shift,simd_splat,simd_fill,
+@@ -402,6 +406,8 @@
+ 	 (eq_attr "move_type" "mfc") (const_string "mfc")
+ 	 (eq_attr "move_type" "mtlo") (const_string "mtlo")
+ 	 (eq_attr "move_type" "mflo") (const_string "mflo")
++	 (eq_attr "move_type" "mtlo1") (const_string "mtlo1")
++	 (eq_attr "move_type" "mflo1") (const_string "mflo1")
+ 
+ 	 ;; These types of move are always single insns.
+ 	 (eq_attr "move_type" "imul") (const_string "imul")
+@@ -505,7 +511,7 @@
+ 	 ;; Check for doubleword moves that are decomposed into two
+ 	 ;; instructions.  The individual instructions are unextended
+ 	 ;; MIPS16 ones.
+-	 (and (eq_attr "move_type" "mtc,mfc,mtlo,mflo,move")
++	 (and (eq_attr "move_type" "mtc,mfc,mtlo,mflo,move,mtlo1,mflo1")
+ 	      (eq_attr "dword_mode" "yes"))
+ 	 (const_int 2)
+ 
+@@ -732,7 +738,7 @@
+ ;; DELAY means that the next instruction cannot read the result
+ ;; of this one.  HILO means that the next two instructions cannot
+ ;; write to HI or LO.
+-(define_attr "hazard" "none,delay,hilo,forbidden_slot"
++(define_attr "hazard" "none,delay,hilo,hilo1,forbidden_slot"
+   (cond [(and (eq_attr "type" "load,fpload,fpidxload")
+ 	      (match_test "ISA_HAS_LOAD_DELAY"))
+ 	 (const_string "delay")
+@@ -752,7 +758,11 @@
+ 
+ 	 (and (eq_attr "type" "mfhi,mflo")
+ 	      (not (match_test "ISA_HAS_HILO_INTERLOCKS")))
+-	 (const_string "hilo")]
++	 (const_string "hilo")
++
++	 (and (eq_attr "type" "mfhi1,mflo1")
++	      (not (match_test "ISA_HAS_HILO_INTERLOCKS")))
++	 (const_string "hilo1")]
+ 	(const_string "none")))
+ 
+ ;; Can the instruction be put into a delay slot?
+@@ -1162,6 +1172,7 @@
+ (include "5000.md")
+ (include "5400.md")
+ (include "5500.md")
++(include "5900.md")
+ (include "6000.md")
+ (include "7000.md")
+ (include "9000.md")
+@@ -1597,7 +1608,12 @@
+     emit_insn (gen_mul<mode>3_mul3_nohilo (operands[0], operands[1],
+ 					   operands[2]));
+   else if (ISA_HAS_<D>MUL3)
++    {
++	  if (TARGET_MIPS5900)
++	    emit_insn (gen_mul<mode>3_mul3_r5900 (operands[0], operands[1], operands[2]));
++	  else
+     emit_insn (gen_mul<mode>3_mul3 (operands[0], operands[1], operands[2]));
++	}
+   else if (TARGET_MIPS16)
+     {
+       lo = gen_rtx_REG (<MODE>mode, LO_REGNUM);
+@@ -1633,17 +1649,34 @@
+ 	(mult:GPR (match_operand:GPR 1 "register_operand" "d,d")
+ 		  (match_operand:GPR 2 "register_operand" "d,d")))
+    (clobber (match_scratch:GPR 3 "=l,X"))]
+-  "ISA_HAS_<D>MUL3"
++  "ISA_HAS_<D>MUL3 && !TARGET_MIPS5900"
+ {
+   if (which_alternative == 1)
+     return "<d>mult\t%1,%2";
+-  if (<MODE>mode == SImode && (TARGET_MIPS3900 || TARGET_MIPS5900))
++  if (<MODE>mode == SImode && TARGET_MIPS3900)
+     return "mult\t%0,%1,%2";
+   return "<d>mul\t%0,%1,%2";
+ }
+   [(set_attr "type" "imul3,imul")
+    (set_attr "mode" "<MODE>")])
+ 
++(define_insn "mul<mode>3_mul3_r5900"
++  [(set (match_operand:GPR 0 "register_operand" "=d,lwl")
++	(mult:GPR (match_operand:GPR 1 "register_operand" "d,d")
++		  (match_operand:GPR 2 "register_operand" "d,d")))
++   (clobber (match_scratch:GPR 3 "=lwl,X"))]
++  "ISA_HAS_<D>MUL3 && TARGET_MIPS5900"
++{
++  if (which_alternative == 1)
++    return "<d>mult%H0\t%1,%2";
++
++  if (<MODE>mode == SImode)
++      return "mult%H3\t%0,%1,%2";
++  return "<d>mul%H3\t%0,%1,%2";
++}
++  [(set_attr "type" "imul3,imul")
++   (set_attr "mode" "<MODE>")])
++
+ ;; If a register gets allocated to LO, and we spill to memory, the reload
+ ;; will include a move from LO to a GPR.  Merge it into the multiplication
+ ;; if it can set the GPR directly.
+@@ -1668,13 +1701,21 @@
+         (clobber (match_dup 0))])])
+ 
+ (define_insn "mul<mode>3_internal"
+-  [(set (match_operand:GPR 0 "muldiv_target_operand" "=l")
+-	(mult:GPR (match_operand:GPR 1 "register_operand" "d")
+-		  (match_operand:GPR 2 "register_operand" "d")))]
++  [(set (match_operand:GPR 0 "muldiv_target_operand" "=l,lwl")
++	(mult:GPR (match_operand:GPR 1 "register_operand" "d,d")
++		  (match_operand:GPR 2 "register_operand" "d,d")))]
+   "ISA_HAS_<D>MULT && !TARGET_FIX_R4000"
+-  "<d>mult\t%1,%2"
+-  [(set_attr "type" "imul")
+-   (set_attr "mode" "<MODE>")])
++  { return TARGET_MIPS5900 ? "<d>mult%H0\t%1,%2" : "<d>mult\t%1,%2"; }
++  [(set_attr "type" "imul,imul")
++   (set_attr "mode" "<MODE>")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ (define_insn "mul<mode>3_r4000"
+   [(set (match_operand:GPR 0 "register_operand" "=d")
+@@ -1742,7 +1783,7 @@
+ 		 (match_operand:SI 3 "register_operand" "0,0,d")))
+    (clobber (match_scratch:SI 4 "=X,X,l"))
+    (clobber (match_scratch:SI 5 "=X,X,&d"))]
+-  "GENERATE_MADD_MSUB && !TARGET_MIPS16"
++  "GENERATE_MADD_MSUB && !TARGET_MIPS16 && !TARGET_MIPS5900"
+   "@
+     madd\t%1,%2
+     madd\t%1,%2
+@@ -1792,6 +1833,34 @@
+                   (const_string "yes")]
+               (const_string "no")))])
+ 
++;; The same idea applies here.
++(define_insn "*mul_acc_si_r5900"
++  [(set (match_operand:SI 0 "register_operand" "=l*?*?wl*?*?,lwl,d?")
++	(plus:SI (mult:SI (match_operand:SI 1 "register_operand" "d,d,d")
++			  (match_operand:SI 2 "register_operand" "d,d,d"))
++		 (match_operand:SI 3 "register_operand" "0,0,d")))
++   (clobber (match_scratch:SI 4 "=X,X,lwl"))
++   (clobber (match_scratch:SI 5 "=X,X,&d"))]
++  "GENERATE_MADD_MSUB && TARGET_MIPS5900"
++  "@
++    madd%H0\t%1,%2
++    madd%H0\t%1,%2
++    #"
++  [(set_attr "type"	"imadd")
++   (set_attr "accum_in"	"3")
++   (set_attr "mode"	"SI")
++   (set_attr "insn_count" "1,1,2")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (match_test "!mips_lra_flag"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (match_test "mips_lra_flag"))
++                  (const_string "yes")
++               (eq_attr "alternative" "2")
++                  (const_string "yes")]
++              (const_string "no")))])
++
+ ;; Split *mul_acc_si if both the source and destination accumulator
+ ;; values are GPRs.
+ (define_split
+@@ -2000,7 +2069,7 @@
+                            (match_operand:SI 3 "register_operand" "d,d,d"))))
+    (clobber (match_scratch:SI 4 "=X,X,l"))
+    (clobber (match_scratch:SI 5 "=X,X,&d"))]
+-  "GENERATE_MADD_MSUB"
++  "GENERATE_MADD_MSUB && !TARGET_MIPS5900"
+   "@
+    msub\t%2,%3
+    msub\t%2,%3
+@@ -2095,18 +2164,28 @@
+ ;; __builtin_mips_mult<u>() functions.  We must always make those functions
+ ;; available if !TARGET_64BIT && ISA_HAS_DSP.
+ (define_insn "<u>mulsidi3_32bit"
+-  [(set (match_operand:DI 0 "muldiv_target_operand" "=ka")
+-	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
+-		 (any_extend:DI (match_operand:SI 2 "register_operand" "d"))))]
++  [(set (match_operand:DI 0 "muldiv_target_operand" "=ka,kawr")
++	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d,d"))
++		 (any_extend:DI (match_operand:SI 2 "register_operand" "d,d"))))]
+   "!TARGET_64BIT && (!TARGET_FIX_R4000 || ISA_HAS_DSP) && ISA_HAS_MULT"
+ {
+   if (ISA_HAS_DSP_MULT)
+     return "mult<u>\t%q0,%1,%2";
++  else if(TARGET_MIPS5900)
++    return "mult<u>%H0\t%1,%2";
+   else
+     return "mult<u>\t%1,%2";
+ }
+-  [(set_attr "type" "imul")
+-   (set_attr "mode" "SI")])
++  [(set_attr "type" "imul,imul")
++   (set_attr "mode" "SI")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ (define_insn "<u>mulsidi3_32bit_r4000"
+   [(set (match_operand:DI 0 "register_operand" "=d")
+@@ -2120,11 +2199,11 @@
+    (set_attr "insn_count" "3")])
+ 
+ (define_insn_and_split "<u>mulsidi3_64bit"
+-  [(set (match_operand:DI 0 "register_operand" "=d")
+-	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
+-		 (any_extend:DI (match_operand:SI 2 "register_operand" "d"))))
+-   (clobber (match_scratch:TI 3 "=x"))
+-   (clobber (match_scratch:DI 4 "=d"))]
++  [(set (match_operand:DI 0 "register_operand" "=d,d")
++	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d,d"))
++		 (any_extend:DI (match_operand:SI 2 "register_operand" "d,d"))))
++   (clobber (match_scratch:TI 3 "=x,xwr"))
++   (clobber (match_scratch:DI 4 "=d,d"))]
+   "TARGET_64BIT && !TARGET_FIX_R4000 && !ISA_HAS_DMUL3
+    && !TARGET_MIPS16 && ISA_HAS_MULT"
+   "#"
+@@ -2132,15 +2211,23 @@
+   [(const_int 0)]
+ {
+   emit_insn (gen_<u>mulsidi3_64bit_split (operands[0], operands[1],
+-					  operands[2], operands[4]));
++					  operands[2], operands[4], operands[3]));
+   DONE;
+ }
+-  [(set_attr "type" "imul")
++  [(set_attr "type" "imul,imul")
+    (set_attr "mode" "SI")
+    (set (attr "insn_count")
+ 	(if_then_else (match_test "ISA_HAS_EXT_INS")
+ 		      (const_int 4)
+-		      (const_int 7)))])
++		      (const_int 7)))
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ (define_expand "<u>mulsidi3_64bit_mips16"
+   [(set (match_operand:DI 0 "register_operand")
+@@ -2149,7 +2236,7 @@
+   "TARGET_64BIT && TARGET_MIPS16"
+ {
+   emit_insn (gen_<u>mulsidi3_64bit_split (operands[0], operands[1],
+-					  operands[2], gen_reg_rtx (DImode)));
++					  operands[2], gen_reg_rtx (DImode), gen_reg_rtx (TImode)));
+   DONE;
+ })
+ 
+@@ -2157,16 +2244,14 @@
+   [(set (match_operand:DI 0 "register_operand")
+ 	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand"))
+ 		 (any_extend:DI (match_operand:SI 2 "register_operand"))))
+-   (clobber (match_operand:DI 3 "register_operand"))]
++   (clobber (match_operand:DI 3 "register_operand"))
++   (clobber (match_operand:TI 4 "hilo_operand"))]
+   ""
+ {
+-  rtx hilo;
++  emit_insn (gen_<u>mulsidi3_64bit_hilo (operands[4], operands[1], operands[2]));
+ 
+-  hilo = gen_rtx_REG (TImode, MD_REG_FIRST);
+-  emit_insn (gen_<u>mulsidi3_64bit_hilo (hilo, operands[1], operands[2]));
+-
+-  emit_move_insn (operands[0], gen_rtx_REG (DImode, LO_REGNUM));
+-  emit_insn (gen_mfhidi_ti (operands[3], hilo));
++  emit_move_insn (operands[0], gen_rtx_REG (DImode, MD_REG_P ( REGNO (operands[4])) ? LO_REGNUM : LO1_REGNUM));
++  emit_insn (gen_mfhidi_ti (operands[3], operands[4]));
+ 
+   if (ISA_HAS_EXT_INS)
+     emit_insn (gen_insvdi (operands[0], GEN_INT (32), GEN_INT (32),
+@@ -2187,16 +2272,24 @@
+ })
+ 
+ (define_insn "<u>mulsidi3_64bit_hilo"
+-  [(set (match_operand:TI 0 "muldiv_target_operand" "=x")
++  [(set (match_operand:TI 0 "muldiv_target_operand" "=x,xwr")
+ 	(unspec:TI
+ 	  [(mult:DI
+-	     (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
+-	     (any_extend:DI (match_operand:SI 2 "register_operand" "d")))]
++	     (any_extend:DI (match_operand:SI 1 "register_operand" "d,d"))
++	     (any_extend:DI (match_operand:SI 2 "register_operand" "d,d")))]
+ 	  UNSPEC_SET_HILO))]
+   "TARGET_64BIT && !TARGET_FIX_R4000"
+-  "mult<u>\t%1,%2"
+-  [(set_attr "type" "imul")
+-   (set_attr "mode" "SI")])
++  { return TARGET_MIPS5900 ? "mult<u>%H0\t%1,%2" : "mult<u>\t%1,%2"; }
++  [(set_attr "type" "imul,imul")
++   (set_attr "mode" "SI")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; See comment before the ISA_HAS_DMUL3 case in mips_mulsidi3_gen_fn.
+ (define_insn "mulsidi3_64bit_dmul"
+@@ -2244,7 +2337,7 @@
+ 	   (mult:DI
+ 	      (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
+ 	      (any_extend:DI (match_operand:SI 2 "register_operand" "d")))))]
+-  "!TARGET_64BIT && (ISA_HAS_MSAC || GENERATE_MADD_MSUB || ISA_HAS_DSP)"
++  "!TARGET_64BIT && !TARGET_MIPS5900 && (ISA_HAS_MSAC || GENERATE_MADD_MSUB || ISA_HAS_DSP)"
+ {
+   if (ISA_HAS_DSP_MULT)
+     return "msub<u>\t%q0,%1,%2";
+@@ -2513,12 +2606,12 @@
+ ;; See the comment above <u>msubsidi4 for the relationship between
+ ;; ISA_HAS_DSP and ISA_HAS_DSP_MULT.
+ (define_insn "<u>maddsidi4"
+-  [(set (match_operand:DI 0 "muldiv_target_operand" "=ka")
++  [(set (match_operand:DI 0 "muldiv_target_operand" "=ka,kawr")
+ 	(plus:DI
+-	 (mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
+-		  (any_extend:DI (match_operand:SI 2 "register_operand" "d")))
+-	 (match_operand:DI 3 "muldiv_target_operand" "0")))]
+-  "(TARGET_MAD || ISA_HAS_MACC || GENERATE_MADD_MSUB || ISA_HAS_DSP)
++	 (mult:DI (any_extend:DI (match_operand:SI 1 "register_operand" "d,d"))
++		  (any_extend:DI (match_operand:SI 2 "register_operand" "d,d")))
++	 (match_operand:DI 3 "muldiv_target_operand" "0,0")))]
++  "(TARGET_MAD || ISA_HAS_MACC || GENERATE_MADD_MSUB || ISA_HAS_DSP || TARGET_MIPS5900)
+    && !TARGET_64BIT"
+ {
+   if (TARGET_MAD)
+@@ -2527,13 +2620,23 @@
+     return "madd<u>\t%q0,%1,%2";
+   else if (GENERATE_MADD_MSUB || TARGET_MIPS5500)
+     return "madd<u>\t%1,%2";
++  else if (TARGET_MIPS5900)
++    return "madd<u>%H0\t%1,%2";
+   else
+     /* See comment in *macc.  */
+     return "%[macc<u>\t%@,%1,%2%]";
+ }
+-  [(set_attr "type" "imadd")
++  [(set_attr "type" "imadd,imadd")
+    (set_attr "accum_in"	"3")
+-   (set_attr "mode" "SI")])
++   (set_attr "mode" "SI")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; Floating point multiply accumulate instructions.
+ 
+@@ -2863,10 +2966,10 @@
+ })
+ 
+ (define_insn_and_split "*divmod<mode>4"
+-  [(set (match_operand:GPR 0 "register_operand" "=l")
+-	(div:GPR (match_operand:GPR 1 "register_operand" "d")
+-		 (match_operand:GPR 2 "register_operand" "d")))
+-   (set (match_operand:GPR 3 "register_operand" "=d")
++  [(set (match_operand:GPR 0 "register_operand" "=l,lwl")
++	(div:GPR (match_operand:GPR 1 "register_operand" "d,d")
++		 (match_operand:GPR 2 "register_operand" "d,d")))
++   (set (match_operand:GPR 3 "register_operand" "=d,d")
+ 	(mod:GPR (match_dup 1)
+ 		 (match_dup 2)))]
+   "ISA_HAS_<D>DIV && !TARGET_FIX_VR4120 && !TARGET_MIPS16"
+@@ -2874,12 +2977,20 @@
+   "&& reload_completed"
+   [(const_int 0)]
+ {
+-  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2]));
++  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2], operands[0]));
+   DONE;
+ }
+- [(set_attr "type" "idiv")
++ [(set_attr "type" "idiv,idiv")
+   (set_attr "mode" "<MODE>")
+-  (set_attr "insn_count" "2")])
++  (set_attr "insn_count" "2,2")
++  (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; Expand generates divmod instructions for individual division and modulus
+ ;; operations.  We then rely on CSE to reuse earlier divmods where possible.
+@@ -2900,7 +3011,7 @@
+   "&& cse_not_expected"
+   [(const_int 0)]
+ {
+-  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2]));
++  emit_insn (gen_divmod<mode>4_split (operands[3], operands[1], operands[2], operands[4]));
+   emit_move_insn (operands[0], operands[4]);
+   DONE;
+ }
+@@ -2928,10 +3039,10 @@
+ })
+ 
+ (define_insn_and_split "*udivmod<mode>4"
+-  [(set (match_operand:GPR 0 "register_operand" "=l")
+-	(udiv:GPR (match_operand:GPR 1 "register_operand" "d")
+-		  (match_operand:GPR 2 "register_operand" "d")))
+-   (set (match_operand:GPR 3 "register_operand" "=d")
++  [(set (match_operand:GPR 0 "register_operand" "=l,lwl")
++	(udiv:GPR (match_operand:GPR 1 "register_operand" "d,d")
++		  (match_operand:GPR 2 "register_operand" "d,d")))
++   (set (match_operand:GPR 3 "register_operand" "=d,d")
+ 	(umod:GPR (match_dup 1)
+ 		  (match_dup 2)))]
+   "ISA_HAS_<D>DIV && !TARGET_MIPS16"
+@@ -2939,12 +3050,20 @@
+   "reload_completed"
+   [(const_int 0)]
+ {
+-  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2]));
++  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2], operands[0]));
+   DONE;
+ }
+-  [(set_attr "type" "idiv")
++  [(set_attr "type" "idiv,idiv")
+    (set_attr "mode" "<MODE>")
+-   (set_attr "insn_count" "2")])
++   (set_attr "insn_count" "2,2")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; See the comment above "divmod<mode>4_mips16" for the split timing.
+ (define_insn_and_split "udivmod<mode>4_mips16"
+@@ -2960,7 +3079,7 @@
+   "cse_not_expected"
+   [(const_int 0)]
+ {
+-  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2]));
++  emit_insn (gen_udivmod<mode>4_split (operands[3], operands[1], operands[2], operands[4]));
+   emit_move_insn (operands[0], operands[4]);
+   DONE;
+ }
+@@ -2971,21 +3090,22 @@
+ (define_expand "<u>divmod<mode>4_split"
+   [(set (match_operand:GPR 0 "register_operand")
+ 	(any_mod:GPR (match_operand:GPR 1 "register_operand")
+-		     (match_operand:GPR 2 "register_operand")))]
++		     (match_operand:GPR 2 "register_operand")))
++   (clobber (match_operand:GPR 3 "lo_operand"))]
+   ""
+ {
+   rtx hilo;
+ 
+   if (TARGET_64BIT)
+     {
+-      hilo = gen_rtx_REG (TImode, MD_REG_FIRST);
++      hilo = gen_rtx_REG (TImode, MD_REG_P ( REGNO (operands[3])) ? MD_REG_FIRST : MD1_REG_FIRST);
+       emit_insn (gen_<u>divmod<mode>4_hilo_ti (hilo, operands[1],
+ 					       operands[2]));
+       emit_insn (gen_mfhi<mode>_ti (operands[0], hilo));
+     }
+   else
+     {
+-      hilo = gen_rtx_REG (DImode, MD_REG_FIRST);
++      hilo = gen_rtx_REG (DImode, MD_REG_P ( REGNO (operands[3])) ? MD_REG_FIRST : MD1_REG_FIRST);
+       emit_insn (gen_<u>divmod<mode>4_hilo_di (hilo, operands[1],
+ 					       operands[2]));
+       emit_insn (gen_mfhi<mode>_di (operands[0], hilo));
+@@ -2994,15 +3114,23 @@
+ })
+ 
+ (define_insn "<u>divmod<GPR:mode>4_hilo_<HILO:mode>"
+-  [(set (match_operand:HILO 0 "muldiv_target_operand" "=x")
++  [(set (match_operand:HILO 0 "muldiv_target_operand" "=x,xwr")
+ 	(unspec:HILO
+-	  [(any_div:GPR (match_operand:GPR 1 "register_operand" "d")
+-			(match_operand:GPR 2 "register_operand" "d"))]
++	  [(any_div:GPR (match_operand:GPR 1 "register_operand" "d,d")
++			(match_operand:GPR 2 "register_operand" "d,d"))]
+ 	  UNSPEC_SET_HILO))]
+   "ISA_HAS_<GPR:D>DIV"
+-  { return mips_output_division ("<GPR:d>div<u>\t%.,%1,%2", operands); }
+-  [(set_attr "type" "idiv")
+-   (set_attr "mode" "<GPR:MODE>")])
++  { return mips_output_division (TARGET_MIPS5900 ? "<GPR:d>div<u>%H0\t%.,%1,%2" : "<GPR:d>div<u>\t%.,%1,%2", operands); }
++  [(set_attr "type" "idiv,idiv")
++   (set_attr "mode" "<GPR:MODE>")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; Integer division and modulus.
+ 
+@@ -5235,26 +5363,42 @@
+ ;; instead of MFHI.  This avoids both the normal MIPS III hi/lo hazards
+ ;; and the errata related to -mfix-vr4130.
+ (define_insn "mfhi<GPR:mode>_<HILO:mode>"
+-  [(set (match_operand:GPR 0 "register_operand" "=d")
+-	(unspec:GPR [(match_operand:HILO 1 "hilo_operand" "x")]
++  [(set (match_operand:GPR 0 "register_operand" "=d,d")
++	(unspec:GPR [(match_operand:HILO 1 "hilo_operand" "x,xwr")]
+ 		    UNSPEC_MFHI))]
+   ""
+-  { return ISA_HAS_MACCHI ? "<GPR:d>macchi\t%0,%.,%." : "mfhi\t%0"; }
+-  [(set_attr "type" "mfhi")
+-   (set_attr "mode" "<GPR:MODE>")])
++  { return ISA_HAS_MACCHI ? "<GPR:d>macchi\t%0,%.,%." : TARGET_MIPS5900 ? "mfhi%H1\t%0" : "mfhi\t%0"; }
++  [(set_attr "type" "mfhi,mfhi1")
++   (set_attr "mode" "<GPR:MODE>")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; Set the high part of a HI/LO value, given that the low part has
+ ;; already been set.  See mips_hard_regno_mode_ok_p for the reason
+ ;; why we can't just use (reg:GPR HI_REGNUM).
+ (define_insn "mthi<GPR:mode>_<HILO:mode>"
+-  [(set (match_operand:HILO 0 "register_operand" "=x")
+-	(unspec:HILO [(match_operand:GPR 1 "reg_or_0_operand" "dJ")
+-		      (match_operand:GPR 2 "register_operand" "l")]
++  [(set (match_operand:HILO 0 "register_operand" "=x,xwr")
++	(unspec:HILO [(match_operand:GPR 1 "reg_or_0_operand" "dJ,dJ")
++		      (match_operand:GPR 2 "register_operand" "l,lwl")]
+ 		     UNSPEC_MTHI))]
+   ""
+-  "mthi\t%z1"
+-  [(set_attr "type" "mthi")
+-   (set_attr "mode" "SI")])
++  { return TARGET_MIPS5900 ? "mthi%H0\t%z1" : "mthi\t%z1"; }
++  [(set_attr "type" "mthi,mthi1")
++   (set_attr "mode" "SI")
++   (set (attr "enabled")
++        (cond [(and (eq_attr "alternative" "0")
++                    (eq_attr "cpu" "!r5900"))
++                  (const_string "yes")
++               (and (eq_attr "alternative" "1")
++                    (eq_attr "cpu" "r5900"))
++                  (const_string "yes")]
++              (const_string "no")))])
+ 
+ ;; Emit a doubleword move in which exactly one of the operands is
+ ;; a floating-point register.  We can't just emit two normal moves
+diff -burN gcc-7.2.0.orig/gcc/config/mips/predicates.md gcc-7.2.0/gcc/config/mips/predicates.md
+--- gcc-7.2.0.orig/gcc/config/mips/predicates.md	2017-01-01 06:07:43.000000000 -0600
++++ gcc-7.2.0/gcc/config/mips/predicates.md	2017-09-23 23:19:42.000000000 -0500
+@@ -309,11 +309,13 @@
+ 
+ (define_predicate "lo_operand"
+   (and (match_code "reg")
+-       (match_test "REGNO (op) == LO_REGNUM")))
++       (ior (match_test "REGNO (op) == LO_REGNUM")
++            (match_test "REGNO (op) == LO1_REGNUM"))))
+ 
+ (define_predicate "hilo_operand"
+   (and (match_code "reg")
+-       (match_test "MD_REG_P (REGNO (op))")))
++       (ior (match_test "MD_REG_P (REGNO (op))")
++            (match_test "MD1_REG_P (REGNO (op))"))))
+ 
+ (define_predicate "fcc_reload_operand"
+   (and (match_code "reg,subreg")

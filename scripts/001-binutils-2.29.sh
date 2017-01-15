@@ -1,21 +1,21 @@
 #!/bin/bash
-# binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
+# binutils-2.29.sh by uyjulian
+# Based on binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
 
-BINUTILS_VERSION=2.14
+BINUTILS_VERSION=2.29
 ## Download the source code.
-SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.bz2
+SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.xz
 wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
-rm -Rf binutils-$BINUTILS_VERSION && tar xfj binutils-$BINUTILS_VERSION.tar.bz2 || { exit 1; }
+rm -Rf binutils-$BINUTILS_VERSION && tar xfj binutils-$BINUTILS_VERSION.tar.xz || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd binutils-$BINUTILS_VERSION || { exit 1; }
 if [ -e ../../patches/binutils-$BINUTILS_VERSION-PS2.patch ]; then
 	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
 fi
-cat ../../patches/binutils-$BINUTILS_VERSION-disable-makeinfo-when-texinfo-is-too-new.patch | patch -p0 || { exit 1; }
 
 ## Determine the maximum number of processes that Make can work with.
 ## MinGW's Make doesn't work properly with multi-core processors.
@@ -28,20 +28,24 @@ else
 	PROC_NR=$(nproc)
 fi
 
+target_names=("ee" "iop" "dvp")
+targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx" "dvp")
+extra_opts=("--with-float=hard" "" "--with-float=hard")
+
 ## For each target...
-for TARGET in "ee" "iop" "dvp"; do
+for ((i=0; i<${#target_names[@]}; i++)); do
+	TARG_NAME=${target_names[i]}
+	TARGET=${targets[i]}
+	TARG_XTRA_OPTS=${extra_opts[i]}
+
 	## Create and enter the build directory.
-	mkdir build-$TARGET && cd build-$TARGET || { exit 1; }
+	mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
 	## Configure the build.
-	if [ ${OSVER:0:6} == Darwin ]; then
-		CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld CFLAGS="-O0 -ansi -Wno-implicit-int -Wno-return-type" ../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
-	else
-		../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
-	fi
+	../configure --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" $TARG_XTRA_OPTS || { exit 1; }
 
 	## Compile and install.
-	make clean && make -j $PROC_NR CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" && make install && make clean || { exit 1; }
+	make clean && make -j $PROC_NR && make install && make clean || { exit 1; }
 
 	## Exit the build directory.
 	cd .. || { exit 1; }

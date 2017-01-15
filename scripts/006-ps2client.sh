@@ -1,5 +1,6 @@
 #!/bin/bash
-# ps2client.sh by Dan Peori (danpeori@oopo.net)
+# ps2client.sh by uyjulian
+# Based on ps2client.sh by Dan Peori (danpeori@oopo.net)
 # changed to use Git by Mathias Lafeldt <misfire@debugon.org>
 
 ## Download the source code.
@@ -10,6 +11,8 @@ else
 		git pull && git fetch origin &&
 		git reset --hard origin/master || exit 1
 fi
+
+find . -name Makefile -exec sed -i 's/\$(PS2DEV)/$(PS2DEVUJ)/g' '{}' \;
 
 ## Build and install.
 make clean && make && make install && make clean || { exit 1; }

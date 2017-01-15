@@ -1,0 +1,76 @@
+diff -burN gcc-7.2.0.orig/config.sub gcc-7.2.0/config.sub
+--- gcc-7.2.0.orig/config.sub	2016-12-29 05:04:53.000000000 -0600
++++ gcc-7.2.0/config.sub	2017-09-23 23:27:37.000000000 -0500
+@@ -780,6 +780,10 @@
+ 		basic_machine=i386-unknown
+ 		os=-vsta
+ 		;;
++	iop)
++		basic_machine=mipsel-scei
++		os=-irx
++		;;
+ 	iris | iris4d)
+ 		basic_machine=mips-sgi
+ 		case $os in
+@@ -1409,7 +1413,8 @@
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+ 	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* \
+-	      | -onefs* | -tirtos* | -phoenix* | -fuchsia* | -redox*)
++	      | -onefs* | -tirtos* | -phoenix* | -fuchsia* | -redox* \
++	      | -irx*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	-qnx*)
+diff -burN gcc-7.2.0.orig/configure gcc-7.2.0/configure
+--- gcc-7.2.0.orig/configure	2017-03-22 12:51:18.000000000 -0500
++++ gcc-7.2.0/configure	2017-09-23 23:27:37.000000000 -0500
+@@ -3855,6 +3855,8 @@
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   mips*-*-ultrix* | mips*-*-osf* | mips*-*-ecoff* | mips*-*-pe* \
+   | mips*-*-irix* | mips*-*-lnews* | mips*-*-riscos*)
+     noconfigdirs="$noconfigdirs ld gas gprof"
+diff -burN gcc-7.2.0.orig/configure.ac gcc-7.2.0/configure.ac
+--- gcc-7.2.0.orig/configure.ac	2017-03-22 12:51:18.000000000 -0500
++++ gcc-7.2.0/configure.ac	2017-09-23 23:27:37.000000000 -0500
+@@ -1183,6 +1183,8 @@
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   mips*-*-ultrix* | mips*-*-osf* | mips*-*-ecoff* | mips*-*-pe* \
+   | mips*-*-irix* | mips*-*-lnews* | mips*-*-riscos*)
+     noconfigdirs="$noconfigdirs ld gas gprof"
+diff -burN gcc-7.2.0.orig/gcc/config.gcc gcc-7.2.0/gcc/config.gcc
+--- gcc-7.2.0.orig/gcc/config.gcc	2017-07-31 06:33:18.000000000 -0500
++++ gcc-7.2.0/gcc/config.gcc	2017-09-23 23:27:38.000000000 -0500
+@@ -2237,6 +2237,11 @@
+ 	tmake_file="mips/t-elf"
+ 	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
+ 	;;
++mipsel-*-irx*)
++	tm_file="dbxelf.h elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
++	tmake_file="mips/t-elf mips/dbx.h"
++	target_cpu_default=MASK_SOFT_FLOAT_ABI
++	;;
+ mips64-*-elf* | mips64el-*-elf*)
+ 	tm_file="elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
+ 	tmake_file="mips/t-elf"
+diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
+--- gcc-7.2.0.orig/libgcc/config.host	2017-05-10 15:42:58.000000000 -0500
++++ gcc-7.2.0/libgcc/config.host	2017-09-23 23:27:38.000000000 -0500
+@@ -903,6 +903,9 @@
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
++mipsel-*-irx)
++	tmake_file="$tmake_file mips/t-elf"
++	;;
+ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
+ 	extra_parts="$extra_parts crti.o crtn.o"

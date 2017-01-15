@@ -1,7 +1,8 @@
 #!/bin/bash
-# newlib-1.10.0.sh by Dan Peori (danpeori@oopo.net)
+# newlib-2.5.0.sh by uyjulian
+# Based on newlib-1.10.0.sh by Dan Peori (danpeori@oopo.net)
 
-NEWLIB_VERSION=1.10.0
+NEWLIB_VERSION=2.5.0
 ## Download the source code.
 SOURCE=ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }
@@ -27,12 +28,13 @@ else
 	PROC_NR=$(nproc)
 fi
 
-TARGET="ee"
+TARG_NAME="ee"
+TARGET="mips64r5900el-ps2-elf"
 ## Create and enter the build directory.
-mkdir build-$TARGET && cd build-$TARGET || { exit 1; }
+mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
 ## Configure the build.
-../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
+../configure --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" || { exit 1; }
 
 ## Compile and install.
 make clean && make -j $PROC_NR && make install && make clean || { exit 1; }
