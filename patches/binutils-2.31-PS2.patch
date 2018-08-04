@@ -1,22 +1,22 @@
-diff -burN binutils-2.29.orig/bfd/archures.c binutils-2.29/bfd/archures.c
---- binutils-2.29.orig/bfd/archures.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/archures.c	2017-09-23 22:48:35.000000000 -0500
-@@ -211,6 +211,11 @@
- .#define bfd_mach_mipsisa64r3           66
- .#define bfd_mach_mipsisa64r5           68
- .#define bfd_mach_mipsisa64r6           69
+diff -burN binutils-2.31.orig/bfd/archures.c binutils-2.31/bfd/archures.c
+--- binutils-2.31.orig/bfd/archures.c	2018-06-24 11:38:56.000000000 -0700
++++ binutils-2.31/bfd/archures.c	2018-08-02 23:41:04.000000000 -0700
+@@ -193,6 +193,11 @@
+ .#define bfd_mach_mipsisa64r3		66
+ .#define bfd_mach_mipsisa64r5		68
+ .#define bfd_mach_mipsisa64r6		69
 +.#define bfd_mach_dvp_dma		42000
 +.#define bfd_mach_dvp_vif		42001
 +.#define bfd_mach_dvp_vu		42002
 +.#define bfd_mach_dvp_gif		42003
 +.#define bfd_mach_dvp_p(mach) ((mach) >= 42000 && (mach) <= 42003)
- .#define bfd_mach_mips_micromips        96
- .  bfd_arch_i386,      {* Intel 386 *}
+ .#define bfd_mach_mips_micromips	96
+ .  bfd_arch_i386,      {* Intel 386.  *}
  .#define bfd_mach_i386_intel_syntax	(1 << 0)
-diff -burN binutils-2.29.orig/bfd/bfd-in2.h binutils-2.29/bfd/bfd-in2.h
---- binutils-2.29.orig/bfd/bfd-in2.h	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/bfd-in2.h	2017-09-23 22:48:35.000000000 -0500
-@@ -2070,6 +2070,11 @@
+diff -burN binutils-2.31.orig/bfd/bfd-in2.h binutils-2.31/bfd/bfd-in2.h
+--- binutils-2.31.orig/bfd/bfd-in2.h	2018-06-24 11:38:56.000000000 -0700
++++ binutils-2.31/bfd/bfd-in2.h	2018-08-02 23:36:01.000000000 -0700
+@@ -2064,6 +2064,11 @@
  #define bfd_mach_mipsisa64r3           66
  #define bfd_mach_mipsisa64r5           68
  #define bfd_mach_mipsisa64r6           69
@@ -26,9 +26,9 @@ diff -burN binutils-2.29.orig/bfd/bfd-in2.h binutils-2.29/bfd/bfd-in2.h
 +#define bfd_mach_dvp_gif               42003
 +#define bfd_mach_dvp_p(mach) ((mach) >= 42000 && (mach) <= 42003)
  #define bfd_mach_mips_micromips        96
-   bfd_arch_i386,      /* Intel 386 */
+   bfd_arch_i386,      /* Intel 386.  */
  #define bfd_mach_i386_intel_syntax     (1 << 0)
-@@ -3191,6 +3196,22 @@
+@@ -3188,6 +3193,22 @@
    BFD_RELOC_FRV_TLSOFF_RELAX,
    BFD_RELOC_FRV_TLSMOFF,
  
@@ -51,10 +51,10 @@ diff -burN binutils-2.29.orig/bfd/bfd-in2.h binutils-2.29/bfd/bfd-in2.h
  
  /* This is a 24bit GOT-relative reloc for the mn10300.  */
    BFD_RELOC_MN10300_GOTOFF24,
-diff -burN binutils-2.29.orig/bfd/config.bfd binutils-2.29/bfd/config.bfd
---- binutils-2.29.orig/bfd/config.bfd	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/config.bfd	2017-09-23 22:50:04.000000000 -0500
-@@ -527,6 +527,11 @@
+diff -burN binutils-2.31.orig/bfd/config.bfd binutils-2.31/bfd/config.bfd
+--- binutils-2.31.orig/bfd/config.bfd	2018-07-09 00:44:53.000000000 -0700
++++ binutils-2.31/bfd/config.bfd	2018-08-02 23:40:49.000000000 -0700
+@@ -474,6 +474,11 @@
      targ_defvec=d30v_elf32_vec
      ;;
  
@@ -66,21 +66,29 @@ diff -burN binutils-2.29.orig/bfd/config.bfd binutils-2.29/bfd/config.bfd
    epiphany-*-*)
      targ_defvec=epiphany_elf32_vec
      targ_underscore=yes
-@@ -1130,6 +1135,10 @@
+@@ -876,6 +881,10 @@
+     targ_defvec=mips_elf32_be_vec
      targ_selvecs="mips_elf32_le_vec mips_ecoff_be_vec mips_ecoff_le_vec"
      ;;
- #endif
 +  mips*-*-irx*)
 +    targ_defvec=mips_elf32_le_vec
 +    targ_selvecs="mips_elf32_be_vec"
 +    ;;
-   mips*-sgi-* | mips*-*-bsd*)
-     targ_defvec=mips_ecoff_be_vec
-     targ_selvecs=mips_ecoff_le_vec
-diff -burN binutils-2.29.orig/bfd/configure binutils-2.29/bfd/configure
---- binutils-2.29.orig/bfd/configure	2017-07-24 04:58:08.000000000 -0500
-+++ binutils-2.29/bfd/configure	2017-09-23 22:48:35.000000000 -0500
-@@ -14259,6 +14259,8 @@
+   mips*el-*-vxworks*)
+     targ_defvec=mips_elf32_vxworks_le_vec
+     targ_selvecs="mips_elf32_le_vec mips_elf32_vxworks_be_vec mips_elf32_be_vec mips_elf64_be_vec mips_elf64_le_vec"
+@@ -962,6 +971,7 @@
+     want64=true
+     ;;
+ #endif
++
+   mn10200-*-*)
+     targ_defvec=mn10200_elf32_vec
+     targ_underscore=yes
+diff -burN binutils-2.31.orig/bfd/configure binutils-2.31/bfd/configure
+--- binutils-2.31.orig/bfd/configure	2018-07-14 10:57:32.000000000 -0700
++++ binutils-2.31/bfd/configure	2018-08-02 23:36:01.000000000 -0700
+@@ -14612,6 +14612,8 @@
  done
  selvecs="$f"
  
@@ -89,10 +97,10 @@ diff -burN binutils-2.29.orig/bfd/configure binutils-2.29/bfd/configure
  
  # uniq the associated vectors in all the configured targets.
  f=""
-diff -burN binutils-2.29.orig/bfd/configure.ac binutils-2.29/bfd/configure.ac
---- binutils-2.29.orig/bfd/configure.ac	2017-07-24 04:53:52.000000000 -0500
-+++ binutils-2.29/bfd/configure.ac	2017-09-23 22:48:35.000000000 -0500
-@@ -341,6 +341,8 @@
+diff -burN binutils-2.31.orig/bfd/configure.ac binutils-2.31/bfd/configure.ac
+--- binutils-2.31.orig/bfd/configure.ac	2018-07-10 00:12:05.000000000 -0700
++++ binutils-2.31/bfd/configure.ac	2018-08-02 23:36:01.000000000 -0700
+@@ -380,6 +380,8 @@
  done
  selvecs="$f"
  
@@ -101,9 +109,9 @@ diff -burN binutils-2.29.orig/bfd/configure.ac binutils-2.29/bfd/configure.ac
  
  # uniq the associated vectors in all the configured targets.
  f=""
-diff -burN binutils-2.29.orig/bfd/cpu-mips.c binutils-2.29/bfd/cpu-mips.c
---- binutils-2.29.orig/bfd/cpu-mips.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/cpu-mips.c	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/bfd/cpu-mips.c binutils-2.31/bfd/cpu-mips.c
+--- binutils-2.31.orig/bfd/cpu-mips.c	2018-06-24 11:38:56.000000000 -0700
++++ binutils-2.31/bfd/cpu-mips.c	2018-08-02 23:42:21.000000000 -0700
 @@ -95,6 +95,10 @@
    I_mipsisa64r3,
    I_mipsisa64r5,
@@ -123,13 +131,13 @@ diff -burN binutils-2.29.orig/bfd/cpu-mips.c binutils-2.29/bfd/cpu-mips.c
 +  N (32, 32, bfd_mach_dvp_vif, "dvp:vif",         FALSE, NN(I_dvp_vif)),
 +  N (32, 32, bfd_mach_dvp_vu, "dvp:vu",           FALSE, NN(I_dvp_vu)),
 +  N (32, 32, bfd_mach_dvp_gif, "dvp:gif",         FALSE, NN(I_dvp_gif)),
-   N (64, 64, bfd_mach_mips_sb1, "mips:sb1",       FALSE, NN(I_sb1)),
-   N (64, 64, bfd_mach_mips_loongson_2e, "mips:loongson_2e",       FALSE, NN(I_loongson_2e)),
-   N (64, 64, bfd_mach_mips_loongson_2f, "mips:loongson_2f",       FALSE, NN(I_loongson_2f)),
-diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
---- binutils-2.29.orig/bfd/elf.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/elf.c	2017-09-23 22:48:35.000000000 -0500
-@@ -2899,7 +2899,7 @@
+   N (64, 64, bfd_mach_mips_sb1, "mips:sb1",	  FALSE, NN(I_sb1)),
+   N (64, 64, bfd_mach_mips_loongson_2e, "mips:loongson_2e",	  FALSE, NN(I_loongson_2e)),
+   N (64, 64, bfd_mach_mips_loongson_2f, "mips:loongson_2f",	  FALSE, NN(I_loongson_2f)),
+diff -burN binutils-2.31.orig/bfd/elf.c binutils-2.31/bfd/elf.c
+--- binutils-2.31.orig/bfd/elf.c	2018-07-10 03:47:35.000000000 -0700
++++ binutils-2.31/bfd/elf.c	2018-08-02 23:45:24.000000000 -0700
+@@ -2935,7 +2935,7 @@
        newsect->filepos = hdr->p_offset;
        newsect->flags |= SEC_HAS_CONTENTS;
        newsect->alignment_power = bfd_log2 (hdr->p_align);
@@ -138,7 +146,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	{
  	  newsect->flags |= SEC_ALLOC;
  	  newsect->flags |= SEC_LOAD;
-@@ -2937,7 +2937,7 @@
+@@ -2973,7 +2973,7 @@
        if (align == 0 || align > hdr->p_align)
  	align = hdr->p_align;
        newsect->alignment_power = bfd_log2 (align);
@@ -147,7 +155,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	{
  	  /* Hack for gdb.  Segments that have not been modified do
  	     not have their contents written to a core file, on the
-@@ -5297,7 +5297,7 @@
+@@ -5370,7 +5370,7 @@
        else
  	p->p_paddr = m->sections[0]->lma - m->p_vaddr_offset;
  
@@ -156,7 +164,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	  && (abfd->flags & D_PAGED) != 0)
  	{
  	  /* p_align in demand paged PT_LOAD segments effectively stores
-@@ -5323,7 +5323,7 @@
+@@ -5396,7 +5396,7 @@
  
        no_contents = FALSE;
        off_adjust = 0;
@@ -165,7 +173,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	  && m->count > 0)
  	{
  	  bfd_size_type align;
-@@ -5462,7 +5462,7 @@
+@@ -5535,7 +5535,7 @@
  	    }
  	}
  
@@ -174,7 +182,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	  || (p->p_type == PT_NOTE && bfd_get_format (abfd) == bfd_core))
  	{
  	  if (!m->includes_filehdr && !m->includes_phdrs)
-@@ -5494,6 +5494,7 @@
+@@ -5567,6 +5567,7 @@
  	  align = (bfd_size_type) 1 << bfd_get_section_alignment (abfd, sec);
  
  	  if ((p->p_type == PT_LOAD
@@ -182,7 +190,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	       || p->p_type == PT_TLS)
  	      && (this_hdr->sh_type != SHT_NOBITS
  		  || ((this_hdr->sh_flags & SHF_ALLOC) != 0
-@@ -5557,7 +5558,7 @@
+@@ -5630,7 +5631,7 @@
  	    }
  	  else
  	    {
@@ -191,7 +199,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  		{
  		  this_hdr->sh_offset = sec->filepos = off;
  		  if (this_hdr->sh_type != SHT_NOBITS)
-@@ -5601,7 +5602,7 @@
+@@ -5674,7 +5675,7 @@
  
  	      if (align > p->p_align
  		  && !m->p_align_valid
@@ -200,7 +208,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  		      || (abfd->flags & D_PAGED) == 0))
  		p->p_align = align;
  	    }
-@@ -5620,7 +5621,8 @@
+@@ -5693,7 +5694,8 @@
  
        /* Check that all sections are in a PT_LOAD segment.
  	 Don't check funky gdb generated core files.  */
@@ -210,7 +218,7 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	{
  	  bfd_boolean check_vma = TRUE;
  
-@@ -5738,7 +5740,7 @@
+@@ -5811,7 +5813,7 @@
    for (m = elf_seg_map (abfd), p = phdrs; m != NULL; m = m->next, p++)
      {
        ++count;
@@ -219,25 +227,16 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	continue;
  
        if (m->includes_filehdr)
-@@ -5820,7 +5822,7 @@
+@@ -5919,7 +5921,7 @@
  		   lm != NULL;
  		   lm = lm->next, lp++)
  		{
 -		  if (lp->p_type == PT_LOAD
 +		  if ((lp->p_type == PT_LOAD || lp->p_type == PT_MIPS_IRXHDR)
- 		      && lp->p_vaddr < link_info->relro_end
  		      && lm->count != 0
- 		      && lm->sections[0]->vma >= link_info->relro_start)
-@@ -5835,7 +5837,7 @@
- 		 library, but we need to use the same linker logic.  */
- 	      for (lp = phdrs; lp < phdrs + count; ++lp)
- 		{
--		  if (lp->p_type == PT_LOAD
-+		  if ((lp->p_type == PT_LOAD || lp->p_type == PT_MIPS_IRXHDR)
- 		      && lp->p_paddr == p->p_paddr)
- 		    break;
- 		}
-@@ -5878,7 +5880,7 @@
+ 		      && (lm->sections[lm->count - 1]->vma
+ 			  + (!IS_TBSS (lm->sections[lm->count - 1])
+@@ -5986,7 +5988,7 @@
  	{
  	  unsigned int i;
  
@@ -246,9 +245,9 @@ diff -burN binutils-2.29.orig/bfd/elf.c binutils-2.29/bfd/elf.c
  	      && (p->p_type != PT_NOTE
  		  || bfd_get_format (abfd) != bfd_core))
  	    {
-diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
---- binutils-2.29.orig/bfd/elf32-mips.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/elf32-mips.c	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/bfd/elf32-mips.c binutils-2.31/bfd/elf32-mips.c
+--- binutils-2.31.orig/bfd/elf32-mips.c	2018-06-24 11:38:56.000000000 -0700
++++ binutils-2.31/bfd/elf32-mips.c	2018-08-02 23:36:01.000000000 -0700
 @@ -53,6 +53,8 @@
    (bfd *, asymbol *, arelent *, asection *, bfd_boolean, void *, bfd_vma);
  static bfd_reloc_status_type mips_elf_gprel32_reloc
@@ -258,7 +257,7 @@ diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
  static bfd_reloc_status_type mips32_64bit_reloc
    (bfd *, arelent *, asymbol *, void *, asection *, bfd *, char **);
  static reloc_howto_type *bfd_elf32_bfd_reloc_type_lookup
-@@ -1562,6 +1564,66 @@
+@@ -1560,6 +1562,66 @@
  	 0xffff,		/* dst_mask */
  	 TRUE);			/* pcrel_offset */
  
@@ -325,7 +324,7 @@ diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
  /* 32 bit pc-relative.  This was a GNU extension used by embedded-PIC.
     It was co-opted by mips-linux for exception-handling data.  GCC stopped
     using it in May, 2004, then started using it again for compact unwind
-@@ -1969,6 +2031,58 @@
+@@ -1967,6 +2029,58 @@
    return ret;
  }
  
@@ -384,7 +383,7 @@ diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
  /* A mapping from BFD reloc types to MIPS ELF reloc types.  */
  
  struct elf_reloc_map {
-@@ -2130,6 +2244,14 @@
+@@ -2128,6 +2242,14 @@
        else
  	return &howto_table[(int) R_MIPS_32];
  
@@ -399,8 +398,8 @@ diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
      case BFD_RELOC_VTABLE_INHERIT:
        return &elf_mips_gnu_vtinherit_howto;
      case BFD_RELOC_VTABLE_ENTRY:
-@@ -2201,6 +2323,14 @@
- {
+@@ -2202,6 +2324,14 @@
+ 
    switch (r_type)
      {
 +    case R_MIPS_DVP_11_PCREL:
@@ -414,10 +413,10 @@ diff -burN binutils-2.29.orig/bfd/elf32-mips.c binutils-2.29/bfd/elf32-mips.c
      case R_MIPS_GNU_VTINHERIT:
        return &elf_mips_gnu_vtinherit_howto;
      case R_MIPS_GNU_VTENTRY:
-diff -burN binutils-2.29.orig/bfd/elflink.c binutils-2.29/bfd/elflink.c
---- binutils-2.29.orig/bfd/elflink.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/elflink.c	2017-09-23 22:48:35.000000000 -0500
-@@ -10695,6 +10695,15 @@
+diff -burN binutils-2.31.orig/bfd/elflink.c binutils-2.31/bfd/elflink.c
+--- binutils-2.31.orig/bfd/elflink.c	2018-07-13 00:33:03.000000000 -0700
++++ binutils-2.31/bfd/elflink.c	2018-08-02 23:36:01.000000000 -0700
+@@ -10919,6 +10919,15 @@
  
  		  last_offset = irela->r_offset;
  
@@ -433,10 +432,10 @@ diff -burN binutils-2.29.orig/bfd/elflink.c binutils-2.29/bfd/elflink.c
  		  r_symndx = irela->r_info >> r_sym_shift;
  		  if (r_symndx == STN_UNDEF)
  		    continue;
-diff -burN binutils-2.29.orig/bfd/elfxx-mips.c binutils-2.29/bfd/elfxx-mips.c
---- binutils-2.29.orig/bfd/elfxx-mips.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/elfxx-mips.c	2017-09-23 22:48:35.000000000 -0500
-@@ -7227,6 +7227,10 @@
+diff -burN binutils-2.31.orig/bfd/elfxx-mips.c binutils-2.31/bfd/elfxx-mips.c
+--- binutils-2.31.orig/bfd/elfxx-mips.c	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/bfd/elfxx-mips.c	2018-08-02 23:36:01.000000000 -0700
+@@ -7248,6 +7248,10 @@
       probably get away with this.  */
    switch (hdr->sh_type)
      {
@@ -447,7 +446,7 @@ diff -burN binutils-2.29.orig/bfd/elfxx-mips.c binutils-2.29/bfd/elfxx-mips.c
      case SHT_MIPS_LIBLIST:
        if (strcmp (name, ".liblist") != 0)
  	return FALSE;
-@@ -7410,7 +7414,27 @@
+@@ -7431,7 +7435,27 @@
  {
    const char *name = bfd_get_section_name (abfd, sec);
  
@@ -476,10 +475,10 @@ diff -burN binutils-2.29.orig/bfd/elfxx-mips.c binutils-2.29/bfd/elfxx-mips.c
      {
        hdr->sh_type = SHT_MIPS_LIBLIST;
        hdr->sh_info = sec->size / sizeof (Elf32_Lib);
-diff -burN binutils-2.29.orig/bfd/libbfd.h binutils-2.29/bfd/libbfd.h
---- binutils-2.29.orig/bfd/libbfd.h	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/libbfd.h	2017-09-23 22:48:35.000000000 -0500
-@@ -1256,6 +1256,10 @@
+diff -burN binutils-2.31.orig/bfd/libbfd.h binutils-2.31/bfd/libbfd.h
+--- binutils-2.31.orig/bfd/libbfd.h	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/bfd/libbfd.h	2018-08-02 23:36:01.000000000 -0700
+@@ -1293,6 +1293,10 @@
    "BFD_RELOC_FRV_GETTLSOFF_RELAX",
    "BFD_RELOC_FRV_TLSOFF_RELAX",
    "BFD_RELOC_FRV_TLSMOFF",
@@ -490,10 +489,10 @@ diff -burN binutils-2.29.orig/bfd/libbfd.h binutils-2.29/bfd/libbfd.h
  
    "BFD_RELOC_MN10300_GOTOFF24",
    "BFD_RELOC_MN10300_GOT32",
-diff -burN binutils-2.29.orig/bfd/reloc.c binutils-2.29/bfd/reloc.c
---- binutils-2.29.orig/bfd/reloc.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/bfd/reloc.c	2017-09-23 22:48:35.000000000 -0500
-@@ -2570,6 +2570,27 @@
+diff -burN binutils-2.31.orig/bfd/reloc.c binutils-2.31/bfd/reloc.c
+--- binutils-2.31.orig/bfd/reloc.c	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/bfd/reloc.c	2018-08-02 23:36:01.000000000 -0700
+@@ -2612,6 +2612,27 @@
  ENUMDOC
    Fujitsu Frv Relocations.
  COMMENT
@@ -521,20 +520,20 @@ diff -burN binutils-2.29.orig/bfd/reloc.c binutils-2.29/bfd/reloc.c
  
  ENUM
    BFD_RELOC_MN10300_GOTOFF24
-diff -burN binutils-2.29.orig/config.sub binutils-2.29/config.sub
---- binutils-2.29.orig/config.sub	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/config.sub	2017-09-23 22:51:06.000000000 -0500
-@@ -259,6 +259,7 @@
+diff -burN binutils-2.31.orig/config.sub binutils-2.31/config.sub
+--- binutils-2.31.orig/config.sub	2018-07-06 00:13:31.000000000 -0700
++++ binutils-2.31/config.sub	2018-08-02 23:46:23.000000000 -0700
+@@ -580,6 +580,7 @@
  	| bfin \
- 	| c4x | c8051 | clipper \
+ 	| c4x | c8051 | clipper | csky \
  	| d10v | d30v | dlx | dsp16xx \
 +	| dvp \
  	| e2k | epiphany \
  	| fido | fr30 | frv | ft32 \
  	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
-@@ -782,6 +783,10 @@
- 		basic_machine=i386-unknown
- 		os=-vsta
+@@ -971,6 +972,10 @@
+ 		basic_machine=j90-cray
+ 		os=${os:-unicos}
  		;;
 +	iop)
 +		basic_machine=mipsel-scei
@@ -543,31 +542,30 @@ diff -burN binutils-2.29.orig/config.sub binutils-2.29/config.sub
  	iris | iris4d)
  		basic_machine=mips-sgi
  		case $os in
-@@ -840,6 +845,10 @@
+@@ -998,6 +1003,10 @@
  		basic_machine=m68k-atari
- 		os=-mint
+ 		os=mint
  		;;
 +	dvp)
 +		basic_machine=dvp-scei
 +		os=-elf
 +		;;
  	mips3*-*)
- 		basic_machine=`echo $basic_machine | sed -e 's/mips3/mips64/'`
+ 		basic_machine=`echo "$basic_machine" | sed -e 's/mips3/mips64/'`
  		;;
-@@ -1417,7 +1426,8 @@
- 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
- 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
- 	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* \
--	      | -onefs* | -tirtos* | -phoenix* | -fuchsia* | -redox*)
-+	      | -onefs* | -tirtos* | -phoenix* | -fuchsia* | -redox* \
-+	      | -irx*)
+@@ -1376,7 +1385,7 @@
+ 	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
+ 	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
+ 	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
+-	     | midnightbsd*)
++	     | midnightbsd* | irx*)
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
- 	-qnx*)
-diff -burN binutils-2.29.orig/configure.ac binutils-2.29/configure.ac
---- binutils-2.29.orig/configure.ac	2017-07-24 05:00:30.000000000 -0500
-+++ binutils-2.29/configure.ac	2017-09-23 22:48:35.000000000 -0500
-@@ -1021,6 +1021,9 @@
+ 	qnx*)
+diff -burN binutils-2.31.orig/configure.ac binutils-2.31/configure.ac
+--- binutils-2.31.orig/configure.ac	2018-07-14 11:17:04.000000000 -0700
++++ binutils-2.31/configure.ac	2018-08-02 23:36:01.000000000 -0700
+@@ -994,6 +994,9 @@
    d30v-*-*)
      noconfigdirs="$noconfigdirs gdb"
      ;;
@@ -577,9 +575,9 @@ diff -burN binutils-2.29.orig/configure.ac binutils-2.29/configure.ac
    fr30-*-elf*)
      noconfigdirs="$noconfigdirs gdb"
      ;;
-diff -burN binutils-2.29.orig/gas/Makefile.am binutils-2.29/gas/Makefile.am
---- binutils-2.29.orig/gas/Makefile.am	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/gas/Makefile.am	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/gas/Makefile.am binutils-2.31/gas/Makefile.am
+--- binutils-2.31.orig/gas/Makefile.am	2018-06-25 03:25:26.000000000 -0700
++++ binutils-2.31/gas/Makefile.am	2018-08-02 23:36:01.000000000 -0700
 @@ -141,6 +141,7 @@
  	config/tc-d10v.c \
  	config/tc-d30v.c \
@@ -588,7 +586,7 @@ diff -burN binutils-2.29.orig/gas/Makefile.am binutils-2.29/gas/Makefile.am
  	config/tc-epiphany.c \
  	config/tc-fr30.c \
  	config/tc-frv.c \
-@@ -218,6 +219,7 @@
+@@ -215,6 +216,7 @@
  	config/tc-d10v.h \
  	config/tc-d30v.h \
  	config/tc-dlx.h \
@@ -596,10 +594,10 @@ diff -burN binutils-2.29.orig/gas/Makefile.am binutils-2.29/gas/Makefile.am
  	config/tc-epiphany.h \
  	config/tc-fr30.h \
  	config/tc-frv.h \
-diff -burN binutils-2.29.orig/gas/Makefile.in binutils-2.29/gas/Makefile.in
---- binutils-2.29.orig/gas/Makefile.in	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/gas/Makefile.in	2017-09-23 22:48:35.000000000 -0500
-@@ -437,6 +437,7 @@
+diff -burN binutils-2.31.orig/gas/Makefile.in binutils-2.31/gas/Makefile.in
+--- binutils-2.31.orig/gas/Makefile.in	2018-07-14 10:57:46.000000000 -0700
++++ binutils-2.31/gas/Makefile.in	2018-08-02 23:48:24.000000000 -0700
+@@ -530,6 +530,7 @@
  	config/tc-d10v.c \
  	config/tc-d30v.c \
  	config/tc-dlx.c \
@@ -607,7 +605,7 @@ diff -burN binutils-2.29.orig/gas/Makefile.in binutils-2.29/gas/Makefile.in
  	config/tc-epiphany.c \
  	config/tc-fr30.c \
  	config/tc-frv.c \
-@@ -514,6 +515,7 @@
+@@ -604,6 +605,7 @@
  	config/tc-d10v.h \
  	config/tc-d30v.h \
  	config/tc-dlx.h \
@@ -615,38 +613,26 @@ diff -burN binutils-2.29.orig/gas/Makefile.in binutils-2.29/gas/Makefile.in
  	config/tc-epiphany.h \
  	config/tc-fr30.h \
  	config/tc-frv.h \
-@@ -874,6 +876,7 @@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-d10v.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-d30v.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-dlx.Po@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-dvp.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-epiphany.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-fr30.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-frv.Po@am__quote@
-@@ -1129,6 +1132,20 @@
- @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
- @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-dlx.obj `if test -f 'config/tc-dlx.c'; then $(CYGPATH_W) 'config/tc-dlx.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-dlx.c'; fi`
- 
-+tc-dvp.o: config/tc-dvp.c
-+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-dvp.o -MD -MP -MF $(DEPDIR)/tc-dvp.Tpo -c -o tc-dvp.o `test -f 'config/tc-dvp.c' || echo '$(srcdir)/'`config/tc-dvp.c
-+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-dvp.Tpo $(DEPDIR)/tc-dvp.Po
-+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-dvp.c' object='tc-dvp.o' libtool=no @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-dvp.o `test -f 'config/tc-dvp.c' || echo '$(srcdir)/'`config/tc-dvp.c
-+
-+tc-dvp.obj: config/tc-dvp.c
-+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-dvp.obj -MD -MP -MF $(DEPDIR)/tc-dvp.Tpo -c -o tc-dvp.obj `if test -f 'config/tc-dvp.c'; then $(CYGPATH_W) 'config/tc-dvp.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-dvp.c'; fi`
-+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-dvp.Tpo $(DEPDIR)/tc-dvp.Po
-+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-dvp.c' object='tc-dvp.obj' libtool=no @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-dvp.obj `if test -f 'config/tc-dvp.c'; then $(CYGPATH_W) 'config/tc-dvp.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-dvp.c'; fi`
-+
- tc-epiphany.o: config/tc-epiphany.c
- @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-epiphany.o -MD -MP -MF $(DEPDIR)/tc-epiphany.Tpo -c -o tc-epiphany.o `test -f 'config/tc-epiphany.c' || echo '$(srcdir)/'`config/tc-epiphany.c
- @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-epiphany.Tpo $(DEPDIR)/tc-epiphany.Po
-diff -burN binutils-2.29.orig/gas/config/tc-dvp.c binutils-2.29/gas/config/tc-dvp.c
---- binutils-2.29.orig/gas/config/tc-dvp.c	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/gas/config/tc-dvp.c	2017-09-23 22:48:35.000000000 -0500
+@@ -902,6 +904,8 @@
+ 	config/$(DEPDIR)/$(am__dirstamp)
+ config/tc-dlx.$(OBJEXT): config/$(am__dirstamp) \
+ 	config/$(DEPDIR)/$(am__dirstamp)
++config/tc-dvp.$(OBJEXT): config/$(am__dirstamp) \
++	config/$(DEPDIR)/$(am__dirstamp)
+ config/tc-epiphany.$(OBJEXT): config/$(am__dirstamp) \
+ 	config/$(DEPDIR)/$(am__dirstamp)
+ config/tc-fr30.$(OBJEXT): config/$(am__dirstamp) \
+@@ -1149,6 +1153,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-d10v.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-d30v.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-dlx.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-dvp.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-epiphany.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-fr30.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-frv.Po@am__quote@
+diff -burN binutils-2.31.orig/gas/config/tc-dvp.c binutils-2.31/gas/config/tc-dvp.c
+--- binutils-2.31.orig/gas/config/tc-dvp.c	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/gas/config/tc-dvp.c	2018-08-02 23:36:01.000000000 -0700
 @@ -0,0 +1,3382 @@
 +/* tc-dvp.c -- Assembler for the DVP
 +   Copyright (C) 1997, 1998 Free Software Foundation.
@@ -4030,9 +4016,9 @@ diff -burN binutils-2.29.orig/gas/config/tc-dvp.c binutils-2.29/gas/config/tc-dv
 +  e.X_add_number = 0;
 +  return make_expr_symbol (&e);
 +}
-diff -burN binutils-2.29.orig/gas/config/tc-dvp.h binutils-2.29/gas/config/tc-dvp.h
---- binutils-2.29.orig/gas/config/tc-dvp.h	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/gas/config/tc-dvp.h	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/gas/config/tc-dvp.h binutils-2.31/gas/config/tc-dvp.h
+--- binutils-2.31.orig/gas/config/tc-dvp.h	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/gas/config/tc-dvp.h	2018-08-02 23:36:01.000000000 -0700
 @@ -0,0 +1,100 @@
 +/* tc-dvp.h -- Header file for tc-dvp.c.
 +   Copyright (C) 1997, 1998 Free Software Foundation, Inc.
@@ -4134,10 +4120,10 @@ diff -burN binutils-2.29.orig/gas/config/tc-dvp.h binutils-2.29/gas/config/tc-dv
 +  { ".vubss",	SHT_NOBITS,	SHF_ALLOC + SHF_WRITE		}, \
 +  { ".vudata",	SHT_PROGBITS,	SHF_ALLOC + SHF_WRITE		}, \
 +  { ".vutext",	SHT_PROGBITS,	SHF_ALLOC + SHF_EXECINSTR	},
-diff -burN binutils-2.29.orig/gas/configure.tgt binutils-2.29/gas/configure.tgt
---- binutils-2.29.orig/gas/configure.tgt	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/gas/configure.tgt	2017-09-23 22:48:35.000000000 -0500
-@@ -186,6 +186,8 @@
+diff -burN binutils-2.31.orig/gas/configure.tgt binutils-2.31/gas/configure.tgt
+--- binutils-2.31.orig/gas/configure.tgt	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/gas/configure.tgt	2018-08-02 23:49:28.000000000 -0700
+@@ -177,6 +177,8 @@
    d30v-*-*)				fmt=elf ;;
    dlx-*-*)				fmt=elf ;;
  
@@ -4146,18 +4132,18 @@ diff -burN binutils-2.29.orig/gas/configure.tgt binutils-2.29/gas/configure.tgt
    epiphany-*-*)				fmt=elf ;;
  
    fr30-*-*)				fmt=elf ;;
-@@ -351,6 +353,7 @@
-   mips-*-elf*)				fmt=elf ;;
+@@ -310,6 +312,7 @@
    mips-*-netbsd*)			fmt=elf em=tmips ;;
    mips-*-openbsd*)			fmt=elf em=tmips ;;
-+  mips-*-irx*)				fmt=elf endian=little ;;
+   mips-*-windiss)			fmt=elf ;;
++  mips-*-irx*)        fmt=elf endian=little ;;
  
    mmix-*-*)				fmt=elf ;;
  
-diff -burN binutils-2.29.orig/gas/read.c binutils-2.29/gas/read.c
---- binutils-2.29.orig/gas/read.c	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/gas/read.c	2017-09-23 22:48:35.000000000 -0500
-@@ -237,7 +237,6 @@
+diff -burN binutils-2.31.orig/gas/read.c binutils-2.31/gas/read.c
+--- binutils-2.31.orig/gas/read.c	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/gas/read.c	2018-08-02 23:36:02.000000000 -0700
+@@ -238,7 +238,6 @@
  static unsigned int bundle_lock_depth;
  #endif
  
@@ -4165,7 +4151,7 @@ diff -burN binutils-2.29.orig/gas/read.c binutils-2.29/gas/read.c
  static void s_align (int, int);
  static void s_altmacro (int);
  static void s_bad_end (int);
-@@ -6082,7 +6081,7 @@
+@@ -5949,7 +5948,7 @@
  /* Subroutine of s_func so targets can choose a different default prefix.
     If DEFAULT_PREFIX is NULL, use the target's "leading char".  */
  
@@ -4174,10 +4160,10 @@ diff -burN binutils-2.29.orig/gas/read.c binutils-2.29/gas/read.c
  do_s_func (int end_p, const char *default_prefix)
  {
    /* Record the current function so that we can issue an error message for
-diff -burN binutils-2.29.orig/gas/read.h binutils-2.29/gas/read.h
---- binutils-2.29.orig/gas/read.h	2017-07-04 03:43:20.000000000 -0500
-+++ binutils-2.29/gas/read.h	2017-09-23 22:48:35.000000000 -0500
-@@ -181,6 +181,7 @@
+diff -burN binutils-2.31.orig/gas/read.h binutils-2.31/gas/read.h
+--- binutils-2.31.orig/gas/read.h	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/gas/read.h	2018-08-02 23:36:02.000000000 -0700
+@@ -182,6 +182,7 @@
  extern void s_fill (int);
  extern void s_float_space (int mult);
  extern void s_func (int);
@@ -4185,9 +4171,9 @@ diff -burN binutils-2.29.orig/gas/read.h binutils-2.29/gas/read.h
  extern void s_globl (int arg);
  extern void s_if (int arg);
  extern void s_ifb (int arg);
-diff -burN binutils-2.29.orig/include/dis-asm.h binutils-2.29/include/dis-asm.h
---- binutils-2.29.orig/include/dis-asm.h	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/include/dis-asm.h	2017-09-23 22:53:26.000000000 -0500
+diff -burN binutils-2.31.orig/include/dis-asm.h binutils-2.31/include/dis-asm.h
+--- binutils-2.31.orig/include/dis-asm.h	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/include/dis-asm.h	2018-08-02 23:36:02.000000000 -0700
 @@ -237,7 +237,9 @@
     target address.  Return number of octets processed.  */
  typedef int (*disassembler_ftype) (bfd_vma, disassemble_info *);
@@ -4198,10 +4184,10 @@ diff -burN binutils-2.29.orig/include/dis-asm.h binutils-2.29/include/dis-asm.h
  extern int print_insn_m32c		(bfd_vma, disassemble_info *);
  extern int print_insn_mep		(bfd_vma, disassemble_info *);
  extern int print_insn_sh		(bfd_vma, disassemble_info *);
-diff -burN binutils-2.29.orig/include/elf/common.h binutils-2.29/include/elf/common.h
---- binutils-2.29.orig/include/elf/common.h	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/include/elf/common.h	2017-09-23 22:48:35.000000000 -0500
-@@ -96,6 +96,7 @@
+diff -burN binutils-2.31.orig/include/elf/common.h binutils-2.31/include/elf/common.h
+--- binutils-2.31.orig/include/elf/common.h	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/include/elf/common.h	2018-08-02 23:36:02.000000000 -0700
+@@ -97,6 +97,7 @@
  #define ET_LOOS		0xFE00	/* Operating system-specific */
  #define ET_HIOS		0xFEFF	/* Operating system-specific */
  #define ET_LOPROC	0xFF00	/* Processor-specific */
@@ -4209,7 +4195,7 @@ diff -burN binutils-2.29.orig/include/elf/common.h binutils-2.29/include/elf/com
  #define ET_HIPROC	0xFFFF	/* Processor-specific */
  
  /* Values for e_machine, which identifies the architecture.  These numbers
-@@ -453,6 +454,7 @@
+@@ -458,6 +459,7 @@
  #define PT_LOOS		0x60000000	/* OS-specific */
  #define PT_HIOS		0x6fffffff	/* OS-specific */
  #define PT_LOPROC	0x70000000	/* Processor-specific */
@@ -4217,7 +4203,7 @@ diff -burN binutils-2.29.orig/include/elf/common.h binutils-2.29/include/elf/com
  #define PT_HIPROC	0x7FFFFFFF	/* Processor-specific */
  
  #define PT_GNU_EH_FRAME	(PT_LOOS + 0x474e550) /* Frame unwind information */
-@@ -515,6 +517,7 @@
+@@ -520,6 +522,7 @@
  #define SHT_GNU_versym	SHT_SUNW_versym
  
  #define SHT_LOPROC	0x70000000	/* Processor-specific semantics, lo */
@@ -4225,9 +4211,9 @@ diff -burN binutils-2.29.orig/include/elf/common.h binutils-2.29/include/elf/com
  #define SHT_HIPROC	0x7FFFFFFF	/* Processor-specific semantics, hi */
  #define SHT_LOUSER	0x80000000	/* Application-specific semantics */
  /* #define SHT_HIUSER	0x8FFFFFFF    *//* Application-specific semantics */
-diff -burN binutils-2.29.orig/include/elf/mips.h binutils-2.29/include/elf/mips.h
---- binutils-2.29.orig/include/elf/mips.h	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/include/elf/mips.h	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/include/elf/mips.h binutils-2.31/include/elf/mips.h
+--- binutils-2.31.orig/include/elf/mips.h	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/include/elf/mips.h	2018-08-02 23:36:02.000000000 -0700
 @@ -116,6 +116,12 @@
    RELOC_NUMBER (R_MIPS16_TLS_TPREL_LO16, 112)
    RELOC_NUMBER (R_MIPS16_PC16_S1, 113)
@@ -4305,9 +4291,9 @@ diff -burN binutils-2.29.orig/include/elf/mips.h binutils-2.29/include/elf/mips.
  /* MIPS ELF flags swapping routines.  */
  extern void bfd_mips_elf_swap_abiflags_v0_in
    (bfd *, const Elf_External_ABIFlags_v0 *, Elf_Internal_ABIFlags_v0 *);
-diff -burN binutils-2.29.orig/include/opcode/dvp.h binutils-2.29/include/opcode/dvp.h
---- binutils-2.29.orig/include/opcode/dvp.h	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/include/opcode/dvp.h	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/include/opcode/dvp.h binutils-2.31/include/opcode/dvp.h
+--- binutils-2.31.orig/include/opcode/dvp.h	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/include/opcode/dvp.h	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,462 @@
 +/* Opcode table for the DVP.
 +   Copyright 1998 Free Software Foundation, Inc.
@@ -4771,18 +4757,18 @@ diff -burN binutils-2.29.orig/include/opcode/dvp.h binutils-2.29/include/opcode/
 +void dvp_opcode_init_tables (void);
 +void dvp_opcode_init_parse (void);
 +void dvp_opcode_init_print (void);
-diff -burN binutils-2.29.orig/ld/Makefile.am binutils-2.29/ld/Makefile.am
---- binutils-2.29.orig/ld/Makefile.am	2017-07-24 04:53:52.000000000 -0500
-+++ binutils-2.29/ld/Makefile.am	2017-09-23 22:48:35.000000000 -0500
-@@ -363,6 +363,7 @@
- 	em68kpsos.c \
- 	em88kbcs.c \
+diff -burN binutils-2.31.orig/ld/Makefile.am binutils-2.31/ld/Makefile.am
+--- binutils-2.31.orig/ld/Makefile.am	2018-06-24 11:38:57.000000000 -0700
++++ binutils-2.31/ld/Makefile.am	2018-08-02 23:36:02.000000000 -0700
+@@ -326,6 +326,7 @@
+ 	em68kelfnbsd.c \
+ 	em9s12zelf.c \
  	emcorepe.c \
 +	emipsirx.c \
  	emn10200.c \
  	emn10300.c \
  	emsp430elf.c \
-@@ -1599,6 +1600,9 @@
+@@ -1443,6 +1444,9 @@
  emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
    $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
  
@@ -4792,26 +4778,26 @@ diff -burN binutils-2.29.orig/ld/Makefile.am binutils-2.29/ld/Makefile.am
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -burN binutils-2.29.orig/ld/Makefile.in binutils-2.29/ld/Makefile.in
---- binutils-2.29.orig/ld/Makefile.in	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/ld/Makefile.in	2017-09-23 22:48:35.000000000 -0500
-@@ -732,6 +732,7 @@
- 	em68kpsos.c \
- 	em88kbcs.c \
+diff -burN binutils-2.31.orig/ld/Makefile.in binutils-2.31/ld/Makefile.in
+--- binutils-2.31.orig/ld/Makefile.in	2018-07-14 10:57:58.000000000 -0700
++++ binutils-2.31/ld/Makefile.in	2018-08-02 23:36:02.000000000 -0700
+@@ -812,6 +812,7 @@
+ 	em68kelfnbsd.c \
+ 	em9s12zelf.c \
  	emcorepe.c \
 +	emipsirx.c \
  	emn10200.c \
  	emn10300.c \
  	emsp430elf.c \
-@@ -1404,6 +1405,7 @@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em68kpsos.Po@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em88kbcs.Po@am__quote@
+@@ -1434,6 +1435,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em68kelfnbsd.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em9s12zelf.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emcorepe.Po@am__quote@
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emipsirx.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emmo.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10200.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10300.Po@am__quote@
-@@ -3163,6 +3165,9 @@
+@@ -3044,6 +3046,9 @@
  emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
    $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
  
@@ -4821,10 +4807,10 @@ diff -burN binutils-2.29.orig/ld/Makefile.in binutils-2.29/ld/Makefile.in
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -burN binutils-2.29.orig/ld/configure.tgt binutils-2.29/ld/configure.tgt
---- binutils-2.29.orig/ld/configure.tgt	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/ld/configure.tgt	2017-09-23 23:01:29.000000000 -0500
-@@ -206,6 +206,7 @@
+diff -burN binutils-2.31.orig/ld/configure.tgt binutils-2.31/ld/configure.tgt
+--- binutils-2.31.orig/ld/configure.tgt	2018-07-09 00:44:53.000000000 -0700
++++ binutils-2.31/ld/configure.tgt	2018-08-02 23:36:02.000000000 -0700
+@@ -203,6 +203,7 @@
  			;;
  dlx-*-elf*)		targ_emul=elf32_dlx
  			;;
@@ -4832,7 +4818,7 @@ diff -burN binutils-2.29.orig/ld/configure.tgt binutils-2.29/ld/configure.tgt
  epiphany-*-*)		targ_emul=elf32epiphany
  			targ_extra_emuls="elf32epiphany_4x4"
  			;;
-@@ -525,6 +526,9 @@
+@@ -459,6 +460,9 @@
  mips*el-*-elf*)		targ_emul=elf32elmip ;;
  mips*-*-elf* | mips*-*-rtems*)
  			targ_emul=elf32ebmip ;;
@@ -4842,9 +4828,9 @@ diff -burN binutils-2.29.orig/ld/configure.tgt binutils-2.29/ld/configure.tgt
  mips*el-*-vxworks*)	targ_emul=elf32elmipvxworks
  			targ_extra_emuls="elf32ebmipvxworks" ;;
  mips*-*-vxworks*)	targ_emul=elf32ebmipvxworks
-diff -burN binutils-2.29.orig/ld/emulparams/mipsirx.sh binutils-2.29/ld/emulparams/mipsirx.sh
---- binutils-2.29.orig/ld/emulparams/mipsirx.sh	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/ld/emulparams/mipsirx.sh	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/ld/emulparams/mipsirx.sh binutils-2.31/ld/emulparams/mipsirx.sh
+--- binutils-2.31.orig/ld/emulparams/mipsirx.sh	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/ld/emulparams/mipsirx.sh	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,8 @@
 +SCRIPT_NAME=irx
 +OUTPUT_FORMAT="elf32-littlemips"
@@ -4854,9 +4840,9 @@ diff -burN binutils-2.29.orig/ld/emulparams/mipsirx.sh binutils-2.29/ld/emulpara
 +DATA_ADDR=.
 +TEMPLATE_NAME=elf32
 +EXTRA_EM_FILE=irx
-diff -burN binutils-2.29.orig/ld/emultempl/irx.em binutils-2.29/ld/emultempl/irx.em
---- binutils-2.29.orig/ld/emultempl/irx.em	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/ld/emultempl/irx.em	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/ld/emultempl/irx.em binutils-2.31/ld/emultempl/irx.em
+--- binutils-2.31.orig/ld/emultempl/irx.em	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/ld/emultempl/irx.em	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,465 @@
 +fragment <<EOF
 +/* This file is is generated by a shell script.  DO NOT EDIT! */
@@ -5323,9 +5309,9 @@ diff -burN binutils-2.29.orig/ld/emultempl/irx.em binutils-2.29/ld/emultempl/irx
 +LDEMUL_AFTER_OPEN=irx_after_open
 +LDEMUL_AFTER_ALLOCATION=irx_after_allocation
 +LDEMUL_BEFORE_ALLOCATION=irx_before_allocation
-diff -burN binutils-2.29.orig/ld/scripttempl/irx.sc binutils-2.29/ld/scripttempl/irx.sc
---- binutils-2.29.orig/ld/scripttempl/irx.sc	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/ld/scripttempl/irx.sc	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/ld/scripttempl/irx.sc binutils-2.31/ld/scripttempl/irx.sc
+--- binutils-2.31.orig/ld/scripttempl/irx.sc	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/ld/scripttempl/irx.sc	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,126 @@
 +# Link scripts for PlayStation 2 IRXs.
 +
@@ -5453,10 +5439,10 @@ diff -burN binutils-2.29.orig/ld/scripttempl/irx.sc binutils-2.29/ld/scripttempl
 +}
 +
 +EOF
-diff -burN binutils-2.29.orig/opcodes/configure binutils-2.29/opcodes/configure
---- binutils-2.29.orig/opcodes/configure	2017-07-24 04:58:10.000000000 -0500
-+++ binutils-2.29/opcodes/configure	2017-09-23 22:48:35.000000000 -0500
-@@ -12640,6 +12640,7 @@
+diff -burN binutils-2.31.orig/opcodes/configure binutils-2.31/opcodes/configure
+--- binutils-2.31.orig/opcodes/configure	2018-07-14 10:57:37.000000000 -0700
++++ binutils-2.31/opcodes/configure	2018-08-02 23:36:02.000000000 -0700
+@@ -12928,6 +12928,7 @@
  	bfd_d10v_arch)		ta="$ta d10v-dis.lo d10v-opc.lo" ;;
  	bfd_d30v_arch)		ta="$ta d30v-dis.lo d30v-opc.lo" ;;
  	bfd_dlx_arch)		ta="$ta dlx-dis.lo" ;;
@@ -5464,10 +5450,10 @@ diff -burN binutils-2.29.orig/opcodes/configure binutils-2.29/opcodes/configure
  	bfd_fr30_arch)		ta="$ta fr30-asm.lo fr30-desc.lo fr30-dis.lo fr30-ibld.lo fr30-opc.lo" using_cgen=yes ;;
  	bfd_frv_arch)		ta="$ta frv-asm.lo frv-desc.lo frv-dis.lo frv-ibld.lo frv-opc.lo" using_cgen=yes ;;
  	bfd_ft32_arch)		ta="$ta ft32-opc.lo ft32-dis.lo" ;;
-diff -burN binutils-2.29.orig/opcodes/configure.ac binutils-2.29/opcodes/configure.ac
---- binutils-2.29.orig/opcodes/configure.ac	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/opcodes/configure.ac	2017-09-23 22:48:35.000000000 -0500
-@@ -264,6 +264,7 @@
+diff -burN binutils-2.31.orig/opcodes/configure.ac binutils-2.31/opcodes/configure.ac
+--- binutils-2.31.orig/opcodes/configure.ac	2018-06-24 11:38:58.000000000 -0700
++++ binutils-2.31/opcodes/configure.ac	2018-08-02 23:36:02.000000000 -0700
+@@ -263,6 +263,7 @@
  	bfd_d10v_arch)		ta="$ta d10v-dis.lo d10v-opc.lo" ;;
  	bfd_d30v_arch)		ta="$ta d30v-dis.lo d30v-opc.lo" ;;
  	bfd_dlx_arch)		ta="$ta dlx-dis.lo" ;;
@@ -5475,10 +5461,10 @@ diff -burN binutils-2.29.orig/opcodes/configure.ac binutils-2.29/opcodes/configu
  	bfd_fr30_arch)		ta="$ta fr30-asm.lo fr30-desc.lo fr30-dis.lo fr30-ibld.lo fr30-opc.lo" using_cgen=yes ;;
  	bfd_frv_arch)		ta="$ta frv-asm.lo frv-desc.lo frv-dis.lo frv-ibld.lo frv-opc.lo" using_cgen=yes ;;
  	bfd_ft32_arch)		ta="$ta ft32-opc.lo ft32-dis.lo" ;;
-diff -burN binutils-2.29.orig/opcodes/disassemble.c binutils-2.29/opcodes/disassemble.c
---- binutils-2.29.orig/opcodes/disassemble.c	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/opcodes/disassemble.c	2017-09-23 22:55:29.000000000 -0500
-@@ -335,13 +335,17 @@
+diff -burN binutils-2.31.orig/opcodes/disassemble.c binutils-2.31/opcodes/disassemble.c
+--- binutils-2.31.orig/opcodes/disassemble.c	2018-06-24 11:38:58.000000000 -0700
++++ binutils-2.31/opcodes/disassemble.c	2018-08-02 23:36:02.000000000 -0700
+@@ -306,13 +306,17 @@
        disassemble = print_insn_metag;
        break;
  #endif
@@ -5497,9 +5483,9 @@ diff -burN binutils-2.29.orig/opcodes/disassemble.c binutils-2.29/opcodes/disass
  #endif
  #ifdef ARCH_mmix
      case bfd_arch_mmix:
-diff -burN binutils-2.29.orig/opcodes/dvp-dis.c binutils-2.29/opcodes/dvp-dis.c
---- binutils-2.29.orig/opcodes/dvp-dis.c	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/opcodes/dvp-dis.c	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/opcodes/dvp-dis.c binutils-2.31/opcodes/dvp-dis.c
+--- binutils-2.31.orig/opcodes/dvp-dis.c	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/opcodes/dvp-dis.c	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,442 @@
 +/* Instruction printing code for the DVP
 +   Copyright (C) 1998 Free Software Foundation, Inc. 
@@ -5943,9 +5929,9 @@ diff -burN binutils-2.29.orig/opcodes/dvp-dis.c binutils-2.29/opcodes/dvp-dis.c
 +  *insn_buf = bfd_getl32 (buffer);
 +  return 0;
 +}
-diff -burN binutils-2.29.orig/opcodes/dvp-opc.c binutils-2.29/opcodes/dvp-opc.c
---- binutils-2.29.orig/opcodes/dvp-opc.c	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.29/opcodes/dvp-opc.c	2017-09-23 22:48:35.000000000 -0500
+diff -burN binutils-2.31.orig/opcodes/dvp-opc.c binutils-2.31/opcodes/dvp-opc.c
+--- binutils-2.31.orig/opcodes/dvp-opc.c	1969-12-31 16:00:00.000000000 -0800
++++ binutils-2.31/opcodes/dvp-opc.c	2018-08-02 23:36:02.000000000 -0700
 @@ -0,0 +1,3402 @@
 +/* Opcode table for the DVP
 +   Copyright (c) 1998 Free Software Foundation, Inc.
@@ -9349,10 +9335,10 @@ diff -burN binutils-2.29.orig/opcodes/dvp-opc.c binutils-2.29/opcodes/dvp-opc.c
 +
 +  return NULL;
 +}
-diff -burN binutils-2.29.orig/opcodes/mips-dis.c binutils-2.29/opcodes/mips-dis.c
---- binutils-2.29.orig/opcodes/mips-dis.c	2017-07-04 03:43:21.000000000 -0500
-+++ binutils-2.29/opcodes/mips-dis.c	2017-09-23 22:48:35.000000000 -0500
-@@ -2487,6 +2487,19 @@
+diff -burN binutils-2.31.orig/opcodes/mips-dis.c binutils-2.31/opcodes/mips-dis.c
+--- binutils-2.31.orig/opcodes/mips-dis.c	2018-06-24 11:38:58.000000000 -0700
++++ binutils-2.31/opcodes/mips-dis.c	2018-08-02 23:36:02.000000000 -0700
+@@ -2494,6 +2494,19 @@
    bfd_byte buffer[INSNLEN];
    int status;
  

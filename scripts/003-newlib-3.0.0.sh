@@ -1,8 +1,8 @@
 #!/bin/bash
-# newlib-2.5.0.sh by uyjulian
+# newlib-3.0.0.sh by uyjulian
 # Based on newlib-1.10.0.sh by Dan Peori (danpeori@oopo.net)
 
-NEWLIB_VERSION=2.5.0
+NEWLIB_VERSION=3.0.0
 ## Download the source code.
 SOURCE=ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }

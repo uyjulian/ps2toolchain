@@ -1,9 +1,9 @@
 #!/bin/bash
-# gcc-7.2.0-stage1.sh by uyjulian
+# gcc-8.2.0-stage1.sh by uyjulian
 # Based on gcc-3.2.3-stage1.sh by AKuHAK
 # Based on gcc-3.2.2-stage1.sh by Dan Peori (danpeori@oopo.net)
 
-GCC_VERSION=7.2.0
+GCC_VERSION=8.2.0
 ## Download the source code.
 SOURCE=http://ftpmirror.gnu.org/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz
 wget --continue $SOURCE || { exit 1; }
@@ -23,6 +23,10 @@ cat ../../patches/gcc-$GCC_VERSION-ee.patch | patch -p1 || { exit 1; }
 if [ -e ../../patches/gcc-$GCC_VERSION-PS2.patch ]; then
 	cat ../../patches/gcc-$GCC_VERSION-PS2.patch | patch -p1 || { exit 1; }
 fi
+
+## isl 0.20 broke GCC compilation: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86724
+## Remove once a new version is released.
+cat ../../patches/gcc-$GCC_VERSION-isl.patch | patch -p1 || { exit 1; }
 
 ## Determine the maximum number of processes that Make can work with.
 ## MinGW's Make doesn't work properly with multi-core processors.

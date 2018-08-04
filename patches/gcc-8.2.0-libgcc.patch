@@ -1,7 +1,7 @@
-diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
---- gcc-7.2.0.orig/gcc/config/mips/mips.c	2017-04-20 08:39:50.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.c	2017-09-23 23:27:27.000000000 -0500
-@@ -19747,6 +19747,11 @@
+diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.c gcc-8.2.0/gcc/config/mips/mips.c
+--- gcc-8.2.0.orig/gcc/config/mips/mips.c	2018-03-01 03:37:35.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips.c	2018-08-02 23:13:38.000000000 -0700
+@@ -19791,6 +19791,11 @@
      error ("unsupported combination: %s",
  	   "-march=r5900 -mhard-float -mdouble-float");
  
@@ -13,9 +13,9 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    /* If a -mlong* option was given, check that it matches the ABI,
       otherwise infer the -mlong* setting from the other options.  */
    if ((target_flags_explicit & MASK_LONG64) != 0)
-diff -burN gcc-7.2.0.orig/libgcc/config/t-hardfp-sf gcc-7.2.0/libgcc/config/t-hardfp-sf
---- gcc-7.2.0.orig/libgcc/config/t-hardfp-sf	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-7.2.0/libgcc/config/t-hardfp-sf	2017-09-23 23:27:27.000000000 -0500
+diff -burN gcc-8.2.0.orig/libgcc/config/t-hardfp-sf gcc-8.2.0/libgcc/config/t-hardfp-sf
+--- gcc-8.2.0.orig/libgcc/config/t-hardfp-sf	1969-12-31 16:00:00.000000000 -0800
++++ gcc-8.2.0/libgcc/config/t-hardfp-sf	2018-08-02 23:13:38.000000000 -0700
 @@ -0,0 +1,32 @@
 +# Copyright (C) 2014-2015 Free Software Foundation, Inc.
 +
@@ -49,9 +49,9 @@ diff -burN gcc-7.2.0.orig/libgcc/config/t-hardfp-sf gcc-7.2.0/libgcc/config/t-ha
 +    _fpcmp_parts_sf _compare_sf _eq_sf _ne_sf _gt_sf _ge_sf \
 +    _lt_sf _le_sf _unord_sf _si_to_sf _sf_to_si _negate_sf \
 +    _thenan_sf _sf_to_usi _usi_to_sf
-diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
---- gcc-7.2.0.orig/libgcc/config.host	2017-05-10 15:42:58.000000000 -0500
-+++ gcc-7.2.0/libgcc/config.host	2017-09-23 23:27:27.000000000 -0500
+diff -burN gcc-8.2.0.orig/libgcc/config.host gcc-8.2.0/libgcc/config.host
+--- gcc-8.2.0.orig/libgcc/config.host	2018-04-06 13:04:17.000000000 -0700
++++ gcc-8.2.0/libgcc/config.host	2018-08-02 23:13:38.000000000 -0700
 @@ -144,7 +144,11 @@
  	cpu_type=mips
  	tmake_file="mips/t-mips"
@@ -64,7 +64,7 @@ diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
  	else
  		tmake_file="${tmake_file} t-softfp-sfdf"
  	fi
-@@ -858,19 +862,16 @@
+@@ -885,19 +889,16 @@
  mips*-*-linux*)				# Linux MIPS, either endian.
  	extra_parts="$extra_parts crtfastmath.o"
  	tmake_file="${tmake_file} t-crtfm"
@@ -90,7 +90,7 @@ diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
  	case "${with_newlib}" in
  	  yes)
  	    # newlib / libgloss.
-@@ -900,7 +901,10 @@
+@@ -927,7 +928,10 @@
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips-*-elf* | mipsel-*-elf*)
@@ -102,7 +102,7 @@ diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mipsr5900-*-elf* | mipsr5900el-*-elf*)
-@@ -908,7 +912,10 @@
+@@ -935,7 +939,10 @@
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips64-*-elf* | mips64el-*-elf*)
@@ -114,7 +114,7 @@ diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips64r5900-*-elf* | mips64r5900el-*-elf*)
-@@ -924,7 +931,10 @@
+@@ -951,7 +958,10 @@
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips*-*-rtems*)
@@ -126,10 +126,10 @@ diff -burN gcc-7.2.0.orig/libgcc/config.host gcc-7.2.0/libgcc/config.host
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips-wrs-vxworks)
-diff -burN gcc-7.2.0.orig/libgcc/configure gcc-7.2.0/libgcc/configure
---- gcc-7.2.0.orig/libgcc/configure	2017-06-28 08:25:33.000000000 -0500
-+++ gcc-7.2.0/libgcc/configure	2017-09-23 23:27:27.000000000 -0500
-@@ -4871,6 +4871,48 @@
+diff -burN gcc-8.2.0.orig/libgcc/configure gcc-8.2.0/libgcc/configure
+--- gcc-8.2.0.orig/libgcc/configure	2018-04-24 09:45:26.000000000 -0700
++++ gcc-8.2.0/libgcc/configure	2018-08-02 23:13:38.000000000 -0700
+@@ -4957,6 +4957,48 @@
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $libgcc_cv_mips_hard_float" >&5
  $as_echo "$libgcc_cv_mips_hard_float" >&6; }
@@ -178,10 +178,10 @@ diff -burN gcc-7.2.0.orig/libgcc/configure gcc-7.2.0/libgcc/configure
  esac
  
  case ${host} in
-diff -burN gcc-7.2.0.orig/libgcc/configure.ac gcc-7.2.0/libgcc/configure.ac
---- gcc-7.2.0.orig/libgcc/configure.ac	2017-06-28 08:25:33.000000000 -0500
-+++ gcc-7.2.0/libgcc/configure.ac	2017-09-23 23:27:27.000000000 -0500
-@@ -292,6 +292,23 @@
+diff -burN gcc-8.2.0.orig/libgcc/configure.ac gcc-8.2.0/libgcc/configure.ac
+--- gcc-8.2.0.orig/libgcc/configure.ac	2018-02-28 00:59:15.000000000 -0800
++++ gcc-8.2.0/libgcc/configure.ac	2018-08-02 23:13:38.000000000 -0700
+@@ -296,6 +296,23 @@
       #endif],
      [libgcc_cv_mips_hard_float=yes],
      [libgcc_cv_mips_hard_float=no])])

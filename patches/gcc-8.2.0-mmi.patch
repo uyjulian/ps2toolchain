@@ -1,6 +1,6 @@
-diff -burN gcc-7.2.0.ee/gcc/config/mips/5900.md gcc-7.2.0/gcc/config/mips/5900.md
---- gcc-7.2.0.ee/gcc/config/mips/5900.md	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/5900.md	2017-09-23 23:27:17.000000000 -0500
+diff -burN gcc-8.2.0.ee/gcc/config/mips/5900.md gcc-8.2.0/gcc/config/mips/5900.md
+--- gcc-8.2.0.ee/gcc/config/mips/5900.md	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/5900.md	2018-08-02 23:25:53.000000000 -0700
 @@ -18,9 +18,160 @@
  ;;
  ;; R5900 instruction patterns and pipeline tuning.
@@ -950,9 +950,9 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/5900.md gcc-7.2.0/gcc/config/mips/5900.m
 +    emit_insn (gen_pmfhl_lh (operands[0], hilo));
 +    DONE;
 +})
-diff -burN gcc-7.2.0.ee/gcc/config/mips/constraints.md gcc-7.2.0/gcc/config/mips/constraints.md
---- gcc-7.2.0.ee/gcc/config/mips/constraints.md	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/constraints.md	2017-09-23 23:27:17.000000000 -0500
+diff -burN gcc-8.2.0.ee/gcc/config/mips/constraints.md gcc-8.2.0/gcc/config/mips/constraints.md
+--- gcc-8.2.0.ee/gcc/config/mips/constraints.md	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/constraints.md	2018-08-02 23:25:53.000000000 -0700
 @@ -48,6 +48,9 @@
    "The concatenated @code{hi1} and @code{lo1} registers.  Use this register
     to store doubleword values.")
@@ -963,9 +963,9 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/constraints.md gcc-7.2.0/gcc/config/mips
  (define_register_constraint "b" "ALL_REGS"
    "@internal")
  
-diff -burN gcc-7.2.0.ee/gcc/config/mips/mips-ftypes.def gcc-7.2.0/gcc/config/mips/mips-ftypes.def
---- gcc-7.2.0.ee/gcc/config/mips/mips-ftypes.def	2017-01-01 06:07:43.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/mips-ftypes.def	2017-09-23 23:27:17.000000000 -0500
+diff -burN gcc-8.2.0.ee/gcc/config/mips/mips-ftypes.def gcc-8.2.0/gcc/config/mips/mips-ftypes.def
+--- gcc-8.2.0.ee/gcc/config/mips/mips-ftypes.def	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips-ftypes.def	2018-08-02 23:25:53.000000000 -0700
 @@ -284,3 +284,6 @@
  DEF_MIPS_FTYPE (3, (VOID, V4SF, POINTER, SI))
  DEF_MIPS_FTYPE (3, (VOID, V4SI, CVPOINTER, SI))
@@ -973,20 +973,20 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips-ftypes.def gcc-7.2.0/gcc/config/mip
 +
 +DEF_MIPS_FTYPE (2, (V8HI, V8HI, INT))
 +DEF_MIPS_FTYPE (2, (V4SI, V4SI, INT))
-diff -burN gcc-7.2.0.ee/gcc/config/mips/mips-protos.h gcc-7.2.0/gcc/config/mips/mips-protos.h
---- gcc-7.2.0.ee/gcc/config/mips/mips-protos.h	2017-03-06 04:08:51.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/mips-protos.h	2017-09-23 23:27:17.000000000 -0500
-@@ -393,4 +393,6 @@
+diff -burN gcc-8.2.0.ee/gcc/config/mips/mips-protos.h gcc-8.2.0/gcc/config/mips/mips-protos.h
+--- gcc-8.2.0.ee/gcc/config/mips/mips-protos.h	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips-protos.h	2018-08-02 23:25:53.000000000 -0700
+@@ -385,4 +385,6 @@
  extern void mips_register_frame_header_opt (void);
  extern void mips_expand_vec_cond_expr (machine_mode, machine_mode, rtx *);
  
 +extern int r5900_emit_vcond_expr (rtx dest, rtx op1, rtx op2, rtx cond, rtx cc_op0, rtx cc_op1);
 +
  #endif /* ! GCC_MIPS_PROTOS_H */
-diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
---- gcc-7.2.0.ee/gcc/config/mips/mips.c	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.c	2017-09-23 23:27:17.000000000 -0500
-@@ -586,7 +586,7 @@
+diff -burN gcc-8.2.0.ee/gcc/config/mips/mips.c gcc-8.2.0/gcc/config/mips/mips.c
+--- gcc-8.2.0.ee/gcc/config/mips/mips.c	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/mips.c	2018-08-02 23:25:53.000000000 -0700
+@@ -589,7 +589,7 @@
    DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,
    DSP_ACC_REGS,	DSP_ACC_REGS,	ALL_REGS,	ALL_REGS,
    ALL_REGS,	ALL_REGS,	ALL_REGS,	ALL_REGS,
@@ -995,7 +995,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  };
  
  static tree mips_handle_interrupt_attr (tree *, tree, tree, int, bool *);
-@@ -4743,6 +4743,24 @@
+@@ -4747,6 +4747,24 @@
    if (MSA_SUPPORTED_MODE_P (GET_MODE (dest)))
      return mips_split_128bit_move_p (dest, src);
  
@@ -1020,7 +1020,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    /* Otherwise split all multiword moves.  */
    return size > UNITS_PER_WORD;
  }
-@@ -5072,7 +5090,19 @@
+@@ -5076,7 +5094,19 @@
        if (dest_code == REG)
  	{
  	  if (GP_REG_P (REGNO (dest)))
@@ -1040,7 +1040,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  
  	  if (mips_mult_move_p (dest, src, SPLIT_IF_NECESSARY))
  	    {
-@@ -5124,6 +5154,7 @@
+@@ -5128,6 +5158,7 @@
  	  case 2: return "sh\t%z1,%0";
  	  case 4: return "sw\t%z1,%0";
  	  case 8: return "sd\t%z1,%0";
@@ -1048,7 +1048,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  	  default: gcc_unreachable ();
  	  }
      }
-@@ -5177,6 +5208,7 @@
+@@ -5181,6 +5212,7 @@
  	  case 2: return "lhu\t%0,%1";
  	  case 4: return "lw\t%0,%1";
  	  case 8: return "ld\t%0,%1";
@@ -1056,7 +1056,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  	  default: gcc_unreachable ();
  	  }
  
-@@ -5791,6 +5823,9 @@
+@@ -5795,6 +5827,9 @@
  
    /* Work out the size of the argument.  */
    num_bytes = type ? int_size_in_bytes (type) : GET_MODE_SIZE (mode);
@@ -1066,7 +1066,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    num_words = (num_bytes + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
  
    /* Decide whether it should go in a floating-point register, assuming
-@@ -5868,6 +5903,10 @@
+@@ -5872,6 +5907,10 @@
      }
  
    /* See whether the argument has doubleword alignment.  */
@@ -1077,7 +1077,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    doubleword_aligned_p = (mips_function_arg_boundary (mode, type)
  			  > BITS_PER_WORD);
  
-@@ -6195,6 +6234,13 @@
+@@ -6200,6 +6239,13 @@
  	  || mode == DAmode || mode == UDAmode)
  	return 0;
  
@@ -1091,7 +1091,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
        size = type ? int_size_in_bytes (type) : GET_MODE_SIZE (mode);
        return size == -1 || size > UNITS_PER_WORD;
      }
-@@ -7976,6 +8022,18 @@
+@@ -7981,6 +8027,18 @@
    machine_mode mode;
    rtx *regs;
  
@@ -1110,15 +1110,15 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    /* Work out how many bits to move at a time.  If both operands have
       half-word alignment, it is usually better to move in half words.
       For instance, lh/lh/sh/sh is usually better than lwl/lwr/swl/swr
-@@ -7999,6 +8057,7 @@
+@@ -8004,6 +8062,7 @@
  
-   mode = mode_for_size (bits, MODE_INT, 0);
+   mode = int_mode_for_size (bits, 0).require ();
    delta = bits / BITS_PER_UNIT;
 +    }
  
    /* Allocate a buffer for the temporary registers.  */
    regs = XALLOCAVEC (rtx, length / delta);
-@@ -10727,6 +10786,9 @@
+@@ -10732,6 +10791,9 @@
    if (TARGET_DSP && DSP_ACC_REG_P (regno))
      return true;
  
@@ -1128,7 +1128,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    if (GP_REG_P (regno)
        && cfun->machine->use_shadow_register_set == SHADOW_SET_NO)
      {
-@@ -12797,6 +12859,30 @@
+@@ -12802,6 +12864,30 @@
    size = GET_MODE_SIZE (mode);
    mclass = GET_MODE_CLASS (mode);
  
@@ -1159,7 +1159,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    if (GP_REG_P (regno) && mode != CCFmode && !MSA_SUPPORTED_MODE_P (mode))
      return ((regno - GP_REG_FIRST) & 1) == 0 || size <= UNITS_PER_WORD;
  
-@@ -12932,6 +13018,30 @@
+@@ -12965,6 +13051,30 @@
        return (GET_MODE_SIZE (mode) + UNITS_PER_FPREG - 1) / UNITS_PER_FPREG;
      }
  
@@ -1190,9 +1190,9 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    /* All other registers are word-sized.  */
    return (GET_MODE_SIZE (mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
  }
-@@ -12988,6 +13098,14 @@
+@@ -13020,6 +13130,14 @@
    if (MSA_SUPPORTED_MODE_P (from) && MSA_SUPPORTED_MODE_P (to))
-     return false;
+     return true;
  
 +  if (TARGET_MIPS5900)
 +    {
@@ -1205,8 +1205,8 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    /* Otherwise, there are several problems with changing the modes of
       values in floating-point registers:
  
-@@ -13361,6 +13479,14 @@
-     case V8QImode:
+@@ -13404,6 +13522,14 @@
+     case E_V8QImode:
        return TARGET_LOONGSON_VECTORS;
  
 +    case V4SImode:
@@ -1220,7 +1220,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
      default:
        return MSA_SUPPORTED_MODE_P (mode);
      }
-@@ -13621,6 +13747,7 @@
+@@ -13665,6 +13791,7 @@
  	length += NOP_INSN_LENGTH;
  	break;
  
@@ -1228,7 +1228,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
        case HAZARD_HILO1:
        case HAZARD_HILO:
  	length += NOP_INSN_LENGTH * 2;
-@@ -15194,6 +15321,7 @@
+@@ -15238,6 +15365,7 @@
  AVAIL_NON_MIPS16 (dsp_64, TARGET_64BIT && TARGET_DSP)
  AVAIL_NON_MIPS16 (dspr2_32, !TARGET_64BIT && TARGET_DSPR2)
  AVAIL_NON_MIPS16 (loongson, TARGET_LOONGSON_VECTORS)
@@ -1236,7 +1236,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  AVAIL_NON_MIPS16 (cache, TARGET_CACHE_BUILTIN)
  AVAIL_NON_MIPS16 (msa, TARGET_MSA)
  
-@@ -15344,6 +15472,14 @@
+@@ -15388,6 +15516,14 @@
      "__builtin_msa_" #INSN,  MIPS_BUILTIN_DIRECT_NO_TARGET,		\
      FUNCTION_TYPE, mips_builtin_avail_msa }
  
@@ -1251,7 +1251,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  #define CODE_FOR_mips_sqrt_ps CODE_FOR_sqrtv2sf2
  #define CODE_FOR_mips_addq_ph CODE_FOR_addv2hi3
  #define CODE_FOR_mips_addu_qb CODE_FOR_addv4qi3
-@@ -15581,6 +15717,38 @@
+@@ -15625,6 +15761,38 @@
  #define CODE_FOR_msa_ldi_w CODE_FOR_msa_ldiv4si
  #define CODE_FOR_msa_ldi_d CODE_FOR_msa_ldiv2di
  
@@ -1290,7 +1290,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  static const struct mips_builtin_description mips_builtins[] = {
  #define MIPS_GET_FCSR 0
    DIRECT_BUILTIN (get_fcsr, MIPS_USI_FTYPE_VOID, hard_float),
-@@ -15868,6 +16036,39 @@
+@@ -15912,6 +16080,39 @@
    LOONGSON_BUILTIN_SUFFIX (punpcklhw, s, MIPS_V4HI_FTYPE_V4HI_V4HI),
    LOONGSON_BUILTIN_SUFFIX (punpcklwd, s, MIPS_V2SI_FTYPE_V2SI_V2SI),
  
@@ -1330,7 +1330,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    /* Sundry other built-in functions.  */
    DIRECT_NO_TARGET_BUILTIN (cache, MIPS_VOID_FTYPE_SI_CVPOINTER, cache),
  
-@@ -18749,6 +18950,11 @@
+@@ -18793,6 +18994,11 @@
  	*hilo_delay = 0;
  	break;
  
@@ -1342,7 +1342,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
        case HAZARD_DELAY:
  	set = single_set (insn);
  	gcc_assert (set);
-@@ -20289,8 +20495,18 @@
+@@ -20333,8 +20539,18 @@
      }
  
    if (!TARGET_MIPS5900)
@@ -1361,7 +1361,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  
    if (!TARGET_HARD_FLOAT)
      {
-@@ -21805,6 +22021,69 @@
+@@ -21812,6 +22028,69 @@
    emit_move_insn (target, mem);
  }
  
@@ -1431,7 +1431,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  /* Expand a vector initialization.  */
  
  void
-@@ -21944,23 +22223,29 @@
+@@ -21946,23 +22225,29 @@
        return;
      }
  
@@ -1465,7 +1465,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
    mips_expand_vi_general (vmode, imode, nelt, nvar, target, vals);
  }
  
-@@ -22062,6 +22347,106 @@
+@@ -22064,6 +22349,106 @@
    emit_insn (gen_rtx_SET (target, x));
  }
  
@@ -1572,10 +1572,10 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
  /* Implement HARD_REGNO_CALLER_SAVE_MODE.  */
  
  machine_mode
-diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
---- gcc-7.2.0.ee/gcc/config/mips/mips.h	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.h	2017-09-23 23:27:17.000000000 -0500
-@@ -1537,6 +1537,7 @@
+diff -burN gcc-8.2.0.ee/gcc/config/mips/mips.h gcc-8.2.0/gcc/config/mips/mips.h
+--- gcc-8.2.0.ee/gcc/config/mips/mips.h	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/mips.h	2018-08-02 23:25:53.000000000 -0700
+@@ -1535,6 +1535,7 @@
  #define BITS_PER_MSA_REG (UNITS_PER_MSA_REG * BITS_PER_UNIT)
  
  /* The R5900 has 128-bit registers.  */
@@ -1583,7 +1583,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  #define MAX_BITS_PER_WORD_R5900 128
  
  /* For MIPS, width of a floating point register.  */
-@@ -1741,9 +1742,10 @@
+@@ -1723,9 +1724,10 @@
     - 2 dummy entries that were used at various times in the past.
     - 6 DSP accumulator registers (3 hi-lo pairs) for MIPS DSP ASE
     - 6 DSP control registers
@@ -1596,7 +1596,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  
  /* By default, fix the kernel registers ($26 and $27), the global
     pointer ($28) and the stack pointer ($29).  This can change
-@@ -1772,8 +1774,8 @@
+@@ -1754,8 +1756,8 @@
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    /* 6 DSP accumulator registers & 6 control registers,			\
@@ -1607,7 +1607,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  }
  
  
-@@ -1805,8 +1807,8 @@
+@@ -1787,8 +1789,8 @@
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    /* 6 DSP accumulator registers & 6 control registers,			\
@@ -1618,7 +1618,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  }
  
  
-@@ -1831,8 +1833,8 @@
+@@ -1813,8 +1815,8 @@
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
    /* 6 DSP accumulator registers & 6 control registers,			\
@@ -1629,7 +1629,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  }
  
  /* Internal macros to classify a register number as to whether it's a
-@@ -1902,6 +1904,8 @@
+@@ -1884,6 +1886,8 @@
  #define MD1_REG_LAST  189
  #define MD1_REG_NUM   (MD1_REG_LAST - MD1_REG_FIRST + 1)
  
@@ -1638,24 +1638,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  #define AT_REGNUM	(GP_REG_FIRST + 1)
  #define HI_REGNUM	(TARGET_BIG_ENDIAN ? MD_REG_FIRST : MD_REG_FIRST + 1)
  #define LO_REGNUM	(TARGET_BIG_ENDIAN ? MD_REG_FIRST + 1 : MD_REG_FIRST)
-@@ -1992,11 +1996,14 @@
- 
- /* Odd-numbered single-precision registers are not considered callee-saved
-    for o32 FPXX as they will be clobbered when run on an FR=1 FPU.
--   MSA vector registers with MODE > 64 bits are part clobbered too.  */
-+   MSA vector registers with MODE > 64 bits are part clobbered too.
-+   The R5900 has 128-bit registers. The upper 64-bits of each GPR
-+   is used for MMI, but is not callee-saved.  */
- #define HARD_REGNO_CALL_PART_CLOBBERED(REGNO, MODE)			\
-   ((TARGET_FLOATXX && hard_regno_nregs[REGNO][MODE] == 1		\
-    && FP_REG_P (REGNO) && ((REGNO) & 1))				\
--   || (ISA_HAS_MSA && FP_REG_P (REGNO) && GET_MODE_SIZE (MODE) > 8))
-+   || (ISA_HAS_MSA && FP_REG_P (REGNO) && GET_MODE_SIZE (MODE) > 8) \
-+   || (TARGET_MIPS5900 && GET_MODE_SIZE (MODE) >= UNITS_PER_WORD))
- 
- #define MODES_TIEABLE_P mips_modes_tieable_p
- 
-@@ -2126,6 +2133,7 @@
+@@ -2093,6 +2097,7 @@
    ST_REGS,			/* status registers (fp status) */
    DSP_ACC_REGS,			/* DSP accumulator registers */
    ACC_REGS,			/* Hi/Lo and DSP accumulator registers */
@@ -1663,7 +1646,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
    FRAME_REGS,			/* $arg and $frame */
    GR_AND_MD0_REGS,		/* union classes */
    GR_AND_MD1_REGS,
-@@ -2173,6 +2181,7 @@
+@@ -2140,6 +2145,7 @@
    "ST_REGS",								\
    "DSP_ACC_REGS",							\
    "ACC_REGS",								\
@@ -1671,7 +1654,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
    "FRAME_REGS",								\
    "GR_AND_MD0_REGS",							\
    "GR_AND_MD1_REGS",							\
-@@ -2221,6 +2230,7 @@
+@@ -2188,6 +2194,7 @@
    { 0x00000000, 0x00000000, 0x000007f8, 0x00000000, 0x00000000, 0x00000000 },	/* ST_REGS */		\
    { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x003f0000 },	/* DSP_ACC_REGS */	\
    { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x303f0000 },	/* ACC_REGS */		\
@@ -1679,7 +1662,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
    { 0x00000000, 0x00000000, 0x00006000, 0x00000000, 0x00000000, 0x00000000 },	/* FRAME_REGS */	\
    { 0xffffffff, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 },	/* GR_AND_MD0_REGS */	\
    { 0xffffffff, 0x00000000, 0x00000002, 0x00000000, 0x00000000, 0x00000000 },	/* GR_AND_MD1_REGS */	\
-@@ -2229,7 +2239,7 @@
+@@ -2196,7 +2203,7 @@
    { 0xffffffff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x20000000 },	/* GR_AND_MD1_1_REGS */	\
    { 0xffffffff, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x30000000 },	/* GR_AND_MD_1_REGS */	\
    { 0xffffffff, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x303f0000 },	/* GR_AND_ACC_REGS */	\
@@ -1688,7 +1671,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  }
  
  
-@@ -2831,7 +2841,7 @@
+@@ -2769,7 +2776,7 @@
    "$c3r16","$c3r17","$c3r18","$c3r19","$c3r20","$c3r21","$c3r22","$c3r23", \
    "$c3r24","$c3r25","$c3r26","$c3r27","$c3r28","$c3r29","$c3r30","$c3r31", \
    "$ac1hi","$ac1lo","$ac2hi","$ac2lo","$ac3hi","$ac3lo","$dsp_po","$dsp_sc", \
@@ -1697,10 +1680,10 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
  
  /* List the "software" names for each register.  Also list the numerical
     names for $fp and $sp.  */
-diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.md
---- gcc-7.2.0.ee/gcc/config/mips/mips.md	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.md	2017-09-23 23:27:17.000000000 -0500
-@@ -328,10 +328,10 @@
+diff -burN gcc-8.2.0.ee/gcc/config/mips/mips.md gcc-8.2.0/gcc/config/mips/mips.md
+--- gcc-8.2.0.ee/gcc/config/mips/mips.md	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/mips.md	2018-08-02 23:25:53.000000000 -0700
+@@ -327,10 +327,10 @@
  ;; mtlo		transfer to a lo register
  ;; mfhi		transfer from a hi register
  ;; mflo		transfer from a lo register
@@ -1715,7 +1698,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.m
  ;; const	load constant
  ;; arith	integer arithmetic instructions
  ;; logical      integer logical instructions
-@@ -382,7 +382,7 @@
+@@ -381,7 +381,7 @@
     shift,slt,signext,clz,pop,trap,imul,imul3,imul3nc,imadd,idiv,idiv3,move,
     fmove,fadd,fmul,fmadd,fdiv,frdiv,frdiv1,frdiv2,fabs,fneg,fcmp,fcvt,fsqrt,
     frsqrt,frsqrt1,frsqrt2,dspmac,dspmacsat,accext,accmod,dspalu,dspalusat,
@@ -1724,7 +1707,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.m
     simd_div,simd_fclass,simd_flog2,simd_fadd,simd_fcvt,simd_fmul,simd_fmadd,
     simd_fdiv,simd_bitins,simd_bitmov,simd_insert,simd_sld,simd_mul,simd_fcmp,
     simd_fexp2,simd_int_arith,simd_bit,simd_shift,simd_splat,simd_fill,
-@@ -738,7 +738,7 @@
+@@ -737,7 +737,7 @@
  ;; DELAY means that the next instruction cannot read the result
  ;; of this one.  HILO means that the next two instructions cannot
  ;; write to HI or LO.
@@ -1733,7 +1716,7 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.m
    (cond [(and (eq_attr "type" "load,fpload,fpidxload")
  	      (match_test "ISA_HAS_LOAD_DELAY"))
  	 (const_string "delay")
-@@ -762,7 +762,11 @@
+@@ -761,7 +761,11 @@
  
  	 (and (eq_attr "type" "mfhi1,mflo1")
  	      (not (match_test "ISA_HAS_HILO_INTERLOCKS")))
@@ -1746,9 +1729,9 @@ diff -burN gcc-7.2.0.ee/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.m
  	(const_string "none")))
  
  ;; Can the instruction be put into a delay slot?
-diff -burN gcc-7.2.0.ee/gcc/config/mips/predicates.md gcc-7.2.0/gcc/config/mips/predicates.md
---- gcc-7.2.0.ee/gcc/config/mips/predicates.md	2017-09-23 23:19:42.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/predicates.md	2017-09-23 23:27:17.000000000 -0500
+diff -burN gcc-8.2.0.ee/gcc/config/mips/predicates.md gcc-8.2.0/gcc/config/mips/predicates.md
+--- gcc-8.2.0.ee/gcc/config/mips/predicates.md	2018-08-02 23:18:52.000000000 -0700
++++ gcc-8.2.0/gcc/config/mips/predicates.md	2018-08-02 23:25:53.000000000 -0700
 @@ -317,6 +317,10 @@
         (ior (match_test "MD_REG_P (REGNO (op))")
              (match_test "MD1_REG_P (REGNO (op))"))))

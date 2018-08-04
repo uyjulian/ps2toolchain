@@ -1,6 +1,6 @@
-diff -burN gcc-7.2.0.orig/gcc/config/mips/5900.md gcc-7.2.0/gcc/config/mips/5900.md
---- gcc-7.2.0.orig/gcc/config/mips/5900.md	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/5900.md	2017-09-23 23:19:42.000000000 -0500
+diff -burN gcc-8.2.0.orig/gcc/config/mips/5900.md gcc-8.2.0/gcc/config/mips/5900.md
+--- gcc-8.2.0.orig/gcc/config/mips/5900.md	1969-12-31 16:00:00.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/5900.md	2018-08-02 23:18:52.000000000 -0700
 @@ -0,0 +1,52 @@
 +;; Copyright (C) 2002-2015 Free Software Foundation, Inc.
 +;;
@@ -54,9 +54,9 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/5900.md gcc-7.2.0/gcc/config/mips/5900
 +  "max.s\t%0,%1,%2"
 +  [(set_attr "type" "fadd")
 +   (set_attr "mode" "SF")])
-diff -burN gcc-7.2.0.orig/gcc/config/mips/constraints.md gcc-7.2.0/gcc/config/mips/constraints.md
---- gcc-7.2.0.orig/gcc/config/mips/constraints.md	2017-01-01 06:07:43.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/constraints.md	2017-09-23 23:19:42.000000000 -0500
+diff -burN gcc-8.2.0.orig/gcc/config/mips/constraints.md gcc-8.2.0/gcc/config/mips/constraints.md
+--- gcc-8.2.0.orig/gcc/config/mips/constraints.md	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/constraints.md	2018-08-02 23:18:52.000000000 -0700
 @@ -36,10 +36,18 @@
    "The @code{lo} register.  Use this register to store values that are
     no bigger than a word.")
@@ -76,10 +76,10 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/constraints.md gcc-7.2.0/gcc/config/mi
  (define_register_constraint "b" "ALL_REGS"
    "@internal")
  
-diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.c
---- gcc-7.2.0.orig/gcc/config/mips/mips.c	2017-04-20 08:39:50.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.c	2017-09-23 23:19:42.000000000 -0500
-@@ -585,7 +585,8 @@
+diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.c gcc-8.2.0/gcc/config/mips/mips.c
+--- gcc-8.2.0.orig/gcc/config/mips/mips.c	2018-03-01 03:37:35.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips.c	2018-08-02 23:18:52.000000000 -0700
+@@ -588,7 +588,8 @@
    COP3_REGS,	COP3_REGS,	COP3_REGS,	COP3_REGS,
    DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,	DSP_ACC_REGS,
    DSP_ACC_REGS,	DSP_ACC_REGS,	ALL_REGS,	ALL_REGS,
@@ -89,7 +89,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  };
  
  static tree mips_handle_interrupt_attr (tree *, tree, tree, int, bool *);
-@@ -4776,7 +4777,7 @@
+@@ -4780,7 +4781,7 @@
        else
  	gcc_unreachable ();
      }
@@ -98,7 +98,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
      {
        low_dest = mips_subword (dest, false);
        mips_emit_move (low_dest, mips_subword (src, false));
-@@ -4785,7 +4786,7 @@
+@@ -4789,7 +4790,7 @@
        else
  	emit_insn (gen_mthisi_di (dest, mips_subword (src, true), low_dest));
      }
@@ -107,7 +107,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
      {
        mips_emit_move (mips_subword (dest, false), mips_subword (src, false));
        if (TARGET_64BIT)
-@@ -5085,6 +5086,9 @@
+@@ -5089,6 +5090,9 @@
  	  if (REGNO (dest) == LO_REGNUM)
  	    return "mtlo\t%z1";
  
@@ -117,7 +117,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  	  if (DSP_ACC_REG_P (REGNO (dest)))
  	    {
  	      static char retval[] = "mt__\t%z1,%q0";
-@@ -5138,7 +5142,10 @@
+@@ -5142,7 +5146,10 @@
  		return dbl_p ? "dmacc\t%0,%.,%." : "macc\t%0,%.,%.";
  	      return "mflo\t%0";
  	    }
@@ -129,7 +129,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  	  if (DSP_ACC_REG_P (REGNO (src)))
  	    {
  	      static char retval[] = "mf__\t%0,%q1";
-@@ -8938,6 +8945,7 @@
+@@ -8943,6 +8950,7 @@
     'Y'	Print mips_fp_conditions[INTVAL (OP)]
     'Z'	Print OP and a comma for ISA_HAS_8CC, otherwise print nothing.
     'q'	Print a DSP accumulator register.
@@ -137,7 +137,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
     'D'	Print the second part of a double-word register or memory operand.
     'L'	Print the low-order register in a double-word register operand.
     'M'	Print high-order register in a double-word register operand.
-@@ -9134,6 +9142,11 @@
+@@ -9139,6 +9147,11 @@
  	}
        break;
  
@@ -149,7 +149,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
      default:
        switch (code)
  	{
-@@ -10708,7 +10721,7 @@
+@@ -10713,7 +10726,7 @@
  mips_interrupt_extra_call_saved_reg_p (unsigned int regno)
  {
    if ((ISA_HAS_HILO || TARGET_DSP)
@@ -158,7 +158,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
      return true;
  
    if (TARGET_DSP && DSP_ACC_REG_P (regno))
-@@ -11061,12 +11074,19 @@
+@@ -11066,12 +11079,19 @@
  	  frame->acc_mask |= (1 << 0);
  	}
  
@@ -179,7 +179,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  	  }
  
        /* All interrupt context functions need space to preserve STATUS.  */
-@@ -11434,9 +11454,17 @@
+@@ -11439,9 +11459,17 @@
        offset -= UNITS_PER_WORD;
      }
  
@@ -198,7 +198,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
        {
  	mips_save_restore_reg (word_mode, regno, offset, fn);
  	offset -= UNITS_PER_WORD;
-@@ -11693,6 +11721,29 @@
+@@ -11698,6 +11726,29 @@
  	  mips_emit_move (dest, temp);
  	}
      }
@@ -228,7 +228,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    else if (mips_direct_save_slot_move_p (regno, mem, mem == src))
      mips_emit_move (dest, src);
    else
-@@ -12807,6 +12858,12 @@
+@@ -12812,6 +12863,12 @@
  	  if (size <= UNITS_PER_WORD * 2)
  	    return regno == (size <= UNITS_PER_WORD ? LO_REGNUM : MD_REG_FIRST);
  	}
@@ -241,7 +241,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
        else
  	{
  	  /* DSP accumulators do not have the same restrictions as
-@@ -13564,6 +13621,7 @@
+@@ -13608,6 +13665,7 @@
  	length += NOP_INSN_LENGTH;
  	break;
  
@@ -249,7 +249,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
        case HAZARD_HILO:
  	length += NOP_INSN_LENGTH * 2;
  	break;
-@@ -18619,8 +18677,8 @@
+@@ -18663,8 +18721,8 @@
     LO_REG is an rtx for the LO register, used in dependence checking.  */
  
  static void
@@ -260,7 +260,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  {
    rtx pattern, set;
    int nops, ninsns;
-@@ -18644,6 +18702,8 @@
+@@ -18688,6 +18746,8 @@
       clobber hi and lo.  */
    if (*hilo_delay < 2 && reg_set_p (lo_reg, pattern))
      nops = 2 - *hilo_delay;
@@ -269,7 +269,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    else if (*delayed_reg != 0 && reg_referenced_p (*delayed_reg, pattern))
      nops = 1;
    /* If processing a forbidden slot hazard then a NOP is required if the
-@@ -18661,11 +18721,13 @@
+@@ -18705,11 +18765,13 @@
    /* Insert the nops between this instruction and the previous one.
       Each new nop takes us further from the last hilo hazard.  */
    *hilo_delay += nops;
@@ -283,7 +283,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    *delayed_reg = 0;
    *fs_delay = false;
    if (INSN_CODE (insn) >= 0)
-@@ -18679,6 +18741,10 @@
+@@ -18723,6 +18785,10 @@
  	  *fs_delay = true;
  	break;
  
@@ -294,7 +294,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
        case HAZARD_HILO:
  	*hilo_delay = 0;
  	break;
-@@ -18728,8 +18794,8 @@
+@@ -18772,8 +18838,8 @@
  mips_reorg_process_insns (void)
  {
    rtx_insn *insn, *last_insn, *subinsn, *next_insn;
@@ -305,7 +305,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    bool fs_delay;
  
    /* Force all instructions to be split into their final form.  */
-@@ -18797,8 +18863,10 @@
+@@ -18841,8 +18907,10 @@
  
    last_insn = 0;
    hilo_delay = 2;
@@ -316,7 +316,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    fs_delay = false;
  
    /* Make a second pass over the instructions.  Delete orphaned
-@@ -18884,8 +18952,8 @@
+@@ -18928,8 +18996,8 @@
  			PATTERN (subinsn) = gen_nop ();
  			INSN_CODE (subinsn) = CODE_FOR_nop;
  		      }
@@ -327,7 +327,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  		  }
  	      last_insn = insn;
  	    }
-@@ -18905,8 +18973,8 @@
+@@ -18949,8 +19017,8 @@
  		delete_insn (insn);
  	      else
  		{
@@ -338,7 +338,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  		  /* When a compact branch introduces a forbidden slot hazard
  		     and the next useful instruction is a SEQUENCE of a jump
  		     and a non-nop instruction in the delay slot, remove the
-@@ -20081,6 +20149,8 @@
+@@ -20125,6 +20193,8 @@
    mips_dbx_regno[LO_REGNUM] = MD_DBX_FIRST + 1;
    mips_dwarf_regno[HI_REGNUM] = MD_REG_FIRST + 0;
    mips_dwarf_regno[LO_REGNUM] = MD_REG_FIRST + 1;
@@ -347,7 +347,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
    for (i = DSP_ACC_REG_FIRST; i <= DSP_ACC_REG_LAST; i += 2)
      {
        mips_dwarf_regno[i + TARGET_LITTLE_ENDIAN] = i;
-@@ -20211,8 +20281,16 @@
+@@ -20255,8 +20325,16 @@
  			    reg_class_contents[(int) DSP_ACC_REGS]);
  
    if (!ISA_HAS_HILO)
@@ -364,7 +364,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
  
    if (!TARGET_HARD_FLOAT)
      {
-@@ -20271,6 +20349,8 @@
+@@ -20315,6 +20393,8 @@
  	 for them) and one-way registers cannot easily be reloaded.  */
        AND_COMPL_HARD_REG_SET (operand_reg_set,
  			      reg_class_contents[(int) MD_REGS]);
@@ -373,7 +373,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
      }
    /* $f20-$f23 are call-clobbered for n64.  */
    if (mips_abi == ABI_64)
-@@ -20296,6 +20376,7 @@
+@@ -20340,6 +20420,7 @@
        unsigned int regno;
  
        mips_swap_registers (MD_REG_FIRST);
@@ -381,9 +381,9 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.c gcc-7.2.0/gcc/config/mips/mips.
        for (regno = DSP_ACC_REG_FIRST; regno <= DSP_ACC_REG_LAST; regno += 2)
  	mips_swap_registers (regno);
      }
-diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.h
---- gcc-7.2.0.orig/gcc/config/mips/mips.h	2017-01-19 19:05:25.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/mips.h	2017-09-23 23:19:42.000000000 -0500
+diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.h gcc-8.2.0/gcc/config/mips/mips.h
+--- gcc-8.2.0.orig/gcc/config/mips/mips.h	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips.h	2018-08-02 23:18:52.000000000 -0700
 @@ -307,6 +307,7 @@
  #define TUNE_MIPS5000               (mips_tune == PROCESSOR_R5000)
  #define TUNE_MIPS5400               (mips_tune == PROCESSOR_R5400)
@@ -414,7 +414,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  
  /* Integer multiply-accumulate instructions should be generated.  */
  #define GENERATE_MADD_MSUB	(TARGET_IMADD && !TARGET_MIPS16)
-@@ -1533,6 +1536,9 @@
+@@ -1531,6 +1534,9 @@
  /* Width of a MSA vector register in bits.  */
  #define BITS_PER_MSA_REG (UNITS_PER_MSA_REG * BITS_PER_UNIT)
  
@@ -424,7 +424,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  /* For MIPS, width of a floating point register.  */
  #define UNITS_PER_FPREG (TARGET_FLOAT64 ? 8 : 4)
  
-@@ -1734,9 +1740,10 @@
+@@ -1716,9 +1722,10 @@
  	- CPRESTORE_SLOT_REGNUM
     - 2 dummy entries that were used at various times in the past.
     - 6 DSP accumulator registers (3 hi-lo pairs) for MIPS DSP ASE
@@ -437,7 +437,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  
  /* By default, fix the kernel registers ($26 and $27), the global
     pointer ($28) and the stack pointer ($29).  This can change
-@@ -1764,8 +1771,9 @@
+@@ -1746,8 +1753,9 @@
    /* COP3 registers */							\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
@@ -449,7 +449,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  }
  
  
-@@ -1796,8 +1804,9 @@
+@@ -1778,8 +1786,9 @@
    /* COP3 registers */							\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,			\
@@ -461,7 +461,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  }
  
  
-@@ -1821,8 +1830,9 @@
+@@ -1803,8 +1812,9 @@
    /* COP3 registers */							\
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
@@ -473,7 +473,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  }
  
  /* Internal macros to classify a register number as to whether it's a
-@@ -1888,9 +1898,15 @@
+@@ -1870,9 +1880,15 @@
  #define DSP_ACC_REG_LAST 181
  #define DSP_ACC_REG_NUM (DSP_ACC_REG_LAST - DSP_ACC_REG_FIRST + 1)
  
@@ -489,7 +489,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  
  /* A few bitfield locations for the coprocessor registers.  */
  /* Request Interrupt Priority Level is from bit 10 to bit 15 of
-@@ -1938,7 +1954,10 @@
+@@ -1920,7 +1936,10 @@
    ((unsigned int) ((int) (REGNO) - DSP_ACC_REG_FIRST) < DSP_ACC_REG_NUM)
  /* Test if REGNO is hi, lo, or one of the 6 new DSP accumulators.  */
  #define ACC_REG_P(REGNO) \
@@ -501,7 +501,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  #define MSA_REG_P(REGNO) \
    ((unsigned int) ((int) (REGNO) - MSA_REG_FIRST) < MSA_REG_NUM)
  
-@@ -2098,6 +2117,9 @@
+@@ -2065,6 +2084,9 @@
    MD0_REG,			/* first multiply/divide register */
    MD1_REG,			/* second multiply/divide register */
    MD_REGS,			/* multiply/divide registers (hi/lo) */
@@ -511,7 +511,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
    COP0_REGS,			/* generic coprocessor classes */
    COP2_REGS,
    COP3_REGS,
-@@ -2108,6 +2130,9 @@
+@@ -2075,6 +2097,9 @@
    GR_AND_MD0_REGS,		/* union classes */
    GR_AND_MD1_REGS,
    GR_AND_MD_REGS,
@@ -521,7 +521,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
    GR_AND_ACC_REGS,
    ALL_REGS,			/* all registers */
    LIM_REG_CLASSES		/* max value + 1 */
-@@ -2138,6 +2163,9 @@
+@@ -2105,6 +2130,9 @@
    "MD0_REG",								\
    "MD1_REG",								\
    "MD_REGS",								\
@@ -531,7 +531,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
    /* coprocessor registers */						\
    "COP0_REGS",								\
    "COP2_REGS",								\
-@@ -2149,6 +2177,9 @@
+@@ -2116,6 +2144,9 @@
    "GR_AND_MD0_REGS",							\
    "GR_AND_MD1_REGS",							\
    "GR_AND_MD_REGS",							\
@@ -541,7 +541,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
    "GR_AND_ACC_REGS",							\
    "ALL_REGS"								\
  }
-@@ -2181,18 +2212,24 @@
+@@ -2148,18 +2179,24 @@
    { 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 },	/* MD0_REG */		\
    { 0x00000000, 0x00000000, 0x00000002, 0x00000000, 0x00000000, 0x00000000 },	/* MD1_REG */		\
    { 0x00000000, 0x00000000, 0x00000003, 0x00000000, 0x00000000, 0x00000000 },	/* MD_REGS */		\
@@ -569,7 +569,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  }
  
  
-@@ -2228,7 +2265,7 @@
+@@ -2195,7 +2232,7 @@
       point of definition.  It's also needed if we're to take advantage	\
       of the extra accumulators available with -mdspr2.  In some cases,	\
       it can also help to reduce register pressure.  */			\
@@ -578,7 +578,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
    /* Call-clobbered GPRs.  */						\
    1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,		\
    24, 25, 31,								\
-@@ -2794,7 +2831,7 @@
+@@ -2732,7 +2769,7 @@
    "$c3r16","$c3r17","$c3r18","$c3r19","$c3r20","$c3r21","$c3r22","$c3r23", \
    "$c3r24","$c3r25","$c3r26","$c3r27","$c3r28","$c3r29","$c3r30","$c3r31", \
    "$ac1hi","$ac1lo","$ac2hi","$ac2lo","$ac3hi","$ac3lo","$dsp_po","$dsp_sc", \
@@ -587,10 +587,10 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.h gcc-7.2.0/gcc/config/mips/mips.
  
  /* List the "software" names for each register.  Also list the numerical
     names for $fp and $sp.  */
-diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips.md
---- gcc-7.2.0.orig/gcc/config/mips/mips.md	2017-04-18 23:52:54.000000000 -0500
-+++ gcc-7.2.0/gcc/config/mips/mips.md	2017-09-23 23:19:42.000000000 -0500
-@@ -227,7 +227,7 @@
+diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.md gcc-8.2.0/gcc/config/mips/mips.md
+--- gcc-8.2.0.orig/gcc/config/mips/mips.md	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/mips.md	2018-08-02 23:18:52.000000000 -0700
+@@ -226,7 +226,7 @@
  (define_attr "move_type"
    "unknown,load,fpload,store,fpstore,mtc,mfc,mtlo,mflo,imul,move,fmove,
     const,constN,signext,ext_ins,logical,arith,sll0,andi,loadpool,
@@ -599,7 +599,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    (const_string "unknown"))
  
  (define_attr "alu_type" "unknown,add,sub,not,nor,and,or,xor,simd_add"
-@@ -328,6 +328,10 @@
+@@ -327,6 +327,10 @@
  ;; mtlo		transfer to a lo register
  ;; mfhi		transfer from a hi register
  ;; mflo		transfer from a lo register
@@ -610,7 +610,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  ;; const	load constant
  ;; arith	integer arithmetic instructions
  ;; logical      integer logical instructions
-@@ -378,7 +382,7 @@
+@@ -377,7 +381,7 @@
     shift,slt,signext,clz,pop,trap,imul,imul3,imul3nc,imadd,idiv,idiv3,move,
     fmove,fadd,fmul,fmadd,fdiv,frdiv,frdiv1,frdiv2,fabs,fneg,fcmp,fcvt,fsqrt,
     frsqrt,frsqrt1,frsqrt2,dspmac,dspmacsat,accext,accmod,dspalu,dspalusat,
@@ -619,7 +619,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
     simd_div,simd_fclass,simd_flog2,simd_fadd,simd_fcvt,simd_fmul,simd_fmadd,
     simd_fdiv,simd_bitins,simd_bitmov,simd_insert,simd_sld,simd_mul,simd_fcmp,
     simd_fexp2,simd_int_arith,simd_bit,simd_shift,simd_splat,simd_fill,
-@@ -402,6 +406,8 @@
+@@ -401,6 +405,8 @@
  	 (eq_attr "move_type" "mfc") (const_string "mfc")
  	 (eq_attr "move_type" "mtlo") (const_string "mtlo")
  	 (eq_attr "move_type" "mflo") (const_string "mflo")
@@ -628,7 +628,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  	 ;; These types of move are always single insns.
  	 (eq_attr "move_type" "imul") (const_string "imul")
-@@ -505,7 +511,7 @@
+@@ -504,7 +510,7 @@
  	 ;; Check for doubleword moves that are decomposed into two
  	 ;; instructions.  The individual instructions are unextended
  	 ;; MIPS16 ones.
@@ -637,7 +637,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  	      (eq_attr "dword_mode" "yes"))
  	 (const_int 2)
  
-@@ -732,7 +738,7 @@
+@@ -731,7 +737,7 @@
  ;; DELAY means that the next instruction cannot read the result
  ;; of this one.  HILO means that the next two instructions cannot
  ;; write to HI or LO.
@@ -646,7 +646,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    (cond [(and (eq_attr "type" "load,fpload,fpidxload")
  	      (match_test "ISA_HAS_LOAD_DELAY"))
  	 (const_string "delay")
-@@ -752,7 +758,11 @@
+@@ -751,7 +757,11 @@
  
  	 (and (eq_attr "type" "mfhi,mflo")
  	      (not (match_test "ISA_HAS_HILO_INTERLOCKS")))
@@ -659,7 +659,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  	(const_string "none")))
  
  ;; Can the instruction be put into a delay slot?
-@@ -1162,6 +1172,7 @@
+@@ -1166,6 +1176,7 @@
  (include "5000.md")
  (include "5400.md")
  (include "5500.md")
@@ -667,7 +667,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  (include "6000.md")
  (include "7000.md")
  (include "9000.md")
-@@ -1597,7 +1608,12 @@
+@@ -1601,7 +1612,12 @@
      emit_insn (gen_mul<mode>3_mul3_nohilo (operands[0], operands[1],
  					   operands[2]));
    else if (ISA_HAS_<D>MUL3)
@@ -680,7 +680,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    else if (TARGET_MIPS16)
      {
        lo = gen_rtx_REG (<MODE>mode, LO_REGNUM);
-@@ -1633,17 +1649,34 @@
+@@ -1637,17 +1653,34 @@
  	(mult:GPR (match_operand:GPR 1 "register_operand" "d,d")
  		  (match_operand:GPR 2 "register_operand" "d,d")))
     (clobber (match_scratch:GPR 3 "=l,X"))]
@@ -717,7 +717,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  ;; If a register gets allocated to LO, and we spill to memory, the reload
  ;; will include a move from LO to a GPR.  Merge it into the multiplication
  ;; if it can set the GPR directly.
-@@ -1668,13 +1701,21 @@
+@@ -1672,13 +1705,21 @@
          (clobber (match_dup 0))])])
  
  (define_insn "mul<mode>3_internal"
@@ -745,7 +745,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  (define_insn "mul<mode>3_r4000"
    [(set (match_operand:GPR 0 "register_operand" "=d")
-@@ -1742,7 +1783,7 @@
+@@ -1746,7 +1787,7 @@
  		 (match_operand:SI 3 "register_operand" "0,0,d")))
     (clobber (match_scratch:SI 4 "=X,X,l"))
     (clobber (match_scratch:SI 5 "=X,X,&d"))]
@@ -754,7 +754,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    "@
      madd\t%1,%2
      madd\t%1,%2
-@@ -1792,6 +1833,34 @@
+@@ -1796,6 +1837,34 @@
                    (const_string "yes")]
                (const_string "no")))])
  
@@ -789,7 +789,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  ;; Split *mul_acc_si if both the source and destination accumulator
  ;; values are GPRs.
  (define_split
-@@ -2000,7 +2069,7 @@
+@@ -2004,7 +2073,7 @@
                             (match_operand:SI 3 "register_operand" "d,d,d"))))
     (clobber (match_scratch:SI 4 "=X,X,l"))
     (clobber (match_scratch:SI 5 "=X,X,&d"))]
@@ -798,7 +798,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    "@
     msub\t%2,%3
     msub\t%2,%3
-@@ -2095,18 +2164,28 @@
+@@ -2099,18 +2168,28 @@
  ;; __builtin_mips_mult<u>() functions.  We must always make those functions
  ;; available if !TARGET_64BIT && ISA_HAS_DSP.
  (define_insn "<u>mulsidi3_32bit"
@@ -832,7 +832,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  (define_insn "<u>mulsidi3_32bit_r4000"
    [(set (match_operand:DI 0 "register_operand" "=d")
-@@ -2120,11 +2199,11 @@
+@@ -2124,11 +2203,11 @@
     (set_attr "insn_count" "3")])
  
  (define_insn_and_split "<u>mulsidi3_64bit"
@@ -849,7 +849,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    "TARGET_64BIT && !TARGET_FIX_R4000 && !ISA_HAS_DMUL3
     && !TARGET_MIPS16 && ISA_HAS_MULT"
    "#"
-@@ -2132,15 +2211,23 @@
+@@ -2136,15 +2215,23 @@
    [(const_int 0)]
  {
    emit_insn (gen_<u>mulsidi3_64bit_split (operands[0], operands[1],
@@ -876,7 +876,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  (define_expand "<u>mulsidi3_64bit_mips16"
    [(set (match_operand:DI 0 "register_operand")
-@@ -2149,7 +2236,7 @@
+@@ -2153,7 +2240,7 @@
    "TARGET_64BIT && TARGET_MIPS16"
  {
    emit_insn (gen_<u>mulsidi3_64bit_split (operands[0], operands[1],
@@ -885,7 +885,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    DONE;
  })
  
-@@ -2157,16 +2244,14 @@
+@@ -2161,16 +2248,14 @@
    [(set (match_operand:DI 0 "register_operand")
  	(mult:DI (any_extend:DI (match_operand:SI 1 "register_operand"))
  		 (any_extend:DI (match_operand:SI 2 "register_operand"))))
@@ -907,7 +907,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
    if (ISA_HAS_EXT_INS)
      emit_insn (gen_insvdi (operands[0], GEN_INT (32), GEN_INT (32),
-@@ -2187,16 +2272,24 @@
+@@ -2191,16 +2276,24 @@
  })
  
  (define_insn "<u>mulsidi3_64bit_hilo"
@@ -938,7 +938,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; See comment before the ISA_HAS_DMUL3 case in mips_mulsidi3_gen_fn.
  (define_insn "mulsidi3_64bit_dmul"
-@@ -2244,7 +2337,7 @@
+@@ -2248,7 +2341,7 @@
  	   (mult:DI
  	      (any_extend:DI (match_operand:SI 1 "register_operand" "d"))
  	      (any_extend:DI (match_operand:SI 2 "register_operand" "d")))))]
@@ -947,7 +947,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  {
    if (ISA_HAS_DSP_MULT)
      return "msub<u>\t%q0,%1,%2";
-@@ -2513,12 +2606,12 @@
+@@ -2517,12 +2610,12 @@
  ;; See the comment above <u>msubsidi4 for the relationship between
  ;; ISA_HAS_DSP and ISA_HAS_DSP_MULT.
  (define_insn "<u>maddsidi4"
@@ -965,7 +965,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
     && !TARGET_64BIT"
  {
    if (TARGET_MAD)
-@@ -2527,13 +2620,23 @@
+@@ -2531,13 +2624,23 @@
      return "madd<u>\t%q0,%1,%2";
    else if (GENERATE_MADD_MSUB || TARGET_MIPS5500)
      return "madd<u>\t%1,%2";
@@ -991,7 +991,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; Floating point multiply accumulate instructions.
  
-@@ -2863,10 +2966,10 @@
+@@ -2867,10 +2970,10 @@
  })
  
  (define_insn_and_split "*divmod<mode>4"
@@ -1006,7 +1006,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  	(mod:GPR (match_dup 1)
  		 (match_dup 2)))]
    "ISA_HAS_<D>DIV && !TARGET_FIX_VR4120 && !TARGET_MIPS16"
-@@ -2874,12 +2977,20 @@
+@@ -2878,12 +2981,20 @@
    "&& reload_completed"
    [(const_int 0)]
  {
@@ -1030,7 +1030,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; Expand generates divmod instructions for individual division and modulus
  ;; operations.  We then rely on CSE to reuse earlier divmods where possible.
-@@ -2900,7 +3011,7 @@
+@@ -2904,7 +3015,7 @@
    "&& cse_not_expected"
    [(const_int 0)]
  {
@@ -1039,7 +1039,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    emit_move_insn (operands[0], operands[4]);
    DONE;
  }
-@@ -2928,10 +3039,10 @@
+@@ -2932,10 +3043,10 @@
  })
  
  (define_insn_and_split "*udivmod<mode>4"
@@ -1054,7 +1054,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  	(umod:GPR (match_dup 1)
  		  (match_dup 2)))]
    "ISA_HAS_<D>DIV && !TARGET_MIPS16"
-@@ -2939,12 +3050,20 @@
+@@ -2943,12 +3054,20 @@
    "reload_completed"
    [(const_int 0)]
  {
@@ -1078,7 +1078,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; See the comment above "divmod<mode>4_mips16" for the split timing.
  (define_insn_and_split "udivmod<mode>4_mips16"
-@@ -2960,7 +3079,7 @@
+@@ -2964,7 +3083,7 @@
    "cse_not_expected"
    [(const_int 0)]
  {
@@ -1087,7 +1087,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
    emit_move_insn (operands[0], operands[4]);
    DONE;
  }
-@@ -2971,21 +3090,22 @@
+@@ -2975,21 +3094,22 @@
  (define_expand "<u>divmod<mode>4_split"
    [(set (match_operand:GPR 0 "register_operand")
  	(any_mod:GPR (match_operand:GPR 1 "register_operand")
@@ -1113,7 +1113,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
        emit_insn (gen_<u>divmod<mode>4_hilo_di (hilo, operands[1],
  					       operands[2]));
        emit_insn (gen_mfhi<mode>_di (operands[0], hilo));
-@@ -2994,15 +3114,23 @@
+@@ -2998,15 +3118,23 @@
  })
  
  (define_insn "<u>divmod<GPR:mode>4_hilo_<HILO:mode>"
@@ -1143,7 +1143,7 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; Integer division and modulus.
  
-@@ -5235,26 +5363,42 @@
+@@ -5239,26 +5367,42 @@
  ;; instead of MFHI.  This avoids both the normal MIPS III hi/lo hazards
  ;; and the errata related to -mfix-vr4130.
  (define_insn "mfhi<GPR:mode>_<HILO:mode>"
@@ -1197,9 +1197,9 @@ diff -burN gcc-7.2.0.orig/gcc/config/mips/mips.md gcc-7.2.0/gcc/config/mips/mips
  
  ;; Emit a doubleword move in which exactly one of the operands is
  ;; a floating-point register.  We can't just emit two normal moves
-diff -burN gcc-7.2.0.orig/gcc/config/mips/predicates.md gcc-7.2.0/gcc/config/mips/predicates.md
---- gcc-7.2.0.orig/gcc/config/mips/predicates.md	2017-01-01 06:07:43.000000000 -0600
-+++ gcc-7.2.0/gcc/config/mips/predicates.md	2017-09-23 23:19:42.000000000 -0500
+diff -burN gcc-8.2.0.orig/gcc/config/mips/predicates.md gcc-8.2.0/gcc/config/mips/predicates.md
+--- gcc-8.2.0.orig/gcc/config/mips/predicates.md	2018-01-03 02:03:58.000000000 -0800
++++ gcc-8.2.0/gcc/config/mips/predicates.md	2018-08-02 23:18:52.000000000 -0700
 @@ -309,11 +309,13 @@
  
  (define_predicate "lo_operand"

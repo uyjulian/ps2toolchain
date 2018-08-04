@@ -1,8 +1,8 @@
 #!/bin/bash
-# binutils-2.29.sh by uyjulian
+# binutils-2.31.sh by uyjulian
 # Based on binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
 
-BINUTILS_VERSION=2.29
+BINUTILS_VERSION=2.31
 ## Download the source code.
 SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.xz
 wget --continue $SOURCE || { exit 1; }
