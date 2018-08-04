@@ -892,7 +892,7 @@ diff -burN binutils-2.31.orig/gas/config/tc-dvp.c binutils-2.31/gas/config/tc-dv
 +int
 +md_parse_option (c, arg)
 +     int c;
-+     char *arg __attribute__((unused));
++     const char *arg __attribute__((unused));
 +{
 +  switch (c)
 +    {

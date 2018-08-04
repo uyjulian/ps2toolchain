@@ -9,7 +9,7 @@ wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
-rm -Rf binutils-$BINUTILS_VERSION && tar xfj binutils-$BINUTILS_VERSION.tar.xz || { exit 1; }
+rm -Rf binutils-$BINUTILS_VERSION && tar xJf binutils-$BINUTILS_VERSION.tar.xz || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd binutils-$BINUTILS_VERSION || { exit 1; }
