@@ -10,7 +10,7 @@ wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing GCC $GCC_VERSION. Please wait.
-rm -Rf gcc-$GCC_VERSION && pigz -dc gcc-$GCC_VERSION.tar.gz | pv | tar xf - || { exit 1; }
+rm -Rf gcc-$GCC_VERSION && pigz -dc gcc-$GCC_VERSION.tar.gz | pv -ptrI | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd gcc-$GCC_VERSION || { exit 1; }
@@ -53,7 +53,7 @@ for ((i=0; i<${#target_names[@]}; i++)); do
 	mkdir build-$TARG_NAME-stage1 && cd build-$TARG_NAME-stage1 || { exit 1; }
 
 	## Configure the build.
-	../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" --enable-languages="c" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib $TARG_XTRA_OPTS || { exit 1; }
+	../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" --enable-languages="c" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib --disable-bootstrap $TARG_XTRA_OPTS || { exit 1; }
 
 	## Compile and install.
 	make --quiet -j $PROC_NR && make --quiet install || { exit 1; }
