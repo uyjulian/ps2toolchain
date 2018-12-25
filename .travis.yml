@@ -1,0 +1,20 @@
+sudo: required
+
+install:
+- sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
+- sudo apt-get install -yqqq gcc g++ texinfo libmpc-dev libmpfr-dev libgmp-dev
+
+before_script:
+- export PS2DEVUJ=~/ps2dev
+- export PS2SDKUJ=${PS2DEVUJ}/ps2sdk
+- export PATH=${PATH}:${PS2DEVUJ}/bin:${PS2DEVUJ}/ee/bin:${PS2DEVUJ}/iop/bin:${PS2DEVUJ}/dvp/bin:${PS2SDKUJ}/bin
+- echo $(nproc)
+
+script:
+- bash ./toolchain.sh 1
+- bash ./toolchain.sh 2
+- bash ./toolchain.sh 3
+- bash ./toolchain.sh 4
+- bash ./toolchain.sh 5
+- bash ./toolchain.sh 6
+- bash ./toolchain.sh 7
