@@ -56,7 +56,7 @@ for ((i=0; i<${#target_names[@]}; i++)); do
 	../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" --enable-languages="c" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib $TARG_XTRA_OPTS || { exit 1; }
 
 	## Compile and install.
-	make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }
+	make --quiet -j $PROC_NR && make --quiet install || { exit 1; }
 
 	## Exit the build directory.
 	cd .. || { exit 1; }
