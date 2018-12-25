@@ -7,12 +7,13 @@ install:
 #- sudo apt-get install -yqqq gcc-4.4
 
 - sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
-- sudo apt-get install -yqqq gcc g++ libmpc-dev texinfo libmpfr-dev libgmp-dev libgmp3-dev
+- sudo apt-get install -yqqq gcc g++ libmpc-dev texinfo libmpfr-dev libgmp-dev
 
 before_script:
 - export PS2DEV=~/ps2dev
 - export PS2SDK=${PS2DEV}/ps2sdk
 - export PATH=${PATH}:${PS2DEV}/bin:${PS2DEV}/ee/bin:${PS2DEV}/iop/bin:${PS2DEV}/dvp/bin:${PS2SDK}/bin
+- echo $(nproc)
 #- export PS2DEVUJ=${PS2DEV}
 #- export PS2SDKUJ=${PS2SDK}
 

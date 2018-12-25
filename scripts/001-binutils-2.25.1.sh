@@ -28,7 +28,8 @@ else
 	PROC_NR=$(nproc)
 fi
 
-target_names=("ee" "dvp")
+#target_names=("ee" "dvp")
+target_names=("ee")
 targets=("mips64r5900el-ps2-elf" "dvp")
 extra_opts=("--with-float=hard" "--with-float=hard")
 
