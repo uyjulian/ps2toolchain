@@ -34,7 +34,7 @@ TARGET="mips64r5900el-ps2-elf"
 mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
 ## Configure the build.
-../configure --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" || { exit 1; }
+../configure --quiet --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" || { exit 1; }
 
 ## Compile and install.
-make clean && make -j $PROC_NR && make install && make clean || { exit 1; }
+make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }

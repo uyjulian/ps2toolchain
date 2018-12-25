@@ -53,10 +53,10 @@ for ((i=0; i<${#target_names[@]}; i++)); do
 	mkdir build-$TARG_NAME-stage1 && cd build-$TARG_NAME-stage1 || { exit 1; }
 
 	## Configure the build.
-	../configure --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" --enable-languages="c" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib $TARG_XTRA_OPTS || { exit 1; }
+	../configure --quiet --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" --enable-languages="c" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib $TARG_XTRA_OPTS || { exit 1; }
 
 	## Compile and install.
-	make clean && make -j $PROC_NR && make install && make clean || { exit 1; }
+	make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }
 
 	## Exit the build directory.
 	cd .. || { exit 1; }
