@@ -22,7 +22,7 @@ diff -burN gcc-8.2.0.orig/config.sub gcc-8.2.0/config.sub
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
  	-qnx*)
-diff -burN gcc-8.2.0.orig/configure gcc-8.2.0/configure
+diff -burN gcc-8.2.0.orig/configure --quiet gcc-8.2.0/configure
 --- gcc-8.2.0.orig/configure	2018-07-26 02:48:58.000000000 -0700
 +++ gcc-8.2.0/configure	2018-08-02 23:30:08.000000000 -0700
 @@ -3825,6 +3825,8 @@

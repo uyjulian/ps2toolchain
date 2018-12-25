@@ -85,7 +85,7 @@ diff -burN binutils-2.31.orig/bfd/config.bfd binutils-2.31/bfd/config.bfd
    mn10200-*-*)
      targ_defvec=mn10200_elf32_vec
      targ_underscore=yes
-diff -burN binutils-2.31.orig/bfd/configure binutils-2.31/bfd/configure
+diff -burN binutils-2.31.orig/bfd/configure --quiet binutils-2.31/bfd/configure
 --- binutils-2.31.orig/bfd/configure	2018-07-14 10:57:32.000000000 -0700
 +++ binutils-2.31/bfd/configure	2018-08-02 23:36:01.000000000 -0700
 @@ -14612,6 +14612,8 @@
@@ -5439,7 +5439,7 @@ diff -burN binutils-2.31.orig/ld/scripttempl/irx.sc binutils-2.31/ld/scripttempl
 +}
 +
 +EOF
-diff -burN binutils-2.31.orig/opcodes/configure binutils-2.31/opcodes/configure
+diff -burN binutils-2.31.orig/opcodes/configure --quiet binutils-2.31/opcodes/configure
 --- binutils-2.31.orig/opcodes/configure	2018-07-14 10:57:37.000000000 -0700
 +++ binutils-2.31/opcodes/configure	2018-08-02 23:36:02.000000000 -0700
 @@ -12928,6 +12928,7 @@

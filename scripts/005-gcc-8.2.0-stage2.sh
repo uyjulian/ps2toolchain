@@ -45,7 +45,7 @@ TARG_XTRA_OPTS="--with-float=hard --with-newlib"
 mkdir build-$TARG_NAME-stage2 && cd build-$TARG_NAME-stage2 || { exit 1; }
 
 ## Configure the build.
-../configure --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" --enable-languages="c,c++" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib --with-headers="$PS2DEVUJ/$TARG_NAME/$TARGET/include" $TARG_XTRA_OPTS || { exit 1; }
+../configure --quiet --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" --enable-languages="c,c++" --disable-nls --disable-shared --disable-libssp --disable-libmudflap --disable-threads --disable-libgomp --disable-libquadmath --disable-target-libiberty --disable-target-zlib --without-ppl --without-cloog --with-headers=no --disable-libada --disable-libatomic --disable-multilib --with-headers="$PS2DEVUJ/$TARG_NAME/$TARGET/include" $TARG_XTRA_OPTS || { exit 1; }
 
 ## Compile and install.
-make clean && make -j $PROC_NR && make install && make clean || { exit 1; }
+make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }

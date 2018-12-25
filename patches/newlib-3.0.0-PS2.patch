@@ -22,7 +22,7 @@ diff -burN newlib-3.0.0.orig/newlib/configure.host newlib-3.0.0/newlib/configure
    mmix-knuth-mmixware)
  	sys_dir=mmixware
  	;;
-diff -burN newlib-3.0.0.orig/newlib/libc/machine/configure newlib-3.0.0/newlib/libc/machine/configure
+diff -burN newlib-3.0.0.orig/newlib/libc/machine/configure --quiet newlib-3.0.0/newlib/libc/machine/configure
 --- newlib-3.0.0.orig/newlib/libc/machine/configure	2018-01-18 10:07:45.000000000 -0800
 +++ newlib-3.0.0/newlib/libc/machine/configure	2018-08-02 23:33:59.000000000 -0700
 @@ -11942,6 +11942,8 @@
@@ -121,7 +121,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/Makefile.in newlib-3.0.0/
 +host_triplet = @host@
 +subdir = .
 +DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-+	$(top_srcdir)/configure $(am__configure_deps) \
++	$(top_srcdir)/configure --quiet $(am__configure_deps) \
 +	$(top_srcdir)/../../../../mkinstalldirs
 +ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 +am__aclocal_m4_deps = $(top_srcdir)/../../../acinclude.m4 \
@@ -304,7 +304,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/Makefile.in newlib-3.0.0/
 +	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 +	esac;
 +
-+$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
++$(top_builddir)/config.status: $(top_srcdir)/configure --quiet $(CONFIG_STATUS_DEPENDENCIES)
 +	$(SHELL) ./config.status --recheck
 +
 +$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
@@ -1332,7 +1332,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/aclocal.m4 newlib-3.0.0/n
 +	# -L didn't work.
 +	set X `ls -t "$srcdir/configure" conftest.file`
 +     fi
-+     if test "$[*]" != "X $srcdir/configure conftest.file" \
++     if test "$[*]" != "X $srcdir/configure --quiet conftest.file" \
 +	&& test "$[*]" != "X conftest.file $srcdir/configure"; then
 +
 +	# If neither matched, then we have a broken ls.  This can happen
@@ -1517,7 +1517,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/aclocal.m4 newlib-3.0.0/n
 +]) # _AM_PROG_TAR
 +
 +m4_include([../../../acinclude.m4])
-diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/configure newlib-3.0.0/newlib/libc/machine/r5900/configure
+diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/configure --quiet newlib-3.0.0/newlib/libc/machine/r5900/configure
 --- newlib-3.0.0.orig/newlib/libc/machine/r5900/configure	1969-12-31 16:00:00.000000000 -0800
 +++ newlib-3.0.0/newlib/libc/machine/r5900/configure	2018-08-02 23:33:59.000000000 -0700
 @@ -0,0 +1,4719 @@
@@ -3538,7 +3538,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/r5900/configure newlib-3.0.0/ne
 +	# -L didn't work.
 +	set X `ls -t "$srcdir/configure" conftest.file`
 +     fi
-+     if test "$*" != "X $srcdir/configure conftest.file" \
++     if test "$*" != "X $srcdir/configure --quiet conftest.file" \
 +	&& test "$*" != "X conftest.file $srcdir/configure"; then
 +
 +	# If neither matched, then we have a broken ls.  This can happen
@@ -9345,7 +9345,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/w.patch newlib-3.0.0/newlib/lib
 +       set X `ls -t "$srcdir/configure" conftest.file`
 +    fi
 +-   rm -f conftest.file
-+    if test "$*" != "X $srcdir/configure conftest.file" \
++    if test "$*" != "X $srcdir/configure --quiet conftest.file" \
 +       && test "$*" != "X conftest.file $srcdir/configure"; then
 + 
 +@@ -2419,21 +2402,37 @@
@@ -11394,7 +11394,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/machine/w.patch newlib-3.0.0/newlib/lib
 +     fi
 + 
 +     cd "$ac_popdir"
-diff -burN newlib-3.0.0.orig/newlib/libc/sys/configure newlib-3.0.0/newlib/libc/sys/configure
+diff -burN newlib-3.0.0.orig/newlib/libc/sys/configure --quiet newlib-3.0.0/newlib/libc/sys/configure
 --- newlib-3.0.0.orig/newlib/libc/sys/configure	2018-01-18 10:07:45.000000000 -0800
 +++ newlib-3.0.0/newlib/libc/sys/configure	2018-08-02 23:33:59.000000000 -0700
 @@ -11859,6 +11859,8 @@
@@ -11499,7 +11499,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/Makefile.in newlib-3.0.0/newlib
 +host_triplet = @host@
 +subdir = .
 +DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-+	$(top_srcdir)/configure $(am__configure_deps) \
++	$(top_srcdir)/configure --quiet $(am__configure_deps) \
 +	$(top_srcdir)/../../../../mkinstalldirs
 +ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 +am__aclocal_m4_deps = $(top_srcdir)/../../../acinclude.m4 \
@@ -11681,7 +11681,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/Makefile.in newlib-3.0.0/newlib
 +	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 +	esac;
 +
-+$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
++$(top_builddir)/config.status: $(top_srcdir)/configure --quiet $(CONFIG_STATUS_DEPENDENCIES)
 +	$(SHELL) ./config.status --recheck
 +
 +$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
@@ -12711,7 +12711,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/aclocal.m4 newlib-3.0.0/newlib/
 +	# -L didn't work.
 +	set X `ls -t "$srcdir/configure" conftest.file`
 +     fi
-+     if test "$[*]" != "X $srcdir/configure conftest.file" \
++     if test "$[*]" != "X $srcdir/configure --quiet conftest.file" \
 +	&& test "$[*]" != "X conftest.file $srcdir/configure"; then
 +
 +	# If neither matched, then we have a broken ls.  This can happen
@@ -12907,7 +12907,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/close.c newlib-3.0.0/newlib/lib
 +{
 +	return fioClose( fd );
 +}
-diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/configure newlib-3.0.0/newlib/libc/sys/ps2/configure
+diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/configure --quiet newlib-3.0.0/newlib/libc/sys/ps2/configure
 --- newlib-3.0.0.orig/newlib/libc/sys/ps2/configure	1969-12-31 16:00:00.000000000 -0800
 +++ newlib-3.0.0/newlib/libc/sys/ps2/configure	2018-08-02 23:33:59.000000000 -0700
 @@ -0,0 +1,4719 @@
@@ -14928,7 +14928,7 @@ diff -burN newlib-3.0.0.orig/newlib/libc/sys/ps2/configure newlib-3.0.0/newlib/l
 +	# -L didn't work.
 +	set X `ls -t "$srcdir/configure" conftest.file`
 +     fi
-+     if test "$*" != "X $srcdir/configure conftest.file" \
++     if test "$*" != "X $srcdir/configure --quiet conftest.file" \
 +	&& test "$*" != "X conftest.file $srcdir/configure"; then
 +
 +	# If neither matched, then we have a broken ls.  This can happen

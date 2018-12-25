@@ -126,7 +126,7 @@ diff -burN gcc-8.2.0.orig/libgcc/config.host gcc-8.2.0/libgcc/config.host
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips-wrs-vxworks)
-diff -burN gcc-8.2.0.orig/libgcc/configure gcc-8.2.0/libgcc/configure
+diff -burN gcc-8.2.0.orig/libgcc/configure --quiet gcc-8.2.0/libgcc/configure
 --- gcc-8.2.0.orig/libgcc/configure	2018-04-24 09:45:26.000000000 -0700
 +++ gcc-8.2.0/libgcc/configure	2018-08-02 23:13:38.000000000 -0700
 @@ -4957,6 +4957,48 @@
