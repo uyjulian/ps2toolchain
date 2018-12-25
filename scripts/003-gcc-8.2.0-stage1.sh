@@ -5,12 +5,12 @@
 
 GCC_VERSION=8.2.0
 ## Download the source code.
-SOURCE=http://ftpmirror.gnu.org/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz
+SOURCE=http://ftpmirror.gnu.org/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing GCC $GCC_VERSION. Please wait.
-rm -Rf gcc-$GCC_VERSION && tar xJf gcc-$GCC_VERSION.tar.xz || { exit 1; }
+rm -Rf gcc-$GCC_VERSION && pigz -dc gcc-$GCC_VERSION.tar.gz | pv -ptrI | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd gcc-$GCC_VERSION || { exit 1; }

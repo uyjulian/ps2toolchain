@@ -4,12 +4,12 @@
 
 BINUTILS_VERSION=2.31
 ## Download the source code.
-SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.xz
+SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
-rm -Rf binutils-$BINUTILS_VERSION && tar xJf binutils-$BINUTILS_VERSION.tar.xz || { exit 1; }
+rm -Rf binutils-$BINUTILS_VERSION && pigz -dc binutils-$BINUTILS_VERSION.tar.gz | pv -ptrI | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd binutils-$BINUTILS_VERSION || { exit 1; }
