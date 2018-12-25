@@ -4,12 +4,12 @@
 
 NEWLIB_VERSION=3.0.0
 ## Download the source code.
-SOURCE=ftp://sourceware.org/pub/newlib/newlib-$NEWLIB_VERSION.tar.gz
+SOURCE=http://mirrors.kernel.org/sourceware/newlib/newlib-$NEWLIB_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing newlib $NEWLIB_VERSION. Please wait.
-rm -Rf newlib-$NEWLIB_VERSION && tar xfz newlib-$NEWLIB_VERSION.tar.gz || { exit 1; }
+rm -Rf newlib-$NEWLIB_VERSION && tar pigz -dc newlib-$NEWLIB_VERSION.tar.gz | pv | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd newlib-$NEWLIB_VERSION || { exit 1; }
@@ -34,7 +34,7 @@ TARGET="mips64r5900el-ps2-elf"
 mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
 ## Configure the build.
-../configure --quiet --prefix="$PS2DEVUJ/$TARG_NAME" --target="$TARGET" || { exit 1; }
+../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" || { exit 1; }
 
 ## Compile and install.
 make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }

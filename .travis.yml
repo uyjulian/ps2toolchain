@@ -6,15 +6,15 @@ install:
 
 #- sudo apt-get install -yqqq gcc-4.4
 
-- sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+- sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
 - sudo apt-get install -yqqq gcc g++ libmpc-dev texinfo libmpfr-dev libgmp-dev
 
 before_script:
 - export PS2DEV=~/ps2dev
 - export PS2SDK=${PS2DEV}/ps2sdk
 - export PATH=${PATH}:${PS2DEV}/bin:${PS2DEV}/ee/bin:${PS2DEV}/iop/bin:${PS2DEV}/dvp/bin:${PS2SDK}/bin
-- export PS2DEVUJ=${PS2DEV}
-- export PS2SDKUJ=${PS2SDK}
+#- export PS2DEVUJ=${PS2DEV}
+#- export PS2SDKUJ=${PS2SDK}
 
 script:
 
@@ -22,4 +22,10 @@ script:
 
 # - curl --upload-file /tmp/PS2TOOLCHAIN.log https://transfer.sh/PS2TOOLCHAIN${TRAVIS_BUILD_NUMBER}.log
 
-- bash ./toolchain.sh
+- bash ./toolchain.sh 1
+- bash ./toolchain.sh 2
+- bash ./toolchain.sh 3
+- bash ./toolchain.sh 4
+- bash ./toolchain.sh 5
+- bash ./toolchain.sh 6
+- bash ./toolchain.sh 7

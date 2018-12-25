@@ -9,6 +9,7 @@ unset PS2SDKSRC
 ## Download the source code.
 if test ! -d "ps2sdk/.git"; then
 	git clone https://github.com/uyjulian/ps2sdk && cd ps2sdk && git reset --hard origin/uyjworking || exit 1
+	# git clone https://github.com/ps2dev/ps2sdk && cd ps2sdk || exit 1
 else
 	cd ps2sdk &&
 		git pull && git fetch origin &&
@@ -27,9 +28,9 @@ fi
 # fi
 
 ## Rename variables
-find . -name Makefile\* -exec sed -i 's/\$(PS2SDK)/$(PS2SDKUJ)/g' '{}' \;
-find . -name Rules\* -exec sed -i 's/\$(PS2SDK)/$(PS2SDKUJ)/g' '{}' \;
-find . -name Makefile\* -exec sed -i 's/\$(PS2DEV)/$(PS2DEVUJ)/g' '{}' \;
+# find . -name Makefile\* -exec sed -i 's/\$(PS2SDK)/$(PS2SDKUJ)/g' '{}' \;
+# find . -name Rules\* -exec sed -i 's/\$(PS2SDK)/$(PS2SDKUJ)/g' '{}' \;
+# find . -name Makefile\* -exec sed -i 's/\$(PS2DEV)/$(PS2DEVUJ)/g' '{}' \;
 
 ## Build and install
 make --quiet clean && make --quiet && make --quiet install && make --quiet clean || { exit 1; }
