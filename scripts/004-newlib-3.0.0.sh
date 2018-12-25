@@ -9,7 +9,7 @@ wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
 echo Decompressing newlib $NEWLIB_VERSION. Please wait.
-rm -Rf newlib-$NEWLIB_VERSION && tar pigz -dc newlib-$NEWLIB_VERSION.tar.gz | pv | tar xf - || { exit 1; }
+rm -Rf newlib-$NEWLIB_VERSION && pigz -dc newlib-$NEWLIB_VERSION.tar.gz | pv | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd newlib-$NEWLIB_VERSION || { exit 1; }

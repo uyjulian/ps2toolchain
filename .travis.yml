@@ -7,7 +7,7 @@ install:
 #- sudo apt-get install -yqqq gcc-4.4
 
 - sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
-- sudo apt-get install -yqqq gcc g++ libmpc-dev texinfo libmpfr-dev libgmp-dev
+- sudo apt-get install -yqqq gcc g++ libmpc-dev texinfo libmpfr-dev libgmp-dev libgmp3-dev
 
 before_script:
 - export PS2DEV=~/ps2dev
