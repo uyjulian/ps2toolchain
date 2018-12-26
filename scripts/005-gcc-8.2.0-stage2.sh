@@ -12,7 +12,7 @@ if [ ! -d gcc-$GCC_VERSION ]; then
 
 	## Unpack the source code.
 	echo Decompressing GCC $GCC_VERSION. Please wait.
-	rm -Rf gcc-$GCC_VERSION && pigz -dc gcc-$GCC_VERSION.tar.gz | pv -ptrI | tar xf - || { exit 1; }
+	rm -Rf gcc-$GCC_VERSION && pigz -dc gcc-$GCC_VERSION.tar.gz | pv | tar xf - || { exit 1; }
 
 	## Enter the source directory and patch the source code.
 	cd gcc-$GCC_VERSION || { exit 1; }
