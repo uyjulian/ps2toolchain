@@ -31,7 +31,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6 gcc-6
+            - g++-5 gcc-5
             - patch
             - libmpc-dev
             - libmpfr-dev
@@ -42,7 +42,7 @@ matrix:
             - make
             - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
       env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
     # works on Precise and Trusty
     - dist: xenial
