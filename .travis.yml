@@ -5,6 +5,86 @@ language: cpp
 matrix:
   include:
     # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5 gcc-5
+            - patch
+            - libmpc-dev
+            - libmpfr-dev
+            - libgmp-dev
+            - pigz
+            - pv
+            - texinfo
+            - make
+            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+      env:
+         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6 gcc-6
+            - patch
+            - libmpc-dev
+            - libmpfr-dev
+            - libgmp-dev
+            - pigz
+            - pv
+            - texinfo
+            - make
+            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7 gcc-7
+            - patch
+            - libmpc-dev
+            - libmpfr-dev
+            - libgmp-dev
+            - pigz
+            - pv
+            - texinfo
+            - make
+            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - patch
+            - libmpc-dev
+            - libmpfr-dev
+            - libgmp-dev
+            - pigz
+            - pv
+            - texinfo
+            - make
+            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+
+  include:
+    # works on Precise and Trusty
     - dist: xenial
       addons:
         apt:
@@ -113,8 +193,8 @@ script:
 # - curl --upload-file /tmp/PS2TOOLCHAIN.log https://transfer.sh/PS2TOOLCHAIN${TRAVIS_BUILD_NUMBER}.log
 - bash ./toolchain.sh 1
 - bash ./toolchain.sh 2
-- travis_wait 20 bash ./toolchain.sh 3
+- travis_wait 50 bash ./toolchain.sh 3
 - bash ./toolchain.sh 4
-- travis_wait 20 bash ./toolchain.sh 5
+- travis_wait 50 bash ./toolchain.sh 5
 - bash ./toolchain.sh 6
 - bash ./toolchain.sh 7
