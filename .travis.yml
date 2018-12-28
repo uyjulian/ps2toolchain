@@ -1,14 +1,14 @@
 dist: xenial
 sudo: required
-language: cpp
+language: c
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-7
-      - g++-7
+      - gcc-8
+      - g++-8
       - patch
       - libmpc-dev
       - libmpfr-dev
@@ -17,7 +17,7 @@ addons:
       - pv
       - texinfo
       - make
-      - wget      
+      - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
 
 install:
 
@@ -43,7 +43,7 @@ before_script:
 - export CC=/usr/bin/gcc-7
 - export CXX=/usr/bin/g++-7
 # Check versions of gcc, g++ and cmake
-- gcc -v && g++ -v && cmake --version
+- gcc -v && g++ -v
 # Run your build commands next
 script:
 
@@ -51,10 +51,10 @@ script:
 
 # - curl --upload-file /tmp/PS2TOOLCHAIN.log https://transfer.sh/PS2TOOLCHAIN${TRAVIS_BUILD_NUMBER}.log
 
-- bash ./toolchain.sh 1
-- bash ./toolchain.sh 2
-- bash ./toolchain.sh 3
-- bash ./toolchain.sh 4
-- bash ./toolchain.sh 5
-- bash ./toolchain.sh 6
-- bash ./toolchain.sh 7
+- travis_wait bash ./toolchain.sh 1
+- travis_wait bash ./toolchain.sh 2
+- travis_wait bash ./toolchain.sh 3
+- travis_wait bash ./toolchain.sh 4
+- travis_wait bash ./toolchain.sh 5
+- travis_wait bash ./toolchain.sh 6
+- travis_wait bash ./toolchain.sh 7
