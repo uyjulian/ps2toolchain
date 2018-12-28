@@ -22,8 +22,8 @@ install:
 
 #- sudo apt-get install -yqqq gcc-4.4
 
-- sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
-- sudo apt-get install -yqqq texinfo libmpc-dev libmpfr-dev libgmp-dev
+#- sudo apt-get install -yqqq patch wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev pigz pv
+#- sudo apt-get install -yqqq texinfo libmpc-dev libmpfr-dev libgmp-dev
 #gcc g++ 
 
 before_script:
@@ -34,11 +34,11 @@ before_script:
 #- export PS2DEVUJ=${PS2DEV}
 #- export PS2SDKUJ=${PS2SDK}
 # Link gcc-7 and g++-7 to their standard commands
-#- ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
-#- ln -s /usr/bin/g++-7 /usr/local/bin/g++
+- sudo ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
+- sudo ln -s /usr/bin/g++-7 /usr/local/bin/g++
 # Export CC and CXX to tell cmake which compiler to use
-#- export CC=/usr/bin/gcc-7
-#- export CXX=/usr/bin/g++-7
+- export CC=/usr/bin/gcc-7
+- export CXX=/usr/bin/g++-7
 # Check versions of gcc, g++ and cmake
 - gcc -v && g++ -v && cmake --version
 # Run your build commands next
