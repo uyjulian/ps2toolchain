@@ -15,6 +15,9 @@ addons:
       - libgmp-dev
       - pigz
       - pv
+      - texinfo
+      - make
+      - wget      
 
 install:
 
