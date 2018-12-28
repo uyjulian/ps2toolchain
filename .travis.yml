@@ -51,10 +51,10 @@ script:
 
 # - curl --upload-file /tmp/PS2TOOLCHAIN.log https://transfer.sh/PS2TOOLCHAIN${TRAVIS_BUILD_NUMBER}.log
 
-- travis_wait bash ./toolchain.sh 1
-- travis_wait bash ./toolchain.sh 2
-- travis_wait bash ./toolchain.sh 3
-- travis_wait bash ./toolchain.sh 4
-- travis_wait bash ./toolchain.sh 5
-- travis_wait bash ./toolchain.sh 6
-- travis_wait bash ./toolchain.sh 7
+- bash ./toolchain.sh 1
+- bash ./toolchain.sh 2
+- bash ./toolchain.sh 3
+- bash ./toolchain.sh 4
+- bash ./toolchain.sh 5
+- bash ./toolchain.sh 6
+- bash ./toolchain.sh 7
