@@ -1,3 +1,7 @@
+# xenial is bundled with gcc v5, which is fastest version for building modern toolchains
+# it takes 47 minutes to compile (travis is limited to 50 minutes!)
+dist: xenial
+
 sudo: required
 
 install:
