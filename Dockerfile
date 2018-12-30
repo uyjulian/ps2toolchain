@@ -10,7 +10,7 @@ COPY . /toolchain
 
 RUN apt-get update &&\
   apt-get install -yqqq make bash gawk wget git make patch wget && \
-  apt-get install -yqqq gcc musl-dev && \
+  apt-get install -yqqq pv pigz && \
   apt-get install -yqqq gcc g++ texinfo libmpc-dev libmpfr-dev libgmp-dev && \
   cd /toolchain && \
   ./toolchain.sh 1 && \
