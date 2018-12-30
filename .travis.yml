@@ -4,7 +4,23 @@ language: cpp
 
 matrix:
   include:
-    
+    # works on Precise and Trusty
+    - dist: xenial
+      addons:
+        apt:
+          packages:
+            - patch
+            - libmpc-dev
+            - libmpfr-dev
+            - libgmp-dev
+            - pigz
+            - pv
+            - texinfo
+            - make
+            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+
     # works on Precise and Trusty
     - dist: xenial
       addons:
@@ -24,25 +40,8 @@ matrix:
             - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-
-    # works on Precise and Trusty
-    - dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - patch
-            - libmpc-dev
-            - libmpfr-dev
-            - libgmp-dev
-            - pigz
-            - pv
-            - texinfo
-            - make
-            - wget make git libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
-      env:
-        - MATRIX_EVAL="CC=gcc && CXX=g++"
+  allow_failures:
+    - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
 before_install:
     - eval "${MATRIX_EVAL}"
