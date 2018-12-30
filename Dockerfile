@@ -11,7 +11,7 @@ COPY . /toolchain
 RUN \
   apk add --no-cache make bash gawk wget git make patch wget && \
   apk add --no-cache --virtual .build-deps gcc musl-dev && \
-  apk add --no-cache --virtual .build-deps g++ texinfo libmpc-dev libgmp-dev diffutils && \
+  apk add --no-cache --virtual .build-deps g++ texinfo && \
   cd /toolchain && \
   ./toolchain.sh 1 && \
   ./toolchain.sh 2 && \
