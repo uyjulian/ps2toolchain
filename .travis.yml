@@ -3,8 +3,8 @@ sudo: required
 language: cpp
 
 matrix:
-  fast_finish: true
   include:
+    # works on Precise and Trusty
     - dist: xenial
       addons:
         apt:
@@ -13,9 +13,10 @@ matrix:
             - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
             - libmpc-dev libmpfr-dev libgmp-dev
             - pigz pv
-     env:
+      env:
         - MATRIX_EVAL="CC=gcc && CXX=g++"
 
+    # works on Precise and Trusty
     - dist: xenial
       addons:
         apt:
@@ -30,19 +31,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
   allow_failures:
-    - dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - texinfo patch wget make git 
-            - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
-            - libmpc-dev libmpfr-dev libgmp-dev
-            - pigz pv
-            - g++-8 gcc-8
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    - env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
 before_install:
     - eval "${MATRIX_EVAL}"
@@ -62,13 +51,14 @@ before_script:
 #- export PS2SDKUJ=${PS2SDK}
 # Check versions of gcc, g++ and cmake
 - gcc -v && g++ -v
-
 # Run your build commands next
 script:
-- travis_wait 50 bash ./toolchain.sh 1
-- travis_wait 50 bash ./toolchain.sh 2
+# - travis_wait 60 bash ./toolchain.sh > /tmp/PS2TOOLCHAIN.log 2>&1
+# - curl --upload-file /tmp/PS2TOOLCHAIN.log https://transfer.sh/PS2TOOLCHAIN${TRAVIS_BUILD_NUMBER}.log
+- bash ./toolchain.sh 1
+- bash ./toolchain.sh 2
 - travis_wait 50 bash ./toolchain.sh 3
 - bash ./toolchain.sh 4
 - travis_wait 50 bash ./toolchain.sh 5
-- travis_wait 50 bash ./toolchain.sh 6
-- travis_wait 50 bash ./toolchain.sh 7
+- bash ./toolchain.sh 6
+- bash ./toolchain.sh 7
