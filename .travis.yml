@@ -3,6 +3,7 @@ sudo: required
 language: cpp
 
 matrix:
+  fast_finish: true
   include:
     # works on Precise and Trusty
     - dist: xenial
