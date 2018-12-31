@@ -68,7 +68,7 @@ script:
 - travis_wait 50 bash ./toolchain.sh 1
 - travis_wait 50 bash ./toolchain.sh 2
 - travis_wait 50 bash ./toolchain.sh 3
-- travis_wait 50 bash ./toolchain.sh 4
+- bash ./toolchain.sh 4
 - travis_wait 50 bash ./toolchain.sh 5
 - travis_wait 50 bash ./toolchain.sh 6
 - travis_wait 50 bash ./toolchain.sh 7
