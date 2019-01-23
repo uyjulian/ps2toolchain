@@ -414,12 +414,14 @@ diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.h gcc-8.2.0/gcc/config/mips/mips.
  
  /* Integer multiply-accumulate instructions should be generated.  */
  #define GENERATE_MADD_MSUB	(TARGET_IMADD && !TARGET_MIPS16)
-@@ -1531,6 +1534,9 @@
+@@ -1531,6 +1536,9 @@
  /* Width of a MSA vector register in bits.  */
  #define BITS_PER_MSA_REG (UNITS_PER_MSA_REG * BITS_PER_UNIT)
  
 +/* The R5900 has 128-bit registers.  */
 +#define MAX_BITS_PER_WORD_R5900 128
++/* always include default parameters for compiling and linking EE binaries */
++#define LIB_SPEC "-lps2sdkc -lkernel -lc -lg -lm"
 +
  /* For MIPS, width of a floating point register.  */
  #define UNITS_PER_FPREG (TARGET_FLOAT64 ? 8 : 4)
