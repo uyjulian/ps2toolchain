@@ -414,7 +414,7 @@ diff -burN gcc-8.2.0.orig/gcc/config/mips/mips.h gcc-8.2.0/gcc/config/mips/mips.
  
  /* Integer multiply-accumulate instructions should be generated.  */
  #define GENERATE_MADD_MSUB	(TARGET_IMADD && !TARGET_MIPS16)
-@@ -1531,6 +1536,9 @@
+@@ -1531,6 +1534,11 @@
  /* Width of a MSA vector register in bits.  */
  #define BITS_PER_MSA_REG (UNITS_PER_MSA_REG * BITS_PER_UNIT)
  

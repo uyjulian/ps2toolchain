@@ -1,50 +1,16 @@
-# dist: xenial
-sudo: required
-language: cpp
-
-matrix:
-  fast_finish: true
-  include:
-    # works on Precise and Trusty
-    - dist: xenial
-      addons:
-        apt:
-          packages:
-            - texinfo patch wget make git 
-            - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
-            - libmpc-dev libmpfr-dev libgmp-dev
-            - pigz pv
+dist: xenial
+  addons:
+    apt:
+      packages:
+        - texinfo patch wget make git 
+        - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
+        - libmpc-dev libmpfr-dev libgmp-dev
+        - pigz pv
       env:
         - MATRIX_EVAL="CC=gcc && CXX=g++"
 
-    # works on Precise and Trusty
-    - dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - texinfo patch wget make git 
-            - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
-            - libmpc-dev libmpfr-dev libgmp-dev
-            - pigz pv
-            - g++-8 gcc-8
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-  allow_failures:
-    - dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - texinfo patch wget make git 
-            - libc6-dev zlib1g zlib1g-dev libucl1 libucl-dev
-            - libmpc-dev libmpfr-dev libgmp-dev
-            - pigz pv
-            - g++-8 gcc-8
-      env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+sudo: required
+language: cpp
 
 before_install:
     - eval "${MATRIX_EVAL}"
