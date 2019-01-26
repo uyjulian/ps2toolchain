@@ -38,7 +38,7 @@ make --quiet clean && make --quiet && make --quiet install && make --quiet clean
 ## Replace newlib's crt0 with the one in ps2sdk.
 # ln -sf "$PS2SDK/ee/startup/crt0.o" "$PS2DEV/ee/lib/gcc-lib/ee/3.2.3/crt0.o" || { exit 1; }
 # ln -sf "$PS2SDK/ee/startup/crt0.o" "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
-ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/lib/gcc-lib/ee/8.2.0/crt0.o" || { exit 1; }
+ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/mips64r5900el-ps2-elf/lib/crt0.o" || { exit 1; }
 ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
 
 ## gcc needs to include both libc and libkernel from ps2sdk to be able to build executables.
