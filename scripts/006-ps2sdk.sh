@@ -39,7 +39,8 @@ make --quiet clean && make --quiet && make --quiet install && make --quiet clean
 # ln -sf "$PS2SDK/ee/startup/crt0.o" "$PS2DEV/ee/lib/gcc-lib/ee/3.2.3/crt0.o" || { exit 1; }
 # ln -sf "$PS2SDK/ee/startup/crt0.o" "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
 ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/mips64r5900el-ps2-elf/lib/crt0.o" || { exit 1; }
-ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
+# newlib 3.0 doesnt have crt0.o?
+# ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
 
 ## gcc needs to include both libc and libkernel from ps2sdk to be able to build executables.
 ## NOTE: There are TWO libc libraries, gcc needs to include them both.
