@@ -1,21 +1,21 @@
 #!/bin/bash
-# binutils-2.31.sh by uyjulian
+# binutils-2..sh by uyjulian
 # Based on binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
 
-BINUTILS_VERSION=2.31
+BINUTILS_VERSION=2.25.1
 ## Download the source code.
-SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.gz
-wget --continue $SOURCE || { exit 1; }
+#SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.gz
+#wget --continue $SOURCE || { exit 1; }
 
 ## Unpack the source code.
-echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
-rm -Rf binutils-$BINUTILS_VERSION && pigz -dc binutils-$BINUTILS_VERSION.tar.gz | pv | tar xf - || { exit 1; }
+#echo Decompressing Binutils $BINUTILS_VERSION. Please wait.
+#rm -Rf binutils-$BINUTILS_VERSION && pigz -dc binutils-$BINUTILS_VERSION.tar.gz | pv | tar xf - || { exit 1; }
 
 ## Enter the source directory and patch the source code.
 cd binutils-$BINUTILS_VERSION || { exit 1; }
-if [ -e ../../patches/binutils-$BINUTILS_VERSION-PS2.patch ]; then
-	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
-fi
+#if [ -e ../../patches/binutils-$BINUTILS_VERSION-PS2.patch ]; then
+#	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
+#fi
 
 ## Determine the maximum number of processes that Make can work with.
 ## MinGW's Make doesn't work properly with multi-core processors.
@@ -45,7 +45,7 @@ for ((i=0; i<${#target_names[@]}; i++)); do
 	../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" $TARG_XTRA_OPTS || { exit 1; }
 
 	## Compile and install.
-	make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }
+	make --quiet clean && make --quiet -j $PROC_NR && make --quiet install || { exit 1; }
 
 	## Exit the build directory.
 	cd .. || { exit 1; }
