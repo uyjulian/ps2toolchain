@@ -2,8 +2,8 @@
 # check-mpfr.sh by uyjulian
 
 ## Check for the mpfr library.
-ls /usr/include/mpfr.h 1> /dev/null || \
-ls /usr/local/include/mpfr.h 1> /dev/null || \
-ls /opt/include/mpfr.h 1> /dev/null || \
-ls /opt/local/include/mpfr.h 1> /dev/null || \
+ls /usr/include/mpfr.h > /dev/null 2>&1 || \
+ls /usr/local/include/mpfr.h > /dev/null 2>&1 || \
+ls /opt/include/mpfr.h > /dev/null 2>&1 || \
+ls /opt/local/include/mpfr.h > /dev/null 2>&1 || \
 { echo "ERROR: Install mpfr before continuing."; exit 1; }
