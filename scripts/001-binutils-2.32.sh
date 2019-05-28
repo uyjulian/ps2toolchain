@@ -1,8 +1,8 @@
 #!/bin/bash
-# binutils-2.31.sh by uyjulian
+# binutils-2.32.sh by uyjulian
 # Based on binutils-2.14.sh by Dan Peori (danpeori@oopo.net)
 
-BINUTILS_VERSION=2.31
+BINUTILS_VERSION=2.32
 ## Download the source code.
 SOURCE=http://ftpmirror.gnu.org/binutils/binutils-$BINUTILS_VERSION.tar.xz
 wget --continue $SOURCE || { exit 1; }
@@ -28,9 +28,9 @@ else
 	PROC_NR=$(nproc)
 fi
 
-target_names=("iop")
-targets=("mipsel-ps2-irx")
-extra_opts=("")
+target_names=("ee" "dvp" "iop")
+targets=("mips64r5900el-ps2-elf" "dvp" "mipsel-ps2-irx")
+extra_opts=("--with-float=hard" "--with-float=hard" "")
 
 ## For each target...
 for ((i=0; i<${#target_names[@]}; i++)); do

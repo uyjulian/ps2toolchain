@@ -1,0 +1,76 @@
+diff -burN gcc-9.1.0.orig/config.sub gcc-9.1.0/config.sub
+--- gcc-9.1.0.orig/config.sub	2019-01-03 05:28:27.000000000 -0600
++++ gcc-9.1.0/config.sub	2019-05-27 21:59:55.000000000 -0500
+@@ -364,6 +364,10 @@
+ 				basic_machine=i386-pc
+ 				os=vsta
+ 				;;
++			iop)
++				basic_machine=mipsel-scei
++				os=irx
++				;;
+ 			isi68 | isi)
+ 				basic_machine=m68k-isi
+ 				os=sysv
+@@ -1363,7 +1367,8 @@
+ 	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
+ 	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
+ 	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
+-	     | midnightbsd* | amdhsa* | unleashed* | emscripten*)
++	     | midnightbsd* | amdhsa* | unleashed* | emscripten* \
++	     | irx*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	qnx*)
+diff -burN gcc-9.1.0.orig/configure gcc-9.1.0/configure
+--- gcc-9.1.0.orig/configure	2019-04-14 04:52:22.000000000 -0500
++++ gcc-9.1.0/configure	2019-05-27 21:57:14.000000000 -0500
+@@ -3895,6 +3895,8 @@
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   mips*-*-ultrix* | mips*-*-osf* | mips*-*-ecoff* | mips*-*-pe* \
+   | mips*-*-irix* | mips*-*-lnews* | mips*-*-riscos*)
+     noconfigdirs="$noconfigdirs ld gas gprof"
+diff -burN gcc-9.1.0.orig/configure.ac gcc-9.1.0/configure.ac
+--- gcc-9.1.0.orig/configure.ac	2019-04-14 04:52:22.000000000 -0500
++++ gcc-9.1.0/configure.ac	2019-05-27 21:57:14.000000000 -0500
+@@ -1177,6 +1177,8 @@
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   mips*-*-ultrix* | mips*-*-osf* | mips*-*-ecoff* | mips*-*-pe* \
+   | mips*-*-irix* | mips*-*-lnews* | mips*-*-riscos*)
+     noconfigdirs="$noconfigdirs ld gas gprof"
+diff -burN gcc-9.1.0.orig/gcc/config.gcc gcc-9.1.0/gcc/config.gcc
+--- gcc-9.1.0.orig/gcc/config.gcc	2019-04-15 03:05:03.000000000 -0500
++++ gcc-9.1.0/gcc/config.gcc	2019-05-27 21:57:14.000000000 -0500
+@@ -2421,6 +2421,11 @@
+ 	tmake_file="mips/t-elf"
+ 	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
+ 	;;
++mipsel-*-irx*)
++	tm_file="dbxelf.h elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
++	tmake_file="mips/t-elf mips/dbx.h"
++	target_cpu_default=MASK_SOFT_FLOAT_ABI
++	;;
+ mips64-*-elf* | mips64el-*-elf*)
+ 	tm_file="elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
+ 	tmake_file="mips/t-elf"
+diff -burN gcc-9.1.0.orig/libgcc/config.host gcc-9.1.0/libgcc/config.host
+--- gcc-9.1.0.orig/libgcc/config.host	2019-01-17 06:29:13.000000000 -0600
++++ gcc-9.1.0/libgcc/config.host	2019-05-27 21:57:14.000000000 -0500
+@@ -958,6 +958,9 @@
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
++mipsel-*-irx)
++	tmake_file="$tmake_file mips/t-elf"
++	;;
+ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
+ 	extra_parts="$extra_parts crti.o crtn.o"
