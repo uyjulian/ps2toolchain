@@ -1,6 +1,6 @@
 diff -burN gcc-9.1.0.orig/config.sub gcc-9.1.0/config.sub
 --- gcc-9.1.0.orig/config.sub	2019-01-03 05:28:27.000000000 -0600
-+++ gcc-9.1.0/config.sub	2019-05-27 21:59:55.000000000 -0500
++++ gcc-9.1.0/config.sub	2019-05-28 10:00:43.000000000 -0500
 @@ -364,6 +364,10 @@
  				basic_machine=i386-pc
  				os=vsta
@@ -12,19 +12,18 @@ diff -burN gcc-9.1.0.orig/config.sub gcc-9.1.0/config.sub
  			isi68 | isi)
  				basic_machine=m68k-isi
  				os=sysv
-@@ -1363,7 +1367,8 @@
+@@ -1363,7 +1367,7 @@
  	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
  	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
  	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
 -	     | midnightbsd* | amdhsa* | unleashed* | emscripten*)
-+	     | midnightbsd* | amdhsa* | unleashed* | emscripten* \
-+	     | irx*)
++	     | midnightbsd* | amdhsa* | unleashed* | emscripten* | irx*)
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
  	qnx*)
 diff -burN gcc-9.1.0.orig/configure gcc-9.1.0/configure
 --- gcc-9.1.0.orig/configure	2019-04-14 04:52:22.000000000 -0500
-+++ gcc-9.1.0/configure	2019-05-27 21:57:14.000000000 -0500
++++ gcc-9.1.0/configure	2019-05-28 09:58:57.000000000 -0500
 @@ -3895,6 +3895,8 @@
      ;;
    mips*-*-linux*)
@@ -36,7 +35,7 @@ diff -burN gcc-9.1.0.orig/configure gcc-9.1.0/configure
      noconfigdirs="$noconfigdirs ld gas gprof"
 diff -burN gcc-9.1.0.orig/configure.ac gcc-9.1.0/configure.ac
 --- gcc-9.1.0.orig/configure.ac	2019-04-14 04:52:22.000000000 -0500
-+++ gcc-9.1.0/configure.ac	2019-05-27 21:57:14.000000000 -0500
++++ gcc-9.1.0/configure.ac	2019-05-28 09:58:57.000000000 -0500
 @@ -1177,6 +1177,8 @@
      ;;
    mips*-*-linux*)
@@ -46,9 +45,18 @@ diff -burN gcc-9.1.0.orig/configure.ac gcc-9.1.0/configure.ac
    mips*-*-ultrix* | mips*-*-osf* | mips*-*-ecoff* | mips*-*-pe* \
    | mips*-*-irix* | mips*-*-lnews* | mips*-*-riscos*)
      noconfigdirs="$noconfigdirs ld gas gprof"
+diff -burN gcc-9.1.0.orig/gcc/config/mips/mips.h gcc-9.1.0/gcc/config/mips/mips.h
+--- gcc-9.1.0.orig/gcc/config/mips/mips.h	2019-01-01 06:31:55.000000000 -0600
++++ gcc-9.1.0/gcc/config/mips/mips.h	2019-05-28 09:56:12.000000000 -0500
+@@ -3461,3 +3461,5 @@
+   (TARGET_LOAD_STORE_PAIRS \
+    && (TUNE_P5600 || TUNE_I6400 || TUNE_P6600) \
+    && !TARGET_MICROMIPS && !TARGET_FIX_24K)
++
++#define LIB_SPEC "-lps2sdkc -lkernel -lc -lg -lm"
 diff -burN gcc-9.1.0.orig/gcc/config.gcc gcc-9.1.0/gcc/config.gcc
 --- gcc-9.1.0.orig/gcc/config.gcc	2019-04-15 03:05:03.000000000 -0500
-+++ gcc-9.1.0/gcc/config.gcc	2019-05-27 21:57:14.000000000 -0500
++++ gcc-9.1.0/gcc/config.gcc	2019-05-28 09:58:57.000000000 -0500
 @@ -2421,6 +2421,11 @@
  	tmake_file="mips/t-elf"
  	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
@@ -63,7 +71,7 @@ diff -burN gcc-9.1.0.orig/gcc/config.gcc gcc-9.1.0/gcc/config.gcc
  	tmake_file="mips/t-elf"
 diff -burN gcc-9.1.0.orig/libgcc/config.host gcc-9.1.0/libgcc/config.host
 --- gcc-9.1.0.orig/libgcc/config.host	2019-01-17 06:29:13.000000000 -0600
-+++ gcc-9.1.0/libgcc/config.host	2019-05-27 21:57:14.000000000 -0500
++++ gcc-9.1.0/libgcc/config.host	2019-05-28 09:58:57.000000000 -0500
 @@ -958,6 +958,9 @@
  	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
  	extra_parts="$extra_parts crti.o crtn.o"
