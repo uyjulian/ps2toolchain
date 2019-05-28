@@ -28,9 +28,9 @@ else
 	PROC_NR=$(nproc)
 fi
 
-target_names=("ee" "dvp" "iop")
-targets=("mips64r5900el-ps2-elf" "dvp" "mipsel-ps2-irx")
-extra_opts=("--with-float=hard" "--with-float=hard" "")
+target_names=("ee" "iop")
+targets=("mips64r5900el-ps2-elf" "mipsel-ps2-irx")
+extra_opts=("--with-float=hard" "")
 
 ## For each target...
 for ((i=0; i<${#target_names[@]}; i++)); do
