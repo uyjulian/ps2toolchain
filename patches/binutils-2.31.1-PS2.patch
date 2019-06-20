@@ -1,7 +1,7 @@
-diff -burN binutils-2.32.orig/bfd/config.bfd binutils-2.32/bfd/config.bfd
---- binutils-2.32.orig/bfd/config.bfd	2019-01-19 10:01:32.000000000 -0600
-+++ binutils-2.32/bfd/config.bfd	2019-05-28 09:36:28.000000000 -0500
-@@ -882,6 +882,10 @@
+diff -burN binutils-2.31.1.orig/bfd/config.bfd binutils-2.31.1/bfd/config.bfd
+--- binutils-2.31.1.orig/bfd/config.bfd	2018-07-09 02:44:53.000000000 -0500
++++ binutils-2.31.1/bfd/config.bfd	2019-06-20 12:49:11.000000000 -0500
+@@ -876,6 +876,10 @@
      targ_defvec=mips_elf32_be_vec
      targ_selvecs="mips_elf32_le_vec mips_ecoff_be_vec mips_ecoff_le_vec"
      ;;
@@ -12,37 +12,10 @@ diff -burN binutils-2.32.orig/bfd/config.bfd binutils-2.32/bfd/config.bfd
    mips*el-*-vxworks*)
      targ_defvec=mips_elf32_vxworks_le_vec
      targ_selvecs="mips_elf32_le_vec mips_elf32_vxworks_be_vec mips_elf32_be_vec mips_elf64_be_vec mips_elf64_le_vec"
-diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
---- binutils-2.32.orig/bfd/elf.c	2019-01-19 10:01:32.000000000 -0600
-+++ binutils-2.32/bfd/elf.c	2019-05-28 09:44:18.000000000 -0500
-@@ -1130,7 +1130,7 @@
-       for (nload = 0, i = 0; i < elf_elfheader (abfd)->e_phnum; i++, phdr++)
- 	if (phdr->p_paddr != 0)
- 	  break;
--	else if (phdr->p_type == PT_LOAD && phdr->p_memsz != 0)
-+	else if ((phdr->p_type == PT_LOAD || phdr->p_type == PT_MIPS_IRXHDR) && phdr->p_memsz != 0)
- 	  ++nload;
-       if (i >= elf_elfheader (abfd)->e_phnum && nload > 1)
- 	return TRUE;
-@@ -1138,7 +1138,7 @@
-       phdr = elf_tdata (abfd)->phdr;
-       for (i = 0; i < elf_elfheader (abfd)->e_phnum; i++, phdr++)
- 	{
--	  if (((phdr->p_type == PT_LOAD
-+	  if ((((phdr->p_type == PT_LOAD || phdr->p_type == PT_MIPS_IRXHDR)
- 		&& (hdr->sh_flags & SHF_TLS) == 0)
- 	       || phdr->p_type == PT_TLS)
- 	      && ELF_SECTION_IN_SEGMENT (hdr, phdr))
-@@ -1590,7 +1590,7 @@
-   switch (p_type)
-     {
-     case PT_NULL: pt = "NULL"; break;
--    case PT_LOAD: pt = "LOAD"; break;
-+    case PT_LOAD: case PT_MIPS_IRXHDR: pt = "LOAD"; break;
-     case PT_DYNAMIC: pt = "DYNAMIC"; break;
-     case PT_INTERP: pt = "INTERP"; break;
-     case PT_NOTE: pt = "NOTE"; break;
-@@ -2940,7 +2940,7 @@
+diff -burN binutils-2.31.1.orig/bfd/elf.c binutils-2.31.1/bfd/elf.c
+--- binutils-2.31.1.orig/bfd/elf.c	2018-07-10 05:47:35.000000000 -0500
++++ binutils-2.31.1/bfd/elf.c	2019-06-20 12:49:11.000000000 -0500
+@@ -2935,7 +2935,7 @@
        newsect->filepos = hdr->p_offset;
        newsect->flags |= SEC_HAS_CONTENTS;
        newsect->alignment_power = bfd_log2 (hdr->p_align);
@@ -51,7 +24,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	{
  	  newsect->flags |= SEC_ALLOC;
  	  newsect->flags |= SEC_LOAD;
-@@ -2978,7 +2978,7 @@
+@@ -2973,7 +2973,7 @@
        if (align == 0 || align > hdr->p_align)
  	align = hdr->p_align;
        newsect->alignment_power = bfd_log2 (align);
@@ -60,52 +33,16 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	{
  	  /* Hack for gdb.  Segments that have not been modified do
  	     not have their contents written to a core file, on the
-@@ -3009,7 +3009,7 @@
-     case PT_NULL:
-       return _bfd_elf_make_section_from_phdr (abfd, hdr, hdr_index, "null");
- 
--    case PT_LOAD:
-+    case PT_LOAD: case PT_MIPS_IRXHDR:
-       return _bfd_elf_make_section_from_phdr (abfd, hdr, hdr_index, "load");
- 
-     case PT_DYNAMIC:
-@@ -4553,7 +4553,7 @@
- 	{
- 	  if (((*m)->sections[i]->flags & SEC_EXCLUDE) == 0
- 	      && (((*m)->sections[i]->flags & SEC_ALLOC) != 0
--		  || (*m)->p_type != PT_LOAD))
-+		  || ((*m)->p_type != PT_LOAD && (*m)->p_type != PT_MIPS_IRXHDR)))
- 	    {
- 	      (*m)->sections[new_count] = (*m)->sections[i];
- 	      new_count++;
-@@ -4562,7 +4562,7 @@
-       (*m)->count = new_count;
- 
-       if (remove_empty_load
--	  && (*m)->p_type == PT_LOAD
-+	  && ((*m)->p_type == PT_LOAD || (*m)->p_type == PT_MIPS_IRXHDR)
- 	  && (*m)->count == 0
- 	  && !(*m)->includes_phdrs)
- 	*m = (*m)->next;
-@@ -5127,7 +5127,7 @@
- 	{
- 	  for (m = mfirst; m != NULL; m = m->next)
- 	    {
--	      if (m->p_type == PT_LOAD
-+	      if ((m->p_type == PT_LOAD || m->p_type == PT_MIPS_IRXHDR)
- 		  && m->count != 0
- 		  && m->sections[0]->vma >= info->relro_start
- 		  && m->sections[0]->vma < info->relro_end)
-@@ -5437,7 +5437,7 @@
+@@ -5370,7 +5370,7 @@
        else
- 	p->p_paddr = m->sections[0]->lma + m->p_vaddr_offset;
+ 	p->p_paddr = m->sections[0]->lma - m->p_vaddr_offset;
  
 -      if (p->p_type == PT_LOAD
 +      if ((p->p_type == PT_LOAD || p->p_type == PT_MIPS_IRXHDR)
  	  && (abfd->flags & D_PAGED) != 0)
  	{
  	  /* p_align in demand paged PT_LOAD segments effectively stores
-@@ -5463,7 +5463,7 @@
+@@ -5396,7 +5396,7 @@
  
        no_contents = FALSE;
        off_adjust = 0;
@@ -114,7 +51,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	  && m->count > 0)
  	{
  	  bfd_size_type align;
-@@ -5602,7 +5602,7 @@
+@@ -5535,7 +5535,7 @@
  	    }
  	}
  
@@ -123,7 +60,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	  || (p->p_type == PT_NOTE && bfd_get_format (abfd) == bfd_core))
  	{
  	  if (!m->includes_filehdr && !m->includes_phdrs)
-@@ -5634,6 +5634,7 @@
+@@ -5567,6 +5567,7 @@
  	  align = (bfd_size_type) 1 << bfd_get_section_alignment (abfd, sec);
  
  	  if ((p->p_type == PT_LOAD
@@ -131,7 +68,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	       || p->p_type == PT_TLS)
  	      && (this_hdr->sh_type != SHT_NOBITS
  		  || ((this_hdr->sh_flags & SHF_ALLOC) != 0
-@@ -5697,7 +5698,7 @@
+@@ -5630,7 +5631,7 @@
  	    }
  	  else
  	    {
@@ -140,7 +77,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  		{
  		  this_hdr->sh_offset = sec->filepos = off;
  		  if (this_hdr->sh_type != SHT_NOBITS)
-@@ -5741,7 +5742,7 @@
+@@ -5674,7 +5675,7 @@
  
  	      if (align > p->p_align
  		  && !m->p_align_valid
@@ -149,7 +86,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  		      || (abfd->flags & D_PAGED) == 0))
  		p->p_align = align;
  	    }
-@@ -5760,7 +5761,8 @@
+@@ -5693,7 +5694,8 @@
  
        /* Check that all sections are in a PT_LOAD segment.
  	 Don't check funky gdb generated core files.  */
@@ -159,7 +96,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	{
  	  bfd_boolean check_vma = TRUE;
  
-@@ -5878,7 +5880,7 @@
+@@ -5811,7 +5813,7 @@
    for (m = elf_seg_map (abfd), p = phdrs; m != NULL; m = m->next, p++)
      {
        ++count;
@@ -168,7 +105,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	continue;
  
        if (m->includes_filehdr)
-@@ -5986,7 +5988,7 @@
+@@ -5919,7 +5921,7 @@
  		   lm != NULL;
  		   lm = lm->next, lp++)
  		{
@@ -177,7 +114,7 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  		      && lm->count != 0
  		      && (lm->sections[lm->count - 1]->vma
  			  + (!IS_TBSS (lm->sections[lm->count - 1])
-@@ -6053,7 +6055,7 @@
+@@ -5986,7 +5988,7 @@
  	{
  	  unsigned int i;
  
@@ -186,126 +123,10 @@ diff -burN binutils-2.32.orig/bfd/elf.c binutils-2.32/bfd/elf.c
  	      && (p->p_type != PT_NOTE
  		  || bfd_get_format (abfd) != bfd_core))
  	    {
-@@ -6208,7 +6210,7 @@
- 	  /* Find the lowest p_vaddr in PT_LOAD segments.  */
- 	  bfd_vma p_vaddr = (bfd_vma) -1;
- 	  for (; segment < end_segment; segment++)
--	    if (segment->p_type == PT_LOAD && p_vaddr > segment->p_vaddr)
-+	    if ((segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR) && p_vaddr > segment->p_vaddr)
- 	      p_vaddr = segment->p_vaddr;
- 
- 	  /* Set e_type to ET_EXEC if the lowest p_vaddr in PT_LOAD
-@@ -6238,7 +6240,7 @@
- 	  && (bed->elf_backend_allow_non_load_phdr == NULL
- 	      || !bed->elf_backend_allow_non_load_phdr (abfd, tdata->phdr,
- 							alloc))
--	  && tdata->phdr[1].p_type == PT_LOAD
-+	  && (tdata->phdr[1].p_type == PT_LOAD || tdata->phdr[1].p_type == PT_MIPS_IRXHDR)
- 	  && (tdata->phdr[1].p_vaddr > tdata->phdr[0].p_vaddr
- 	      || (tdata->phdr[1].p_vaddr + tdata->phdr[1].p_memsz
- 		  < tdata->phdr[0].p_vaddr + tdata->phdr[0].p_memsz)))
-@@ -6728,6 +6730,7 @@
-    && (segment->p_type != PT_TLS					\
-        || (section->flags & SEC_THREAD_LOCAL))				\
-    && (segment->p_type == PT_LOAD					\
-+       || segment->p_type == PT_MIPS_IRXHDR         \
-        || segment->p_type == PT_TLS					\
-        || (section->flags & SEC_THREAD_LOCAL) == 0)			\
-    && (segment->p_type != PT_DYNAMIC					\
-@@ -6737,7 +6740,7 @@
- 	   : segment->p_vaddr != section->vma)				\
-        || (strcmp (bfd_get_section_name (ibfd, section), ".dynamic")	\
- 	   == 0))							\
--   && (segment->p_type != PT_LOAD || !section->segment_mark))
-+   && ((segment->p_type != PT_LOAD && segment->p_type != PT_MIPS_IRXHDR) || !section->segment_mark))
- 
- /* If the output section of a section in the input segment is NULL,
-    it is removed from the corresponding output segment.   */
-@@ -6800,7 +6803,7 @@
- 	      break;
- 	    }
- 
--      if (segment->p_type != PT_LOAD)
-+      if (segment->p_type != PT_LOAD && segment->p_type != PT_MIPS_IRXHDR)
- 	{
- 	  /* Remove PT_GNU_RELRO segment.  */
- 	  if (segment->p_type == PT_GNU_RELRO)
-@@ -6813,7 +6816,7 @@
- 	{
- 	  bfd_signed_vma extra_length;
- 
--	  if (segment2->p_type != PT_LOAD
-+	  if ((segment2->p_type != PT_LOAD && segment2->p_type != PT_MIPS_IRXHDR)
- 	      || !SEGMENT_OVERLAPS (segment, segment2))
- 	    continue;
- 
-@@ -6921,7 +6924,7 @@
- 			       && segment->p_filesz >= iehdr->e_ehsize);
-       map->includes_phdrs = 0;
- 
--      if (!phdr_included || segment->p_type != PT_LOAD)
-+      if (!phdr_included || (segment->p_type != PT_LOAD && segment->p_type != PT_MIPS_IRXHDR))
- 	{
- 	  map->includes_phdrs =
- 	    (segment->p_offset <= (bfd_vma) iehdr->e_phoff
-@@ -6929,7 +6932,7 @@
- 		 >= ((bfd_vma) iehdr->e_phoff
- 		     + iehdr->e_phnum * iehdr->e_phentsize)));
- 
--	  if (segment->p_type == PT_LOAD && map->includes_phdrs)
-+	  if ((segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR) && map->includes_phdrs)
- 	    phdr_included = TRUE;
- 	}
- 
-@@ -6942,7 +6945,7 @@
- 	     There is however the valid use case of embedded systems which
- 	     have segments with p_filesz of 0 and a p_memsz > 0 to initialize
- 	     flash memory with zeros.  No warning is shown for that case.  */
--	  if (segment->p_type == PT_LOAD
-+	  if ((segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR)
- 	      && (segment->p_filesz > 0 || segment->p_memsz == 0))
- 	    /* xgettext:c-format */
- 	    _bfd_error_handler
-@@ -7188,7 +7191,7 @@
- 		  map->sections[map->count++] = output_section;
- 		  ++isec;
- 		  sections[j] = NULL;
--		  if (segment->p_type == PT_LOAD)
-+		  if (segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR)
- 		    section->segment_mark = TRUE;
- 		}
- 	      else if (suggested_lma == NULL)
-@@ -7381,7 +7384,7 @@
- 			       && segment->p_filesz >= iehdr->e_ehsize);
- 
-       map->includes_phdrs = 0;
--      if (! phdr_included || segment->p_type != PT_LOAD)
-+      if (! phdr_included || (segment->p_type != PT_LOAD && segment->p_type != PT_MIPS_IRXHDR))
- 	{
- 	  map->includes_phdrs =
- 	    (segment->p_offset <= (bfd_vma) iehdr->e_phoff
-@@ -7389,7 +7392,7 @@
- 		 >= ((bfd_vma) iehdr->e_phoff
- 		     + iehdr->e_phnum * iehdr->e_phentsize)));
- 
--	  if (segment->p_type == PT_LOAD && map->includes_phdrs)
-+	  if ((segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR) && map->includes_phdrs)
- 	    phdr_included = TRUE;
- 	}
- 
-@@ -7565,7 +7568,7 @@
-       for (i = 0, segment = elf_tdata (ibfd)->phdr;
- 	   i < num_segments;
- 	   i++, segment++)
--	if (segment->p_type == PT_LOAD
-+	if ((segment->p_type == PT_LOAD || segment->p_type == PT_MIPS_IRXHDR)
- 	    && maxpagesize < segment->p_align)
- 	  {
- 	    /* PR 17512: file: f17299af.  */
-diff -burN binutils-2.32.orig/bfd/elflink.c binutils-2.32/bfd/elflink.c
---- binutils-2.32.orig/bfd/elflink.c	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/bfd/elflink.c	2019-05-28 09:36:28.000000000 -0500
-@@ -10938,6 +10938,15 @@
+diff -burN binutils-2.31.1.orig/bfd/elflink.c binutils-2.31.1/bfd/elflink.c
+--- binutils-2.31.1.orig/bfd/elflink.c	2018-07-13 02:33:03.000000000 -0500
++++ binutils-2.31.1/bfd/elflink.c	2019-06-20 12:49:11.000000000 -0500
+@@ -10919,6 +10919,15 @@
  
  		  last_offset = irela->r_offset;
  
@@ -321,10 +142,10 @@ diff -burN binutils-2.32.orig/bfd/elflink.c binutils-2.32/bfd/elflink.c
  		  r_symndx = irela->r_info >> r_sym_shift;
  		  if (r_symndx == STN_UNDEF)
  		    continue;
-diff -burN binutils-2.32.orig/bfd/elfxx-mips.c binutils-2.32/bfd/elfxx-mips.c
---- binutils-2.32.orig/bfd/elfxx-mips.c	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/bfd/elfxx-mips.c	2019-05-28 09:36:28.000000000 -0500
-@@ -7360,6 +7360,10 @@
+diff -burN binutils-2.31.1.orig/bfd/elfxx-mips.c binutils-2.31.1/bfd/elfxx-mips.c
+--- binutils-2.31.1.orig/bfd/elfxx-mips.c	2018-06-24 13:38:57.000000000 -0500
++++ binutils-2.31.1/bfd/elfxx-mips.c	2019-06-20 12:49:11.000000000 -0500
+@@ -7248,6 +7248,10 @@
       probably get away with this.  */
    switch (hdr->sh_type)
      {
@@ -335,7 +156,7 @@ diff -burN binutils-2.32.orig/bfd/elfxx-mips.c binutils-2.32/bfd/elfxx-mips.c
      case SHT_MIPS_LIBLIST:
        if (strcmp (name, ".liblist") != 0)
  	return FALSE;
-@@ -7543,7 +7547,27 @@
+@@ -7431,7 +7435,27 @@
  {
    const char *name = bfd_get_section_name (abfd, sec);
  
@@ -364,33 +185,33 @@ diff -burN binutils-2.32.orig/bfd/elfxx-mips.c binutils-2.32/bfd/elfxx-mips.c
      {
        hdr->sh_type = SHT_MIPS_LIBLIST;
        hdr->sh_info = sec->size / sizeof (Elf32_Lib);
-diff -burN binutils-2.32.orig/config.sub binutils-2.32/config.sub
---- binutils-2.32.orig/config.sub	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/config.sub	2019-05-28 09:36:28.000000000 -0500
-@@ -364,6 +364,10 @@
- 				basic_machine=i386-pc
- 				os=vsta
- 				;;
-+			iop)
-+				basic_machine=mipsel-scei
-+				os=irx
-+				;;
- 			isi68 | isi)
- 				basic_machine=m68k-isi
- 				os=sysv
-@@ -1363,7 +1367,7 @@
+diff -burN binutils-2.31.1.orig/config.sub binutils-2.31.1/config.sub
+--- binutils-2.31.1.orig/config.sub	2018-07-06 02:13:31.000000000 -0500
++++ binutils-2.31.1/config.sub	2019-06-20 12:49:11.000000000 -0500
+@@ -971,6 +971,10 @@
+ 		basic_machine=j90-cray
+ 		os=${os:-unicos}
+ 		;;
++	iop)
++		basic_machine=mipsel-scei
++		os=-irx
++		;;
+ 	iris | iris4d)
+ 		basic_machine=mips-sgi
+ 		case $os in
+@@ -1376,7 +1380,7 @@
  	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
  	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
  	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
--	     | midnightbsd* | amdhsa* | unleashed* | emscripten*)
-+	     | midnightbsd* | amdhsa* | unleashed* | emscripten* | irx*)
+-	     | midnightbsd*)
++	     | midnightbsd* | irx*)
  	# Remember, each alternative MUST END IN *, to match a version number.
  		;;
  	qnx*)
-diff -burN binutils-2.32.orig/gas/configure.tgt binutils-2.32/gas/configure.tgt
---- binutils-2.32.orig/gas/configure.tgt	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/gas/configure.tgt	2019-05-28 09:36:28.000000000 -0500
-@@ -315,6 +315,7 @@
+diff -burN binutils-2.31.1.orig/gas/configure.tgt binutils-2.31.1/gas/configure.tgt
+--- binutils-2.31.1.orig/gas/configure.tgt	2018-06-24 13:38:57.000000000 -0500
++++ binutils-2.31.1/gas/configure.tgt	2019-06-20 12:49:11.000000000 -0500
+@@ -310,6 +310,7 @@
    mips-*-netbsd*)			fmt=elf em=tmips ;;
    mips-*-openbsd*)			fmt=elf em=tmips ;;
    mips-*-windiss)			fmt=elf ;;
@@ -398,9 +219,9 @@ diff -burN binutils-2.32.orig/gas/configure.tgt binutils-2.32/gas/configure.tgt
  
    mmix-*-*)				fmt=elf ;;
  
-diff -burN binutils-2.32.orig/include/elf/common.h binutils-2.32/include/elf/common.h
---- binutils-2.32.orig/include/elf/common.h	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/include/elf/common.h	2019-05-28 09:36:28.000000000 -0500
+diff -burN binutils-2.31.1.orig/include/elf/common.h binutils-2.31.1/include/elf/common.h
+--- binutils-2.31.1.orig/include/elf/common.h	2018-06-24 13:38:57.000000000 -0500
++++ binutils-2.31.1/include/elf/common.h	2019-06-20 12:49:11.000000000 -0500
 @@ -97,6 +97,7 @@
  #define ET_LOOS		0xFE00	/* Operating system-specific */
  #define ET_HIOS		0xFEFF	/* Operating system-specific */
@@ -409,7 +230,7 @@ diff -burN binutils-2.32.orig/include/elf/common.h binutils-2.32/include/elf/com
  #define ET_HIPROC	0xFFFF	/* Processor-specific */
  
  /* Values for e_machine, which identifies the architecture.  These numbers
-@@ -463,6 +464,7 @@
+@@ -458,6 +459,7 @@
  #define PT_LOOS		0x60000000	/* OS-specific */
  #define PT_HIOS		0x6fffffff	/* OS-specific */
  #define PT_LOPROC	0x70000000	/* Processor-specific */
@@ -417,7 +238,7 @@ diff -burN binutils-2.32.orig/include/elf/common.h binutils-2.32/include/elf/com
  #define PT_HIPROC	0x7FFFFFFF	/* Processor-specific */
  
  #define PT_GNU_EH_FRAME	(PT_LOOS + 0x474e550) /* Frame unwind information */
-@@ -526,6 +528,7 @@
+@@ -520,6 +522,7 @@
  #define SHT_GNU_versym	SHT_SUNW_versym
  
  #define SHT_LOPROC	0x70000000	/* Processor-specific semantics, lo */
@@ -425,10 +246,10 @@ diff -burN binutils-2.32.orig/include/elf/common.h binutils-2.32/include/elf/com
  #define SHT_HIPROC	0x7FFFFFFF	/* Processor-specific semantics, hi */
  #define SHT_LOUSER	0x80000000	/* Application-specific semantics */
  /* #define SHT_HIUSER	0x8FFFFFFF    *//* Application-specific semantics */
-diff -burN binutils-2.32.orig/ld/Makefile.am binutils-2.32/ld/Makefile.am
---- binutils-2.32.orig/ld/Makefile.am	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/ld/Makefile.am	2019-05-28 09:36:28.000000000 -0500
-@@ -328,6 +328,7 @@
+diff -burN binutils-2.31.1.orig/ld/Makefile.am binutils-2.31.1/ld/Makefile.am
+--- binutils-2.31.1.orig/ld/Makefile.am	2018-06-24 13:38:57.000000000 -0500
++++ binutils-2.31.1/ld/Makefile.am	2019-06-20 12:49:11.000000000 -0500
+@@ -326,6 +326,7 @@
  	em68kelfnbsd.c \
  	em9s12zelf.c \
  	emcorepe.c \
@@ -436,20 +257,20 @@ diff -burN binutils-2.32.orig/ld/Makefile.am binutils-2.32/ld/Makefile.am
  	emn10200.c \
  	emn10300.c \
  	emsp430elf.c \
-@@ -1457,6 +1458,9 @@
+@@ -1443,6 +1444,9 @@
  emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
-   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/mcorepe.sc ${GEN_DEPENDS}
+   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
  
-+emipsirx.c: $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
++emipsirx.c:  $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
 +  $(srcdir)/emultempl/irx.em $(srcdir)/scripttempl/irx.sc ${GEN_DEPENDS}
 +
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -burN binutils-2.32.orig/ld/Makefile.in binutils-2.32/ld/Makefile.in
---- binutils-2.32.orig/ld/Makefile.in	2019-02-02 09:54:43.000000000 -0600
-+++ binutils-2.32/ld/Makefile.in	2019-05-28 09:36:28.000000000 -0500
-@@ -814,6 +814,7 @@
+diff -burN binutils-2.31.1.orig/ld/Makefile.in binutils-2.31.1/ld/Makefile.in
+--- binutils-2.31.1.orig/ld/Makefile.in	2018-07-18 02:46:21.000000000 -0500
++++ binutils-2.31.1/ld/Makefile.in	2019-06-20 12:49:11.000000000 -0500
+@@ -812,6 +812,7 @@
  	em68kelfnbsd.c \
  	em9s12zelf.c \
  	emcorepe.c \
@@ -457,7 +278,7 @@ diff -burN binutils-2.32.orig/ld/Makefile.in binutils-2.32/ld/Makefile.in
  	emn10200.c \
  	emn10300.c \
  	emsp430elf.c \
-@@ -1439,6 +1440,7 @@
+@@ -1434,6 +1435,7 @@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em68kelfnbsd.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/em9s12zelf.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emcorepe.Po@am__quote@
@@ -465,20 +286,20 @@ diff -burN binutils-2.32.orig/ld/Makefile.in binutils-2.32/ld/Makefile.in
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emmo.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10200.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emn10300.Po@am__quote@
-@@ -3061,6 +3063,9 @@
+@@ -3044,6 +3046,9 @@
  emcorepe.c: $(srcdir)/emulparams/mcorepe.sh \
-   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/mcorepe.sc ${GEN_DEPENDS}
+   $(srcdir)/emultempl/pe.em $(srcdir)/scripttempl/pe.sc ${GEN_DEPENDS}
  
-+emipsirx.c: $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
++emipsirx.c:  $(srcdir)/emulparams/mipsirx.sh $(ELF_DEPS) \
 +  $(srcdir)/emultempl/irx.em $(srcdir)/scripttempl/irx.sc ${GEN_DEPENDS}
 +
  emn10200.c: $(srcdir)/emulparams/mn10200.sh \
    $(ELF_GEN_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
  
-diff -burN binutils-2.32.orig/ld/configure.tgt binutils-2.32/ld/configure.tgt
---- binutils-2.32.orig/ld/configure.tgt	2019-01-19 10:01:33.000000000 -0600
-+++ binutils-2.32/ld/configure.tgt	2019-05-28 09:36:28.000000000 -0500
-@@ -463,6 +463,9 @@
+diff -burN binutils-2.31.1.orig/ld/configure.tgt binutils-2.31.1/ld/configure.tgt
+--- binutils-2.31.1.orig/ld/configure.tgt	2018-07-09 02:44:53.000000000 -0500
++++ binutils-2.31.1/ld/configure.tgt	2019-06-20 12:49:11.000000000 -0500
+@@ -459,6 +459,9 @@
  mips*el-*-elf*)		targ_emul=elf32elmip ;;
  mips*-*-elf* | mips*-*-rtems*)
  			targ_emul=elf32ebmip ;;
@@ -488,9 +309,9 @@ diff -burN binutils-2.32.orig/ld/configure.tgt binutils-2.32/ld/configure.tgt
  mips*el-*-vxworks*)	targ_emul=elf32elmipvxworks
  			targ_extra_emuls="elf32ebmipvxworks" ;;
  mips*-*-vxworks*)	targ_emul=elf32ebmipvxworks
-diff -burN binutils-2.32.orig/ld/emulparams/mipsirx.sh binutils-2.32/ld/emulparams/mipsirx.sh
---- binutils-2.32.orig/ld/emulparams/mipsirx.sh	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.32/ld/emulparams/mipsirx.sh	2019-05-28 09:36:28.000000000 -0500
+diff -burN binutils-2.31.1.orig/ld/emulparams/mipsirx.sh binutils-2.31.1/ld/emulparams/mipsirx.sh
+--- binutils-2.31.1.orig/ld/emulparams/mipsirx.sh	1969-12-31 18:00:00.000000000 -0600
++++ binutils-2.31.1/ld/emulparams/mipsirx.sh	2019-06-20 12:49:11.000000000 -0500
 @@ -0,0 +1,8 @@
 +SCRIPT_NAME=irx
 +OUTPUT_FORMAT="elf32-littlemips"
@@ -500,9 +321,9 @@ diff -burN binutils-2.32.orig/ld/emulparams/mipsirx.sh binutils-2.32/ld/emulpara
 +DATA_ADDR=.
 +TEMPLATE_NAME=elf32
 +EXTRA_EM_FILE=irx
-diff -burN binutils-2.32.orig/ld/emultempl/irx.em binutils-2.32/ld/emultempl/irx.em
---- binutils-2.32.orig/ld/emultempl/irx.em	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.32/ld/emultempl/irx.em	2019-05-28 09:36:28.000000000 -0500
+diff -burN binutils-2.31.1.orig/ld/emultempl/irx.em binutils-2.31.1/ld/emultempl/irx.em
+--- binutils-2.31.1.orig/ld/emultempl/irx.em	1969-12-31 18:00:00.000000000 -0600
++++ binutils-2.31.1/ld/emultempl/irx.em	2019-06-20 12:49:11.000000000 -0500
 @@ -0,0 +1,465 @@
 +fragment <<EOF
 +/* This file is is generated by a shell script.  DO NOT EDIT! */
@@ -969,9 +790,9 @@ diff -burN binutils-2.32.orig/ld/emultempl/irx.em binutils-2.32/ld/emultempl/irx
 +LDEMUL_AFTER_OPEN=irx_after_open
 +LDEMUL_AFTER_ALLOCATION=irx_after_allocation
 +LDEMUL_BEFORE_ALLOCATION=irx_before_allocation
-diff -burN binutils-2.32.orig/ld/scripttempl/irx.sc binutils-2.32/ld/scripttempl/irx.sc
---- binutils-2.32.orig/ld/scripttempl/irx.sc	1969-12-31 18:00:00.000000000 -0600
-+++ binutils-2.32/ld/scripttempl/irx.sc	2019-05-28 09:36:28.000000000 -0500
+diff -burN binutils-2.31.1.orig/ld/scripttempl/irx.sc binutils-2.31.1/ld/scripttempl/irx.sc
+--- binutils-2.31.1.orig/ld/scripttempl/irx.sc	1969-12-31 18:00:00.000000000 -0600
++++ binutils-2.31.1/ld/scripttempl/irx.sc	2019-06-20 12:49:11.000000000 -0500
 @@ -0,0 +1,126 @@
 +# Link scripts for PlayStation 2 IRXs.
 +
