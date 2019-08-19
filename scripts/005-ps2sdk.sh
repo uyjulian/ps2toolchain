@@ -39,5 +39,5 @@ ln -sf "$PS2SDKUJ/ee/startup/crt0.o"  "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/cr
 
 ## gcc needs to include both libc and libkernel from ps2sdk to be able to build executables.
 ## NOTE: There are TWO libc libraries, gcc needs to include them both.
-ln -sf "$PS2SDKUJ/ee/lib/libc.a"      "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/libc.a" || { exit 1; }
+ln -sf "$PS2SDKUJ/ee/lib/libc.a"      "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/libps2sdkc.a" || { exit 1; }
 ln -sf "$PS2SDKUJ/ee/lib/libkernel.a" "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/libkernel.a" || { exit 1; }
