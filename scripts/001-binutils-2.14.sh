@@ -15,8 +15,6 @@ cd binutils-$BINUTILS_VERSION || { exit 1; }
 if [ -e ../../patches/binutils-$BINUTILS_VERSION-PS2.patch ]; then
 	cat ../../patches/binutils-$BINUTILS_VERSION-PS2.patch | patch -p1 || { exit 1; }
 fi
-cat ../../patches/binutils-$BINUTILS_VERSION-disable-makeinfo-when-texinfo-is-too-new.patch | patch -p0 || { exit 1; }
-cat ../../patches/binutils-gas.patch | patch -p0 || { exit 1; }
 
 ## Determine the maximum number of processes that Make can work with.
 OSVER=$(uname)
@@ -37,13 +35,13 @@ for TARGET in "ee" "iop" "dvp"; do
 
 	## Configure the build.
 	if [ ${OSVER:0:6} == Darwin ]; then
-		CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld CFLAGS="-O0 -ansi -Wno-implicit-int -Wno-return-type" ../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
+		CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld CFLAGS="-O0 -ansi -Wno-implicit-int -Wno-return-type" ../configure --quiet --disable-build-warnings --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
 	else
-		../configure --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
+		../configure --quiet --disable-build-warnings --prefix="$PS2DEV/$TARGET" --target="$TARGET" || { exit 1; }
 	fi
 
 	## Compile and install.
-	make clean && make -j $PROC_NR CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" && make install && make clean || { exit 1; }
+	make --quiet clean && make --quiet -j $PROC_NR CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" && make --quiet install && make --quiet clean || { exit 1; }
 
 	## Exit the build directory.
 	cd .. || { exit 1; }
