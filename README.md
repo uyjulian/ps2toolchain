@@ -5,7 +5,7 @@ This program will automatically build and install a compiler and other tools use
 
 ## What these scripts do
 
-These scripts download (with wget) and install [binutils 2.31.1](http://www.gnu.org/software/binutils/ "binutils") (ee/iop), [gcc 9.1.0](https://gcc.gnu.org/ "gcc") (ee/iop), [newlib 3.1.0](https://sourceware.org/newlib/ "newlib") (ee), [ps2sdk](https://github.com/ps2dev/ps2sdk "ps2sdk"), and [ps2client](https://github.com/ps2dev/ps2client "ps2client").
+These scripts download (with wget) and install [binutils 2.33.1](http://www.gnu.org/software/binutils/ "binutils") (ee/iop), [gcc 9.2.0](https://gcc.gnu.org/ "gcc") (ee/iop), [newlib 3.1.0](https://sourceware.org/newlib/ "newlib") (ee), [ps2sdk](https://github.com/ps2dev/ps2sdk "ps2sdk"), and [ps2client](https://github.com/ps2dev/ps2client "ps2client").
 
 ## Requirements
 

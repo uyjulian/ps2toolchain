@@ -1,7 +1,7 @@
-diff -burN gcc-9.1.0.orig/gcc/config/mips/mips.c gcc-9.1.0/gcc/config/mips/mips.c
---- gcc-9.1.0.orig/gcc/config/mips/mips.c	2019-03-22 13:14:56.000000000 -0500
-+++ gcc-9.1.0/gcc/config/mips/mips.c	2019-05-27 22:03:27.000000000 -0500
-@@ -19927,6 +19927,11 @@
+diff -burN gcc-9.2.0.orig/gcc/config/mips/mips.c gcc-9.2.0/gcc/config/mips/mips.c
+--- gcc-9.2.0.orig/gcc/config/mips/mips.c	2019-06-17 12:27:30.000000000 -0500
++++ gcc-9.2.0/gcc/config/mips/mips.c	2019-11-03 16:54:14.318167236 -0600
+@@ -19951,6 +19951,11 @@
      error ("unsupported combination: %s",
  	   "-march=r5900 -mhard-float -mdouble-float");
  
@@ -13,9 +13,9 @@ diff -burN gcc-9.1.0.orig/gcc/config/mips/mips.c gcc-9.1.0/gcc/config/mips/mips.
    /* If a -mlong* option was given, check that it matches the ABI,
       otherwise infer the -mlong* setting from the other options.  */
    if ((target_flags_explicit & MASK_LONG64) != 0)
-diff -burN gcc-9.1.0.orig/libgcc/config/t-hardfp-sf gcc-9.1.0/libgcc/config/t-hardfp-sf
---- gcc-9.1.0.orig/libgcc/config/t-hardfp-sf	1969-12-31 18:00:00.000000000 -0600
-+++ gcc-9.1.0/libgcc/config/t-hardfp-sf	2019-05-27 22:03:27.000000000 -0500
+diff -burN gcc-9.2.0.orig/libgcc/config/t-hardfp-sf gcc-9.2.0/libgcc/config/t-hardfp-sf
+--- gcc-9.2.0.orig/libgcc/config/t-hardfp-sf	1969-12-31 18:00:00.000000000 -0600
++++ gcc-9.2.0/libgcc/config/t-hardfp-sf	2019-11-03 16:54:14.319908976 -0600
 @@ -0,0 +1,32 @@
 +# Copyright (C) 2014-2015 Free Software Foundation, Inc.
 +
@@ -49,9 +49,9 @@ diff -burN gcc-9.1.0.orig/libgcc/config/t-hardfp-sf gcc-9.1.0/libgcc/config/t-ha
 +    _fpcmp_parts_sf _compare_sf _eq_sf _ne_sf _gt_sf _ge_sf \
 +    _lt_sf _le_sf _unord_sf _si_to_sf _sf_to_si _negate_sf \
 +    _thenan_sf _sf_to_usi _usi_to_sf
-diff -burN gcc-9.1.0.orig/libgcc/config.host gcc-9.1.0/libgcc/config.host
---- gcc-9.1.0.orig/libgcc/config.host	2019-01-17 06:29:13.000000000 -0600
-+++ gcc-9.1.0/libgcc/config.host	2019-05-27 22:03:27.000000000 -0500
+diff -burN gcc-9.2.0.orig/libgcc/config.host gcc-9.2.0/libgcc/config.host
+--- gcc-9.2.0.orig/libgcc/config.host	2019-01-17 06:29:13.000000000 -0600
++++ gcc-9.2.0/libgcc/config.host	2019-11-03 16:54:14.321389632 -0600
 @@ -151,7 +151,11 @@
  	cpu_type=mips
  	tmake_file="mips/t-mips"
@@ -126,9 +126,9 @@ diff -burN gcc-9.1.0.orig/libgcc/config.host gcc-9.1.0/libgcc/config.host
  	extra_parts="$extra_parts crti.o crtn.o"
  	;;
  mips-wrs-vxworks)
-diff -burN gcc-9.1.0.orig/libgcc/configure gcc-9.1.0/libgcc/configure
---- gcc-9.1.0.orig/libgcc/configure	2018-10-31 12:03:16.000000000 -0500
-+++ gcc-9.1.0/libgcc/configure	2019-05-27 22:03:27.000000000 -0500
+diff -burN gcc-9.2.0.orig/libgcc/configure gcc-9.2.0/libgcc/configure
+--- gcc-9.2.0.orig/libgcc/configure	2018-10-31 12:03:16.000000000 -0500
++++ gcc-9.2.0/libgcc/configure	2019-11-03 16:54:14.325538617 -0600
 @@ -5036,6 +5036,48 @@
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $libgcc_cv_mips_hard_float" >&5
@@ -178,9 +178,9 @@ diff -burN gcc-9.1.0.orig/libgcc/configure gcc-9.1.0/libgcc/configure
  esac
  
  case ${host} in
-diff -burN gcc-9.1.0.orig/libgcc/configure.ac gcc-9.1.0/libgcc/configure.ac
---- gcc-9.1.0.orig/libgcc/configure.ac	2018-10-31 12:03:16.000000000 -0500
-+++ gcc-9.1.0/libgcc/configure.ac	2019-05-27 22:07:05.000000000 -0500
+diff -burN gcc-9.2.0.orig/libgcc/configure.ac gcc-9.2.0/libgcc/configure.ac
+--- gcc-9.2.0.orig/libgcc/configure.ac	2018-10-31 12:03:16.000000000 -0500
++++ gcc-9.2.0/libgcc/configure.ac	2019-11-03 16:54:14.327553501 -0600
 @@ -302,6 +302,24 @@
      ])],
      [libgcc_cv_mips_hard_float=yes],

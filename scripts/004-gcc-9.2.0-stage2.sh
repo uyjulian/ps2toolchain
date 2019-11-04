@@ -1,9 +1,9 @@
 #!/bin/bash
-# gcc-9.1.0-stage2.sh by uyjulian
+# gcc-9.2.0-stage2.sh by uyjulian
 # Based on gcc-3.2.3-stage2.sh by uyjulian
 # Based on gcc-3.2.2-stage2.sh by Dan Peori (danpeori@oopo.net)
 
-GCC_VERSION=9.1.0
+GCC_VERSION=9.2.0
 ## Download the source code.
 SOURCE=http://ftpmirror.gnu.org/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz
 wget --continue $SOURCE || { exit 1; }
