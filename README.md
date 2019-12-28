@@ -12,9 +12,9 @@ These scripts download (with wget) and install [binutils 2.33.1](http://www.gnu.
 1. Install g++, gcc/clang, make, patch, git, wget, gmp, mpc, and mpfr if you don't have those.
 
 2. Add this to your login script (example: ~/.bash_profile)  
-`export PS2DEVUJ=/usr/local/ps2devuj`  
-`export PS2SDKUJ=$PS2DEVUJ/ps2sdk`  
-`export PATH=$PATH:$PS2DEVUJ/bin:$PS2DEVUJ/ee/bin:$PS2DEVUJ/iop/bin:$PS2DEVUJ/dvp/bin:$PS2SDKUJ/bin`  
+`export PS2DEV=/usr/local/ps2dev`  
+`export PS2SDKU$PS2DEVUJ/ps2sdk`  
+`export PATH=$PATH:$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin`  
 
 3. Run toolchain.sh  
 `./toolchain.sh`

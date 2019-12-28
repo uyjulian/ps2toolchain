@@ -12,7 +12,5 @@ else
 		git reset --hard origin/master || exit 1
 fi
 
-find . -name Makefile -exec sed -i 's/\$(PS2DEV)/$(PS2DEVUJ)/g' '{}' \;
-
 ## Build and install.
 make clean && make && make install && make clean || { exit 1; }
