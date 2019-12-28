@@ -1,0 +1,76 @@
+diff -burNpd gcc-5.5.0.mmi/config.sub gcc-5.5.0.PS2/config.sub
+--- gcc-5.5.0.mmi/config.sub	2016-08-31 04:37:05.000000000 -0500
++++ gcc-5.5.0.PS2/config.sub	2019-12-27 14:51:46.331641443 -0600
+@@ -765,6 +765,10 @@ case $basic_machine in
+ 		basic_machine=i386-unknown
+ 		os=-vsta
+ 		;;
++	iop)
++		basic_machine=mipsel-scei
++		os=-irx
++		;;
+ 	iris | iris4d)
+ 		basic_machine=mips-sgi
+ 		case $os in
+@@ -1393,7 +1397,8 @@ case $os in
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+-	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos* | -phoenix*)
++	      | -skyos* | -haiku* | -rdos* | -toppers* | -drops* | -es* | -tirtos* | -phoenix* \
++	      | -irx*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	-qnx*)
+diff -burNpd gcc-5.5.0.mmi/configure gcc-5.5.0.PS2/configure
+--- gcc-5.5.0.mmi/configure	2017-01-09 15:06:20.000000000 -0600
++++ gcc-5.5.0.PS2/configure	2019-12-27 14:51:00.478399945 -0600
+@@ -3402,6 +3402,8 @@ case "${target}" in
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   powerpc*-*-linux*)
+     ;;
+   powerpc-*-darwin*)
+diff -burNpd gcc-5.5.0.mmi/configure.ac gcc-5.5.0.PS2/configure.ac
+--- gcc-5.5.0.mmi/configure.ac	2017-01-09 15:06:20.000000000 -0600
++++ gcc-5.5.0.PS2/configure.ac	2019-12-27 14:51:00.482175887 -0600
+@@ -749,6 +749,8 @@ case "${target}" in
+     ;;
+   mips*-*-linux*)
+     ;;
++  mipsel-*-irx*)
++    ;;
+   powerpc*-*-linux*)
+     ;;
+   powerpc-*-darwin*)
+diff -burNpd gcc-5.5.0.mmi/gcc/config.gcc gcc-5.5.0.PS2/gcc/config.gcc
+--- gcc-5.5.0.mmi/gcc/config.gcc	2017-01-09 15:06:20.000000000 -0600
++++ gcc-5.5.0.PS2/gcc/config.gcc	2019-12-27 14:51:00.485439568 -0600
+@@ -2175,6 +2175,11 @@ mips64r5900-*-elf* | mips64r5900el-*-elf
+ 	tmake_file="mips/t-elf"
+ 	tm_defines="${tm_defines} MIPS_ISA_DEFAULT=3 MIPS_ABI_DEFAULT=ABI_N32"
+ 	;;
++mipsel-*-irx*)
++	tm_file="dbxelf.h elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
++	tmake_file="mips/t-elf mips/dbx.h"
++	target_cpu_default=MASK_SOFT_FLOAT_ABI
++	;;
+ mips64-*-elf* | mips64el-*-elf*)
+ 	tm_file="elfos.h newlib-stdint.h ${tm_file} mips/elf.h"
+ 	tmake_file="mips/t-elf"
+diff -burNpd gcc-5.5.0.mmi/libgcc/config.host gcc-5.5.0.PS2/libgcc/config.host
+--- gcc-5.5.0.mmi/libgcc/config.host	2019-12-27 14:34:17.354019284 -0600
++++ gcc-5.5.0.PS2/libgcc/config.host	2019-12-27 14:51:00.488594893 -0600
+@@ -893,6 +893,9 @@ mips-*-elf* | mipsel-*-elf*)
+     fi
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
++mipsel-*-irx)
++	tmake_file="$tmake_file mips/t-elf"
++	;;
+ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+ 	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
+ 	extra_parts="$extra_parts crti.o crtn.o"
