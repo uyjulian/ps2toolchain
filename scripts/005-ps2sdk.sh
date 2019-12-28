@@ -7,11 +7,11 @@ unset PS2SDKSRC
 
 ## Download the source code.
 if test ! -d "ps2sdk/.git"; then
-	git clone https://github.com/ps2dev/ps2sdk && cd ps2sdk || exit 1
+	git clone https://github.com/uyjulian/ps2sdk && cd ps2sdk && git reset --hard origin/uyjworking || exit 1
 else
 	cd ps2sdk &&
 		git pull && git fetch origin &&
-		git reset --hard origin/master || exit 1
+		git reset --hard origin/uyjworking || exit 1
 fi
 
 ## Determine the maximum number of processes that Make can work with.
@@ -29,10 +29,9 @@ fi
 make --quiet clean && make --quiet && make --quiet install && make --quiet clean || { exit 1; }
 
 ## Replace newlib's crt0 with the one in ps2sdk.
-ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/lib/gcc-lib/ee/3.2.3/crt0.o" || { exit 1; }
-ln -sf "$PS2SDK/ee/startup/crt0.o"  "$PS2DEV/ee/ee/lib/crt0.o" || { exit 1; }
+ln -sf "$PS2SDKUJ/ee/startup/crt0.o"  "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/crt0.o" || { exit 1; }
 
 ## gcc needs to include both libc and libkernel from ps2sdk to be able to build executables.
 ## NOTE: There are TWO libc libraries, gcc needs to include them both.
-ln -sf "$PS2SDK/ee/lib/libc.a"      "$PS2DEV/ee/ee/lib/libps2sdkc.a" || { exit 1; }
-ln -sf "$PS2SDK/ee/lib/libkernel.a" "$PS2DEV/ee/ee/lib/libkernel.a" || { exit 1; }
+ln -sf "$PS2SDKUJ/ee/lib/libc.a"      "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/libps2sdkc.a" || { exit 1; }
+ln -sf "$PS2SDKUJ/ee/lib/libkernel.a" "$PS2DEVUJ/ee/mips64r5900el-ps2-elf/lib/libkernel.a" || { exit 1; }

@@ -1,7 +1,8 @@
 #!/bin/bash
-# newlib-1.10.0.sh by Naomi Peori (naomi@peori.ca)
+# newlib-3.1.0.sh by Julian Uy (uyjulian@gmail.com)
+# Based on newlib-1.10.0.sh by Naomi Peori (naomi@peori.ca)
 
-NEWLIB_VERSION=1.10.0
+NEWLIB_VERSION=3.1.0
 ## Download the source code.
 SOURCE=http://mirrors.kernel.org/sourceware/newlib/newlib-$NEWLIB_VERSION.tar.gz
 wget --continue $SOURCE || { exit 1; }
@@ -32,12 +33,13 @@ else
 	PROC_NR=$(nproc)
 fi
 
-TARGET="ee"
+TARG_NAME="ee"
+TARGET="mips64r5900el-ps2-elf"
 ## Create and enter the build directory.
-mkdir build-$TARGET && cd build-$TARGET || { exit 1; }
+mkdir build-$TARG_NAME && cd build-$TARG_NAME || { exit 1; }
 
 ## Configure the build.
-../configure --quiet --prefix="$PS2DEV/$TARGET" --target="$TARGET" $TARG_XTRA_OPTS || { exit 1; }
+../configure --quiet --prefix="$PS2DEV/$TARG_NAME" --target="$TARGET" $TARG_XTRA_OPTS || { exit 1; }
 
 ## Compile and install.
-make --quiet clean && CPPFLAGS="-G0" make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }
+make --quiet clean && make --quiet -j $PROC_NR && make --quiet install && make --quiet clean || { exit 1; }

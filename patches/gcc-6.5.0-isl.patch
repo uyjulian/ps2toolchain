@@ -1,0 +1,12 @@
+diff -burNpd gcc-6.5.0.orig/gcc/graphite.h gcc-6.5.0.isl/gcc/graphite.h
+--- gcc-6.5.0.orig/gcc/graphite.h	2018-08-14 10:15:39.000000000 -0500
++++ gcc-6.5.0.isl/gcc/graphite.h	2019-12-27 15:42:13.065651152 -0600
+@@ -36,6 +36,8 @@ along with GCC; see the file COPYING3.
+ #include <isl/ilp.h>
+ #include <isl/schedule.h>
+ #include <isl/ast_build.h>
++#include <isl/id.h>
++#include <isl/space.h>
+ 
+ #ifdef HAVE_ISL_OPTIONS_SET_SCHEDULE_SERIALIZE_SCCS
+ /* isl 0.15 or later.  */
