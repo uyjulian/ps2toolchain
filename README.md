@@ -17,11 +17,9 @@ This program will automatically build and install the compiler tools used in the
 
 These scripts download (with `git clone`) and install:
 
--   [binutils 2.14](http://www.gnu.org/software/binutils/ "binutils") (iop, dvp)
--   [binutils 2.35.1](http://www.gnu.org/software/binutils/ "binutils") (ee),
--   [gcc 3.2.3](https://gcc.gnu.org/ "gcc") (iop)
--   [gcc 10.2.0](https://gcc.gnu.org/ "gcc") (ee)
--   [newlib 4.0.0](https://sourceware.org/newlib/ "newlib") (ee)
+-   [ps2toolchain-dvp](https://github.com/ps2dev/ps2toolchain-dvp)
+-   [ps2toolchain-iop](https://github.com/ps2dev/ps2toolchain-iop)
+-   [ps2toolchain-ee](https://github.com/ps2dev/ps2toolchain-ee)
 
 ## Requirements
 
