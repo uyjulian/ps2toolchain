@@ -75,7 +75,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Install Ubuntu packages
       if: startsWith(matrix.os.runs-on, 'ubuntu')
@@ -94,7 +94,7 @@ jobs:
       run: |
         curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci
         . ./macports-ci install --remove-brew --version=2.11.5 --sync=rsync
-        sudo port install gsl gmp mpfr libmpc libiconv bison flex gsed texinfo autoconf automake libtool md5sha1sum wget curl
+        sudo port install gsl gmp mpfr libmpc libiconv bison flex gsed texinfo autoconf automake libtool md5sha1sum wget curl cmake
 
     - name: Install MSYS2 packages
       if: startsWith(matrix.os.runs-on, 'windows')
@@ -105,7 +105,7 @@ jobs:
           base-devel git make texinfo flex bison patch binutils mpc-devel tar wget curl
           autotools gettext gettext-devel
           mingw-w64-i686-readline mingw-w64-i686-gcc mingw-w64-i686-cmake 
-          mingw-w64-i686-make mingw-w64-i686-libogg
+          mingw-w64-i686-make mingw-w64-i686-libogg mingw-w64-i686-libgnurx
         update: true
 
     - name: Runs all the stages in the shell
@@ -127,7 +127,7 @@ jobs:
         tar -zcvf ps2dev-${{ matrix.os.runs-on }}.tar.gz ps2dev
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ github.event.repository.name }}-${{ matrix.os.runs-on }}-ps2dev-${{ matrix.os.architecture }}-${{ matrix.os.macos-package-manager }}-${{ steps.slug.outputs.sha8 }}
         path: ps2dev-${{ matrix.os.runs-on }}.tar.gz
@@ -139,7 +139,7 @@ jobs:
 
     - name: Create pre-release
       if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && github.event.repository.name == 'ps2dev' && matrix.os.macos-package-manager != 'port'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: ps2dev-${{ matrix.os.runs-on }}.tar.gz
         prerelease: true
@@ -150,7 +150,7 @@ jobs:
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/') && github.event.repository.name == 'ps2dev' && matrix.os.macos-package-manager != 'port'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: ps2dev-${{ matrix.os.runs-on }}.tar.gz
         tag_name: ${{ steps.tag.outputs.VERSION }}
