@@ -29,7 +29,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Prepare
       run: |
@@ -37,7 +37,7 @@ jobs:
         printf 'PLATFORM_PAIR=%s\n' "${platform//\//-}" >> $GITHUB_ENV
 
     - name: Login to Github Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -63,12 +63,9 @@ jobs:
     
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ghcr.io/${{ github.repository }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Build and Push to container registry
       id: build
@@ -87,7 +84,7 @@ jobs:
         touch "${{ runner.temp }}/digests/${digest#sha256:}"
 
     - name: Upload digest
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: digests-${{ env.PLATFORM_PAIR }}
         path: ${{ runner.temp }}/digests/*
@@ -107,7 +104,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Install Ubuntu packages
       run: |
@@ -115,21 +112,21 @@ jobs:
         sudo apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install jq
 
     - name: Download digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         path: ${{ runner.temp }}/digests
         pattern: digests-*
         merge-multiple: true
 
     - name: Login to DockerHub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       if: env.DOCKER_USERNAME != null
       with:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ env.DOCKER_PASSWORD }}
 
     - name: Login to Github Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -157,14 +154,14 @@ jobs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ env.DOCKER_CONTAINER_LIST }}
         tags: |
           type=raw,value=${{ env.DOCKER_TAG }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Create manifest list and push
       working-directory: ${{ runner.temp }}/digests
@@ -212,7 +209,7 @@ jobs:
         printf 'NEW_DISPATCH_ACTION=%s\n' "$DISPATCH_ACTION" >> $GITHUB_ENV
 
     - name: Repository Dispatch to ${{ matrix.dest-repo }}
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       if: env.DISPATCH_TOKEN != null && !contains(matrix.dest-repo, '/')
       with:
         repository: ${{ github.repository_owner }}/${{ matrix.dest-repo }}
@@ -221,7 +218,7 @@ jobs:
         client-payload: '{"ref": "${{ github.ref }}", "parent_name": "${{ env.PAYLOAD_REPO_PARENT_NAME }}", "parent_sha": "${{ env.PAYLOAD_REPO_PARENT_SHA }}"}'
 
     - name: Repository Dispatch to specific ${{ matrix.dest-repo }}
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       if: env.DISPATCH_TOKEN != null && contains(matrix.dest-repo, '/')
       with:
         repository: ${{ matrix.dest-repo }}
