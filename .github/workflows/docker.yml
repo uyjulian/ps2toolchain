@@ -69,12 +69,12 @@ jobs:
 
     - name: Build and Push to container registry
       id: build
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         platforms: ${{ matrix.platform.container-platform }}
         labels: ${{ steps.meta.outputs.labels }}
         tags: ghcr.io/${{ github.repository }}
-        outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+        outputs: type=image,name-canonical=true,push=true
         build-args: ${{ env.BUILD_ARGS_LIST_NEWLINES }}
 
     - name: Export digest
